@@ -11,7 +11,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>MauiAppDisertatieVacantaAI</ApplicationTitle>
+		<ApplicationTitle>Vacantion Planner AI</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.mauiappdisertatievacantaai</ApplicationId>
@@ -32,7 +32,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#8dd9ff" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#8DD9FF" BaseSize="400,400" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -48,6 +48,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Classes\DTO\" />
 	</ItemGroup>
 
 </Project>
