@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.LoginPage"
+             BackgroundColor="{StaticResource DarkGray}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <ScrollView>
+            <Grid RowDefinitions="*,Auto,*" Padding="40">
+                
+                <!-- Logo/Title Section -->
+                <StackLayout Grid.Row="1" VerticalOptions="Center" Spacing="40">
+                    
+                    <!-- App Title -->
+                    <Label Text="Vacation Planner AI" 
+                           FontSize="32" 
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource LightGray}"
+                           HorizontalOptions="Center" />
+                    
+                    <Label Text="Welcome back!" 
+                           FontSize="18" 
+                           TextColor="{StaticResource LightGray}"
+                           HorizontalOptions="Center"
+                           Opacity="0.8" />
+
+                    <!-- Login Form -->
+                    <StackLayout Spacing="20" Margin="0,40,0,0">
+                        
+                        <!-- Email Entry -->
+                        <Frame BackgroundColor="{StaticResource MediumGray}" 
+                               HasShadow="False" 
+                               CornerRadius="10"
+                               Padding="0">
+                            <Entry x:Name="EmailEntry"
+                                   Placeholder="Email"
+                                   PlaceholderColor="{StaticResource LightGray}"
+                                   TextColor="{StaticResource LightGray}"
+                                   BackgroundColor="Transparent"
+                                   Keyboard="Email"
+                                   Margin="15,10" />
+                        </Frame>
+
+                        <!-- Password Entry -->
+                        <Frame BackgroundColor="{StaticResource MediumGray}" 
+                               HasShadow="False" 
+                               CornerRadius="10"
+                               Padding="0">
+                            <Grid>
+                                <Entry x:Name="PasswordEntry"
+                                       Placeholder="Password"
+                                       PlaceholderColor="{StaticResource LightGray}"
+                                       TextColor="{StaticResource LightGray}"
+                                       BackgroundColor="Transparent"
+                                       IsPassword="True"
+                                       Margin="15,10,50,10" />
+                                <Button x:Name="ShowPasswordButton"
+                                        Text="👁"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{StaticResource LightGray}"
+                                        FontSize="18"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        HorizontalOptions="End"
+                                        VerticalOptions="Center"
+                                        Margin="0,0,10,0"
+                                        Padding="0"
+                                        Clicked="OnShowPasswordClicked" />
+                            </Grid>
+                        </Frame>
+
+                        <!-- Remember Me -->
+                        <StackLayout Orientation="Horizontal" Spacing="10">
+                            <CheckBox x:Name="RememberMeCheckBox" 
+                                      Color="{StaticResource PrimaryBlue}"
+                                      IsChecked="False" />
+                            <Label Text="Remember me" 
+                                   TextColor="{StaticResource LightGray}"
+                                   VerticalOptions="Center" />
+                        </StackLayout>
+
+                        <!-- Login Button -->
+                        <Button x:Name="LoginButton"
+                                Text="Login"
+                                BackgroundColor="{StaticResource PrimaryBlue}"
+                                TextColor="White"
+                                CornerRadius="10"
+                                HeightRequest="50"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                Clicked="OnLoginClicked" />
+
+                        <!-- Error Message -->
+                        <Label x:Name="ErrorLabel"
+                               TextColor="Red"
+                               HorizontalOptions="Center"
+                               IsVisible="False"
+                               FontSize="14" />
+
+                    </StackLayout>
+                    
+                </StackLayout>
+                
+            </Grid>
+        </ScrollView>
+
+        <!-- Loading Overlay - positioned above ScrollView -->
+        <Grid x:Name="LoadingOverlay"
+              IsVisible="False"
+              BackgroundColor="#80000000"
+              ZIndex="1000">
+            <StackLayout VerticalOptions="Center" 
+                         HorizontalOptions="Center">
+                <ActivityIndicator x:Name="LoadingIndicator"
+                                   IsRunning="True"
+                                   Color="{StaticResource PrimaryBlue}"
+                                   WidthRequest="50"
+                                   HeightRequest="50" />
+                <Label Text="Logging in..."
+                       TextColor="{StaticResource LightGray}"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0" />
+            </StackLayout>
+        </Grid>
+    </Grid>
+
+</ContentPage>

@@ -4,12 +4,60 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MauiAppDisertatieVacantaAI"
+    xmlns:pages="clr-namespace:MauiAppDisertatieVacantaAI.Pages"
     Shell.FlyoutBehavior="Flyout"
     Title="MauiAppDisertatieVacantaAI">
 
+    <!-- Flyout Header -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="{StaticResource PrimaryBlue}" HeightRequest="150">
+            <StackLayout Padding="20" VerticalOptions="Center">
+                <Label Text="Vacation Planner AI" 
+                       FontSize="20" 
+                       FontAttributes="Bold" 
+                       TextColor="White" />
+                <Label x:Name="UserNameLabel"
+                       Text="Welcome!"
+                       FontSize="14"
+                       TextColor="White"
+                       Opacity="0.8" />
+            </StackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Flyout Footer with Logout -->
+    <Shell.FlyoutFooter>
+        <StackLayout BackgroundColor="{StaticResource MediumGray}" Padding="20,10">
+            <Button Text="Logout"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource LightGray}"
+                    FontSize="16"
+                    HorizontalOptions="Start"
+                    Clicked="OnLogoutClicked" />
+        </StackLayout>
+    </Shell.FlyoutFooter>
+
+    <!-- Splash Page - First page to load -->
+    <ShellContent
+        Title="Splash"
+        ContentTemplate="{DataTemplate pages:SplashPage}"
+        Route="SplashPage"
+        Shell.FlyoutItemIsVisible="False"
+        Shell.FlyoutBehavior="Disabled" />
+
+    <!-- Login Page - Hidden from navigation -->
+    <ShellContent
+        Title="Login"
+        ContentTemplate="{DataTemplate pages:LoginPage}"
+        Route="LoginPage"
+        Shell.FlyoutItemIsVisible="False"
+        Shell.FlyoutBehavior="Disabled" />
+
+    <!-- Main Page -->
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Route="MainPage"
+        Icon="home.png" />
 
 </Shell>
