@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.SplashPage"
+             BackgroundColor="{StaticResource DarkGray}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <StackLayout VerticalOptions="Center" Spacing="40" Padding="40">
+            
+            <!-- App Logo/Title -->
+            <Label Text="Vacation Planner AI" 
+                   FontSize="36" 
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource LightGray}"
+                   HorizontalOptions="Center" />
+            
+            <!-- Status Message -->
+            <Label x:Name="StatusLabel"
+                   Text="Initializing application..."
+                   FontSize="16"
+                   TextColor="{StaticResource LightGray}"
+                   HorizontalOptions="Center"
+                   Opacity="0.8" />
+
+            <!-- Progress Bar -->
+            <StackLayout Spacing="10">
+                <ProgressBar x:Name="ProgressBar"
+                             Progress="0"
+                             ProgressColor="{StaticResource PrimaryBlue}"
+                             BackgroundColor="{StaticResource MediumGray}"
+                             HeightRequest="8" />
+                
+                <Label x:Name="ProgressLabel"
+                       Text="0%"
+                       FontSize="14"
+                       TextColor="{StaticResource LightGray}"
+                       HorizontalOptions="Center"
+                       Opacity="0.7" />
+            </StackLayout>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="True"
+                               Color="{StaticResource PrimaryBlue}"
+                               HeightRequest="50" />
+
+            <!-- Error Message -->
+            <Frame x:Name="ErrorFrame"
+                   IsVisible="False"
+                   BackgroundColor="#FF4444"
+                   CornerRadius="10"
+                   Padding="20"
+                   Margin="0,20,0,0">
+                <StackLayout>
+                    <Label Text="⚠️ Configuration Error"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="ErrorLabel"
+                           FontSize="14"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" />
+                </StackLayout>
+            </Frame>
+
+            <!-- Retry Button -->
+            <Button x:Name="RetryButton"
+                    Text="Retry"
+                    IsVisible="False"
+                    BackgroundColor="{StaticResource PrimaryBlue}"
+                    TextColor="White"
+                    CornerRadius="10"
+                    HeightRequest="45"
+                    FontSize="16"
+                    Clicked="OnRetryClicked"
+                    Margin="0,10,0,0" />
+
+        </StackLayout>
+    </Grid>
+
+</ContentPage>

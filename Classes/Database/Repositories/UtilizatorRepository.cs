@@ -47,5 +47,23 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                 _context.SaveChanges();
             }
         }
+
+        // Metode pentru autentificare
+        public Utilizator GetByEmailAndPassword(string email, string password)
+        {
+            return _context.Utilizatori
+                .FirstOrDefault(u => u.Email == email && u.Parola == password && u.EsteActiv == 1);
+        }
+
+        public bool EmailExists(string email)
+        {
+            return _context.Utilizatori.Any(u => u.Email == email);
+        }
+
+        public Utilizator GetByEmail(string email)
+        {
+            return _context.Utilizatori
+                .FirstOrDefault(u => u.Email == email && u.EsteActiv == 1);
+        }
     }
 }
