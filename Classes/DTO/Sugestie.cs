@@ -55,5 +55,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
 
         [ForeignKey("Id_Utilizator")]
         public virtual Utilizator Utilizator { get; set; }
+
     }
 }

@@ -8,29 +8,25 @@
     <Grid>
         <ScrollView>
             <Grid RowDefinitions="*,Auto,*" Padding="40">
-                
-                <!-- Logo/Title Section -->
+
                 <StackLayout Grid.Row="1" VerticalOptions="Center" Spacing="40">
-                    
-                    <!-- App Title -->
-                    <Label Text="Vacation Planner AI" 
-                           FontSize="32" 
+
+                    <Label Text="Vacation Planner AI"
+                           FontSize="32"
                            FontAttributes="Bold"
                            TextColor="{StaticResource LightGray}"
                            HorizontalOptions="Center" />
-                    
-                    <Label Text="Welcome back!" 
-                           FontSize="18" 
+
+                    <Label Text="Welcome back!"
+                           FontSize="18"
                            TextColor="{StaticResource LightGray}"
                            HorizontalOptions="Center"
                            Opacity="0.8" />
 
-                    <!-- Login Form -->
                     <StackLayout Spacing="20" Margin="0,40,0,0">
-                        
-                        <!-- Email Entry -->
-                        <Frame BackgroundColor="{StaticResource MediumGray}" 
-                               HasShadow="False" 
+
+                        <Frame BackgroundColor="{StaticResource MediumGray}"
+                               HasShadow="False"
                                CornerRadius="10"
                                Padding="0">
                             <Entry x:Name="EmailEntry"
@@ -42,9 +38,8 @@
                                    Margin="15,10" />
                         </Frame>
 
-                        <!-- Password Entry -->
-                        <Frame BackgroundColor="{StaticResource MediumGray}" 
-                               HasShadow="False" 
+                        <Frame BackgroundColor="{StaticResource MediumGray}"
+                               HasShadow="False"
                                CornerRadius="10"
                                Padding="0">
                             <Grid>
@@ -70,17 +65,15 @@
                             </Grid>
                         </Frame>
 
-                        <!-- Remember Me -->
                         <StackLayout Orientation="Horizontal" Spacing="10">
-                            <CheckBox x:Name="RememberMeCheckBox" 
+                            <CheckBox x:Name="RememberMeCheckBox"
                                       Color="{StaticResource PrimaryBlue}"
                                       IsChecked="False" />
-                            <Label Text="Remember me" 
+                            <Label Text="Remember me"
                                    TextColor="{StaticResource LightGray}"
                                    VerticalOptions="Center" />
                         </StackLayout>
 
-                        <!-- Login Button -->
                         <Button x:Name="LoginButton"
                                 Text="Login"
                                 BackgroundColor="{StaticResource PrimaryBlue}"
@@ -91,7 +84,16 @@
                                 FontAttributes="Bold"
                                 Clicked="OnLoginClicked" />
 
-                        <!-- Error Message -->
+                        <!-- Create Account Button -->
+                        <Button x:Name="CreateAccountButton"
+                                Text="Create Account"
+                                BackgroundColor="{StaticResource MediumGray}"
+                                TextColor="{StaticResource LightGray}"
+                                CornerRadius="10"
+                                HeightRequest="50"
+                                FontSize="15"
+                                Clicked="OnCreateAccountClicked" />
+
                         <Label x:Name="ErrorLabel"
                                TextColor="Red"
                                HorizontalOptions="Center"
@@ -99,18 +101,17 @@
                                FontSize="14" />
 
                     </StackLayout>
-                    
+
                 </StackLayout>
-                
+
             </Grid>
         </ScrollView>
 
-        <!-- Loading Overlay - positioned above ScrollView -->
         <Grid x:Name="LoadingOverlay"
               IsVisible="False"
               BackgroundColor="#80000000"
               ZIndex="1000">
-            <StackLayout VerticalOptions="Center" 
+            <StackLayout VerticalOptions="Center"
                          HorizontalOptions="Center">
                 <ActivityIndicator x:Name="LoadingIndicator"
                                    IsRunning="True"

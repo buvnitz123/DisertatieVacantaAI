@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace MauiAppDisertatieVacantaAI.Classes.DTO
 {
@@ -12,25 +9,22 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
     {
         [Key]
         [Column("Id_Utilizator")]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Explicit: value supplied by app
         public int Id_Utilizator { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         [Column("Nume")]
         public string Nume { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         [Column("Prenume")]
         public string Prenume { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         [Column("Email")]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(255)]
+        [Required, StringLength(255)]
         [Column("Parola")]
         public string Parola { get; set; }
 
@@ -42,8 +36,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
         [Column("Data_Nastere")]
         public DateTime Data_Nastere { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required, StringLength(50)]
         [Column("Telefon")]
         public string Telefon { get; set; }
 

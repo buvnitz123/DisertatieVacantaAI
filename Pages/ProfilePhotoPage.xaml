@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.ProfilePhotoPage"
+             Title="Profile Photo"
+             BackgroundColor="{StaticResource DarkGray}">
+    <VerticalStackLayout Padding="30,40" Spacing="18">
+        <Label Text="Add a Profile Photo" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource LightGray}" HorizontalOptions="Center" />
+        <Image x:Name="PreviewImage" HeightRequest="180" WidthRequest="180" BackgroundColor="{StaticResource MediumGray}" Aspect="AspectFill" />
+        <Label x:Name="StatusLabel" TextColor="{StaticResource LightGray}" FontSize="14" Opacity="0.8" />
+        <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" IsRunning="False" />
+        <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
+        <Button Text="Pick Image" Clicked="OnPickImageClicked" />
+        <Button Text="Skip" Clicked="OnSkipClicked" BackgroundColor="{StaticResource MediumGray}" />
+        <Button Text="Finish" Clicked="OnFinishClicked" BackgroundColor="{StaticResource PrimaryBlue}" />
+        <Button Text="Cancel" Clicked="OnCancelClicked" BackgroundColor="{StaticResource MediumGray}" />
+    </VerticalStackLayout>
+</ContentPage>

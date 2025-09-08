@@ -3,7 +3,7 @@
     x:Class="MauiAppDisertatieVacantaAI.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:MauiAppDisertatieVacantaAI"
+    xmlns:local="clr-namespace:MauiAppDisertatieVacantaAI.Pages"
     xmlns:pages="clr-namespace:MauiAppDisertatieVacantaAI.Pages"
     Shell.FlyoutBehavior="Flyout"
     Title="MauiAppDisertatieVacantaAI">
@@ -53,11 +53,47 @@
         Shell.FlyoutItemIsVisible="False"
         Shell.FlyoutBehavior="Disabled" />
 
-    <!-- Main Page -->
+    <!-- Settings Page -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage"
-        Icon="home.png" />
+        Title="Settings"
+        ContentTemplate="{DataTemplate local:SettingsPage}"
+        Route="SettingsPage"
+        Icon="settings.png" />
 
+    <TabBar>
+        <!-- Sugestii Tab -->
+        <ShellContent
+            Title="Sugestii"
+            ContentTemplate="{DataTemplate local:SugestiiPage}"
+            Route="SugestiiPage"
+            Icon="notes.png" />
+
+        <!-- Chat Tab -->
+        <ShellContent
+            Title="Chat"
+            ContentTemplate="{DataTemplate local:ChatPage}"
+            Route="ChatPage"
+            Icon="chat.png" />
+
+        <!-- Home Tab -->
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage"
+            Icon="home.png" />
+
+        <!-- Search Tab -->
+        <ShellContent
+            Title="Search"
+            ContentTemplate="{DataTemplate local:SearchPage}"
+            Route="SearchPage"
+            Icon="search.png" />
+
+        <!-- Profile Tab -->
+        <ShellContent
+            Title="Profile"
+            ContentTemplate="{DataTemplate local:ProfilePage}"
+            Route="ProfilePage"
+            Icon="profile.png" />
+    </TabBar>
 </Shell>

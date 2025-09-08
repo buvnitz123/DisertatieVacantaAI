@@ -1,8 +1,7 @@
 using System.Net.Http;
 using System.Text.Json;
-using Amazon.S3;
-using Amazon.S3.Model;
-using Amazon;
+using Azure;
+using Azure.Storage.Blobs;
 using MauiAppDisertatieVacantaAI.Classes.Config;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Library
@@ -10,7 +9,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
     public static class ApiValidator
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        
+        private const string AzureContainerName = "vacantaai";
+
         static ApiValidator()
         {
             _httpClient.Timeout = TimeSpan.FromSeconds(10);
@@ -22,96 +22,91 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
 
             try
             {
-                // Încarcă configurația criptată
-                var awsAccessKey = await EncryptionUtils.GetDecryptedAppSettingAsync("AWS.AccessKey");
-                var awsSecretKey = await EncryptionUtils.GetDecryptedAppSettingAsync("AWS.SecretKey");
+                // Decrypt required settings
+                var azureBlobConnection = await EncryptionUtils.GetDecryptedAppSettingAsync("Azure.Blob.ConnectionString");
                 var pexelsApiKey = await EncryptionUtils.GetDecryptedAppSettingAsync("pexelsAPI");
                 var dbConnectionString = await EncryptionUtils.GetDecryptedConnectionStringAsync("DbContext");
 
-                // Încarcă valorile necriptate direct din configurație
-                var config = await LoadConfigurationDirectAsync();
-                var awsRegion = config?.AppSettings?.GetValueOrDefault("AWS.Region");
-                var s3BucketName = config?.AppSettings?.GetValueOrDefault("AWS.S3.BucketName");
-
-                // Verifică dacă valorile au fost decriptate cu succes
-                if (string.IsNullOrEmpty(awsAccessKey) || string.IsNullOrEmpty(awsSecretKey) || 
-                    string.IsNullOrEmpty(pexelsApiKey) || string.IsNullOrEmpty(dbConnectionString))
+                if (string.IsNullOrEmpty(azureBlobConnection) ||
+                    string.IsNullOrEmpty(pexelsApiKey) ||
+                    string.IsNullOrEmpty(dbConnectionString))
                 {
                     result.IsValid = false;
-                    result.ErrorMessage = "Failed to decrypt configuration values. Please check your encrypted settings.";
+                    result.ErrorMessage = "Failed to decrypt one or more required configuration values (Azure Blob / Pexels / DB).";
                     return result;
                 }
 
-                // Validează AWS S3
-                var awsValid = await ValidateAwsS3Async(awsAccessKey, awsSecretKey, awsRegion, s3BucketName);
-                if (!awsValid)
+                // Azure Blob validation
+                var blobValid = await ValidateAzureBlobAsync(azureBlobConnection, AzureContainerName);
+                if (!blobValid)
                 {
                     result.IsValid = false;
-                    result.ErrorMessage = "AWS S3 validation failed. Please check your AWS configuration.";
+                    result.ErrorMessage = "Azure Blob validation failed. Check connection string or container name.";
                     return result;
                 }
 
-                // Validează Pexels API
+                // Pexels API validation
                 var pexelsValid = await ValidatePexelsApiAsync(pexelsApiKey);
                 if (!pexelsValid)
                 {
                     result.IsValid = false;
-                    result.ErrorMessage = "Pexels API validation failed. Please check your Pexels API key.";
+                    result.ErrorMessage = "Pexels API validation failed. Check API key.";
                     return result;
                 }
 
-                // Validează Database Connection
-                var databaseValid = await ValidateDatabaseConnectionAsync(dbConnectionString);
-                if (!databaseValid)
+                // Database validation
+                var dbValid = await ValidateDatabaseConnectionAsync(dbConnectionString);
+                if (!dbValid)
                 {
                     result.IsValid = false;
-                    result.ErrorMessage = "Database connection failed. Please check your database configuration.";
+                    result.ErrorMessage = "Database connection failed. Check DB configuration.";
                     return result;
                 }
 
                 result.IsValid = true;
-                result.ErrorMessage = "All API connections validated successfully.";
+                result.ErrorMessage = "All services validated successfully.";
                 return result;
             }
             catch (Exception ex)
             {
                 result.IsValid = false;
-                result.ErrorMessage = $"API validation error: {ex.Message}";
+                result.ErrorMessage = $"Validation error: {ex.Message}";
                 return result;
             }
         }
 
-        private static async Task<bool> ValidateAwsS3Async(string accessKey, string secretKey, string region, string bucketName)
+        private static async Task<bool> ValidateAzureBlobAsync(string connectionString, string containerName)
         {
             try
             {
-                if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
-                    return false;
+                var serviceClient = new BlobServiceClient(connectionString);
+                var containerClient = serviceClient.GetBlobContainerClient(containerName);
 
-                // Creează client S3
-                var regionEndpoint = RegionEndpoint.GetBySystemName(region ?? "us-east-1");
-                using var s3Client = new AmazonS3Client(accessKey, secretKey, regionEndpoint);
-
-                // Testează conexiunea prin listarea bucket-urilor
-                var listBucketsRequest = new ListBucketsRequest();
-                var response = await s3Client.ListBucketsAsync(listBucketsRequest);
-
-                // Verifică dacă bucket-ul specificat există
-                if (!string.IsNullOrEmpty(bucketName))
+                // Simple existence check (does not create)
+                var exists = await containerClient.ExistsAsync();
+                if (!exists)
                 {
-                    var bucketExists = response.Buckets.Any(b => b.BucketName == bucketName);
-                    if (!bucketExists)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"S3 Bucket '{bucketName}' not found");
-                        return false;
-                    }
+                    System.Diagnostics.Debug.WriteLine($"[AzureBlob] Container '{containerName}' not found.");
+                    return false;
+                }
+
+                // Lightweight list to confirm access (limit to 1)
+                await using var enumerator = containerClient.GetBlobsAsync().GetAsyncEnumerator();
+                if (await enumerator.MoveNextAsync())
+                {
+                    // At least one blob exists or access is confirmed
                 }
 
                 return true;
             }
+            catch (RequestFailedException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AzureBlob] Request failed: {ex.ErrorCode} - {ex.Message}");
+                return false;
+            }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"AWS S3 validation error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[AzureBlob] Validation error: {ex.Message}");
                 return false;
             }
         }
@@ -120,19 +115,18 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
         {
             try
             {
-                if (string.IsNullOrEmpty(apiKey) || apiKey.Length < 10)
+                if (string.IsNullOrWhiteSpace(apiKey) || apiKey.Length < 10)
                     return false;
 
-                // Testează API-ul Pexels cu un request simplu
-                var request = new HttpRequestMessage(HttpMethod.Get, "https://api.pexels.com/v1/search?query=nature&per_page=1");
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://api.pexels.com/v1/search?query=test&per_page=1");
                 request.Headers.Add("Authorization", apiKey);
 
-                var response = await _httpClient.SendAsync(request);
+                using var response = await _httpClient.SendAsync(request);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Pexels API validation error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[Pexels] Validation error: {ex.Message}");
                 return false;
             }
         }
@@ -144,22 +138,21 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
                 if (string.IsNullOrEmpty(connectionString))
                     return false;
 
-                // Test conexiune prin Entity Framework
                 using (var context = new MauiAppDisertatieVacantaAI.Classes.Database.AppContext())
                 {
-                    // Testează conexiunea prin încercarea de a accesa baza de date
                     var canConnect = await Task.Run(() => context.Database.Exists());
                     return canConnect;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Database validation error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[DB] Validation error: {ex.Message}");
                 return false;
             }
         }
 
-        private static async Task<ConfigurationData> LoadConfigurationDirectAsync()
+        // (Still used for any future direct config access if needed)
+        private static async Task<ConfigurationData?> LoadConfigurationDirectAsync()
         {
             try
             {
@@ -170,7 +163,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load configuration: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Config load failed: {ex.Message}");
                 return null;
             }
         }

@@ -29,7 +29,7 @@ public partial class LoginPage : ContentPage
         try
         {
             // Add small delay to see loading indicator
-            await Task.Delay(500);
+            await Task.Delay(300);
             
             // Autentificare cu Entity Framework
             var user = _utilizatorRepository.GetByEmailAndPassword(EmailEntry.Text.Trim(), PasswordEntry.Text);
@@ -62,6 +62,11 @@ public partial class LoginPage : ContentPage
             SetLoadingState(false);
             System.Diagnostics.Debug.WriteLine("Loading state set to FALSE");
         }
+    }
+
+    private async void OnCreateAccountClicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(RegisterPage));
     }
 
     private void SetLoadingState(bool isLoading)

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.RegisterPage"
+             Title="Create Account"
+             BackgroundColor="{StaticResource DarkGray}">
+    <ScrollView>
+        <VerticalStackLayout Padding="30,40" Spacing="18">
+            <Label Text="Create Account" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource LightGray}" HorizontalOptions="Center" />
+            <Entry x:Name="NumeEntry" Placeholder="First Name (Nume)" />
+            <Entry x:Name="PrenumeEntry" Placeholder="Last Name (Prenume)" />
+            <Entry x:Name="EmailEntry" Placeholder="Email" Keyboard="Email" />
+            <Entry x:Name="TelefonEntry" Placeholder="Phone" Keyboard="Telephone" />
+            <DatePicker x:Name="DataNasterePicker" />
+            <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" />
+            <Entry x:Name="ConfirmPasswordEntry" Placeholder="Confirm Password" IsPassword="True" />
+            <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
+            <ActivityIndicator x:Name="BusyIndicator" IsRunning="False" IsVisible="False" />
+            <Button Text="Continue" Clicked="OnContinueClicked" BackgroundColor="{StaticResource PrimaryBlue}" />
+            <Button Text="Cancel" Clicked="OnCancelClicked" BackgroundColor="{StaticResource MediumGray}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

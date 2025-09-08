@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using MauiAppDisertatieVacantaAI.Classes.DTO;
+using System.Diagnostics;
 
-namespace MauiAppDisertatieVacantaAI
+namespace MauiAppDisertatieVacantaAI.Pages
 {
     public partial class MainPage : ContentPage
     {
@@ -17,6 +18,7 @@ namespace MauiAppDisertatieVacantaAI
             try
             {
                 string userName = await SecureStorage.GetAsync("UserName");
+
                 if (!string.IsNullOrEmpty(userName))
                 {
                     WelcomeLabel.Text = $"Welcome back, {userName}!";
