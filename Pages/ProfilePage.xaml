@@ -2,11 +2,43 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.ProfilePage"
-             Title="ProfilePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to Profile Page"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Profil"
+             BackgroundColor="{StaticResource DarkGray}">
+    <ScrollView>
+        <VerticalStackLayout Padding="30,40" Spacing="28">
+            <!-- Photo -->
+            <Grid HorizontalOptions="Center">
+                <Border Stroke="{StaticResource PrimaryBlue}" StrokeThickness="2" WidthRequest="160" HeightRequest="160">
+                    <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                    <Grid>
+                        <Image x:Name="ProfileImage" Aspect="AspectFill" />
+                        <Label x:Name="InitialsLabel" Text="?" TextColor="White" FontSize="48" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                <Label x:Name="NameLabel" FontSize="26" FontAttributes="Bold" TextColor="{StaticResource LightGray}" HorizontalTextAlignment="Center" />
+                <Label x:Name="EmailLabel" FontSize="14" TextColor="{StaticResource LightGray}" Opacity="0.8" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4">
+                <Label Text="Telefon" TextColor="{StaticResource LightGray}" />
+                <Label x:Name="PhoneValue" Grid.Column="1" TextColor="{StaticResource LightGray}" />
+                <Label Grid.Row="1" Text="Data nasterii" TextColor="{StaticResource LightGray}" />
+                <Label x:Name="BirthValue" Grid.Row="1" Grid.Column="1" TextColor="{StaticResource LightGray}" />
+                <Label Grid.Row="2" Text="Status" TextColor="{StaticResource LightGray}" />
+                <Label x:Name="StatusValue" Grid.Row="2" Grid.Column="1" TextColor="{StaticResource LightGray}" />
+            </Grid>
+
+            <Frame BackgroundColor="{StaticResource MediumGray}" Padding="18" CornerRadius="16">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Despre" FontAttributes="Bold" TextColor="{StaticResource LightGray}" />
+                    <Label x:Name="AboutLabel" Text="Cont creat in aplicatie." TextColor="{StaticResource LightGray}" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Editeaza profil" x:Name="EditButton" Clicked="OnEditProfile" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
