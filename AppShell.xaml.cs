@@ -9,7 +9,9 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // Auth / onboarding flow pages (not Shell roots)
-        Routing.RegisterRoute(nameof(RegisterPage), typeof(RegisterPage));
+        Routing.RegisterRoute(nameof(RegisterNamePage), typeof(RegisterNamePage));
+        Routing.RegisterRoute(nameof(RegisterContactPage), typeof(RegisterContactPage));
+        Routing.RegisterRoute(nameof(RegisterBirthPage), typeof(RegisterBirthPage));
         Routing.RegisterRoute(nameof(ProfilePhotoPage), typeof(ProfilePhotoPage));
         Routing.RegisterRoute(nameof(WelcomePage), typeof(WelcomePage));
     }

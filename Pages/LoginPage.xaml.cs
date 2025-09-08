@@ -66,7 +66,7 @@ public partial class LoginPage : ContentPage
 
     private async void OnCreateAccountClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(RegisterPage));
+        await Shell.Current.GoToAsync(nameof(RegisterNamePage));
     }
 
     private void SetLoadingState(bool isLoading)

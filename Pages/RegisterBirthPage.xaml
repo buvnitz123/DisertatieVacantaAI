@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.RegisterBirthPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{StaticResource DarkGray}">
+    <VerticalStackLayout Padding="30,60" Spacing="24">
+        <Label Text="Perfect!" FontSize="32" FontAttributes="Bold" TextColor="{StaticResource LightGray}" />
+        <Label Text="Selecteaza data nasterii." TextColor="{StaticResource LightGray}" Opacity="0.8" />
+        <Frame BackgroundColor="{StaticResource MediumGray}" CornerRadius="14" Padding="10">
+            <DatePicker x:Name="BirthDatePicker" TextColor="White" />
+        </Frame>
+        <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
+        <HorizontalStackLayout Spacing="12">
+            <Button Text="Inapoi" Clicked="OnBack" BackgroundColor="{StaticResource MediumGray}" TextColor="{StaticResource LightGray}" />
+            <Button Text="Continua" Clicked="OnNext" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
+        </HorizontalStackLayout>
+        <Button Text="Renunta" Clicked="OnCancel" BackgroundColor="Transparent" TextColor="{StaticResource LightGray}" />
+    </VerticalStackLayout>
+</ContentPage>

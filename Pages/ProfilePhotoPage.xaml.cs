@@ -16,6 +16,17 @@ public partial class ProfilePhotoPage : ContentPage
     {
         InitializeComponent();
         _repo = new UtilizatorRepository();
+        var tap = new TapGestureRecognizer();
+        tap.Tapped += OnPickImageTapped;
+        PreviewImage.GestureRecognizers.Add(tap);
+        TapHint.GestureRecognizers.Add(tap);
+
+#if ANDROID || IOS || MACCATALYST || WINDOWS
+        var longPress = new TapGestureRecognizer { NumberOfTapsRequired = 2 }; // simulate long by double tap
+        longPress.Tapped += OnCaptureImageTapped;
+        PreviewImage.GestureRecognizers.Add(longPress);
+        TapHint.GestureRecognizers.Add(longPress);
+#endif
     }
 
     protected override void OnAppearing()
@@ -31,9 +42,40 @@ public partial class ProfilePhotoPage : ContentPage
         }
     }
 
-    private async void OnPickImageClicked(object sender, EventArgs e)
+    private async void OnPickImageTapped(object sender, EventArgs e)
     {
         if (_isBusy) return;
+        await PickImageAsync();
+    }
+
+    private async void OnCaptureImageTapped(object sender, EventArgs e)
+    {
+#if ANDROID || IOS || MACCATALYST
+        if (_isBusy) return;
+        HideError();
+        try
+        {
+            var photo = await MediaPicker.Default.CapturePhotoAsync();
+            if (photo != null)
+            {
+                using var stream = await photo.OpenReadAsync();
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                _pendingImageBytes = ms.ToArray();
+                PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(_pendingImageBytes));
+                TapHint.IsVisible = false;
+                StatusLabel.Text = "Imagine capturat?.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Camera error: {ex.Message}");
+        }
+#endif
+    }
+
+    private async Task PickImageAsync()
+    {
         HideError();
 #if ANDROID || IOS || MACCATALYST || WINDOWS
         try
@@ -41,7 +83,7 @@ public partial class ProfilePhotoPage : ContentPage
             var result = await FilePicker.PickAsync(new PickOptions
             {
                 FileTypes = FilePickerFileType.Images,
-                PickerTitle = "Select profile image"
+                PickerTitle = "Selecteaz? imagine"
             });
 
             if (result != null)
@@ -51,7 +93,8 @@ public partial class ProfilePhotoPage : ContentPage
                 await stream.CopyToAsync(ms);
                 _pendingImageBytes = ms.ToArray();
                 PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(_pendingImageBytes));
-                StatusLabel.Text = "Image ready to upload.";
+                TapHint.IsVisible = false;
+                StatusLabel.Text = "Imagine preg?tit?.";
             }
         }
         catch (Exception ex)
@@ -90,13 +133,11 @@ public partial class ProfilePhotoPage : ContentPage
         try
         {
             SetBusy(true);
-
             var draft = RegistrationSession.Draft;
 
-            // LAST second duplicate email guard
             if (_repo.EmailExists(draft.Email))
             {
-                ShowError("Email already exists (just registered?).");
+                ShowError("Email already exists.");
                 return;
             }
 
@@ -108,11 +149,10 @@ public partial class ProfilePhotoPage : ContentPage
             {
                 try
                 {
-                    // Store only relative path (short)
                     var fileName = $"profiles/profile_{newId}.jpg";
                     var contentType = S3Utils.GetContentTypeFromFileName("profile.jpg");
                     var _ = await S3Utils.UploadImageAsync(_pendingImageBytes, fileName, contentType);
-                    photoRelativePath = fileName; // store only relative path
+                    photoRelativePath = fileName;
                 }
                 catch (Exception ex)
                 {
@@ -127,9 +167,9 @@ public partial class ProfilePhotoPage : ContentPage
                 Nume = draft.Nume,
                 Prenume = draft.Prenume,
                 Email = draft.Email,
-                Parola = draft.Parola, // TODO: hash
+                Parola = EncryptionUtils.Encrypt(draft.Parola),
                 PozaProfil = photoRelativePath,
-                Data_Nastere = draft.DataNastere,
+                Data_Nastere = draft.DataNastere ?? new DateTime(2000,1,1),
                 Telefon = draft.Telefon,
                 EsteActiv = 1
             };

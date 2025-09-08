@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Interfaces;
+using MauiAppDisertatieVacantaAI.Classes.Library; // added
 
 namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
@@ -51,8 +52,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         {
             var baseDate = new System.DateTime(2024, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
             int candidate = (int)(System.DateTime.UtcNow - baseDate).TotalSeconds;
-
-            // Resolve collisions by incrementing until free
             int attempt = candidate;
             int safety = 0;
             while (GetById(attempt) != null)
@@ -65,11 +64,15 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             return attempt;
         }
 
-        // Existing dummy login
+        // Encrypted password login (fallback to legacy plain)
         public Utilizator GetByEmailAndPassword(string email, string password)
         {
+            string encrypted = EncryptionUtils.Encrypt(password);
             return _context.Utilizatori
-                .FirstOrDefault(u => u.Email == email && u.Parola == password && u.EsteActiv == 1);
+                .FirstOrDefault(u =>
+                    u.Email == email &&
+                    u.EsteActiv == 1 &&
+                    (u.Parola == encrypted || u.Parola == password)); // fallback for old records
         }
     }
 }
