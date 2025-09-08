@@ -47,5 +47,15 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                 _context.SaveChanges();
             }
         }
+
+        // New: get suggestions for a specific user including destination and ordered by date desc
+        public IEnumerable<Sugestie> GetByUser(int userId)
+        {
+            return _context.Sugestii
+                .Include(s => s.Destinatie)
+                .Where(s => s.Id_Utilizator == userId)
+                .OrderByDescending(s => s.Data_Inregistrare)
+                .ToList();
+        }
     }
 }

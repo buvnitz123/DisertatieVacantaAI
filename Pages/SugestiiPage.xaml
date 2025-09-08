@@ -2,283 +2,43 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SugestiiPage"
-             Title="SugestiiPage"
+             Title="Sugestii"
              BackgroundColor="{StaticResource DarkGray}">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
+    <Grid RowDefinitions="Auto,*">
         <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" 
-                           Padding="30,20,30,10"
-                           Spacing="10">
-            <Label Text="Sugestiile Tale"
-                   FontSize="28"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource LightGray}"
-                   HorizontalOptions="Center" />
-
-            <Label Text="Planuri de vacanță personalizate"
-                   FontSize="16"
-                   TextColor="{StaticResource LightGray}"
-                   HorizontalOptions="Center"
-                   Opacity="0.8" />
+        <VerticalStackLayout Padding="30,20,30,10" Spacing="6">
+            <Label Text="Sugestiile Tale" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource LightGray}" HorizontalOptions="Center" />
+            <Label Text="Planuri de vacanta personalizate" FontSize="16" TextColor="{StaticResource LightGray}" Opacity="0.8" HorizontalOptions="Center" />
         </VerticalStackLayout>
 
-        <!-- Lista de sugestii DUMMY -->
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="20,10" Spacing="15">
-
-                <!-- Sugestie 1 -->
-                <Border BackgroundColor="{StaticResource MediumGray}"
-                       Stroke="{StaticResource LightGray}"
-                       StrokeThickness="0.5"
-                       Padding="20,15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Vacanță la Mare în Grecia"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource LightGray}" />
-
-                        <Label Text="Santorini, Fira - Grecia"
-                               TextColor="{StaticResource PrimaryBlue}"
-                               FontSize="14"
-                               FontAttributes="Italic" />
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Column="0"
-                                   Text="Buget: 2,500 €"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="13"
-                                   Opacity="0.8" />
-
-                            <Label Grid.Column="1"
-                                   Text="15/03/2024"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="12"
-                                   Opacity="0.6" />
-                        </Grid>
+        <Grid Grid.Row="1">
+            <CollectionView x:Name="SugestiiCollection" ItemsSource="{Binding}" SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="40" Spacing="16" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Nu exista sugestii inca." TextColor="{StaticResource LightGray}" FontSize="18" HorizontalOptions="Center" />
+                        <Label Text="Cere aplicatiei sa genereze o sugestie sau adauga una manual." TextColor="{StaticResource LightGray}" FontSize="14" Opacity="0.7" HorizontalOptions="Center" />
                     </VerticalStackLayout>
-                </Border>
-
-                <!-- Sugestie 2 -->
-                <Border BackgroundColor="{StaticResource MediumGray}"
-                       Stroke="{StaticResource LightGray}"
-                       StrokeThickness="0.5"
-                       Padding="20,15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Weekend în Paris"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource LightGray}" />
-
-                        <Label Text="Paris, Paris - Franța"
-                               TextColor="{StaticResource PrimaryBlue}"
-                               FontSize="14"
-                               FontAttributes="Italic" />
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Column="0"
-                                   Text="Buget: 1,200 €"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="13"
-                                   Opacity="0.8" />
-
-                            <Label Grid.Column="1"
-                                   Text="10/03/2024"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="12"
-                                   Opacity="0.6" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- Sugestie 3 -->
-                <Border BackgroundColor="{StaticResource MediumGray}"
-                       Stroke="{StaticResource LightGray}"
-                       StrokeThickness="0.5"
-                       Padding="20,15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Aventură în Munții Carpați"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource LightGray}" />
-
-                        <Label Text="Brașov, Brașov - România"
-                               TextColor="{StaticResource PrimaryBlue}"
-                               FontSize="14"
-                               FontAttributes="Italic" />
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Column="0"
-                                   Text="Buget: 800 €"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="13"
-                                   Opacity="0.8" />
-
-                            <Label Grid.Column="1"
-                                   Text="08/03/2024"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="12"
-                                   Opacity="0.6" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- Sugestie 4 -->
-                <Border BackgroundColor="{StaticResource MediumGray}"
-                       Stroke="{StaticResource LightGray}"
-                       StrokeThickness="0.5"
-                       Padding="20,15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="City Break în Viena"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource LightGray}" />
-
-                        <Label Text="Viena, Viena - Austria"
-                               TextColor="{StaticResource PrimaryBlue}"
-                               FontSize="14"
-                               FontAttributes="Italic" />
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Column="0"
-                                   Text="Buget: 1,000 €"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="13"
-                                   Opacity="0.8" />
-
-                            <Label Grid.Column="1"
-                                   Text="05/03/2024"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="12"
-                                   Opacity="0.6" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- Sugestie 5 -->
-                <Border BackgroundColor="{StaticResource MediumGray}"
-                       Stroke="{StaticResource LightGray}"
-                       StrokeThickness="0.5"
-                       Padding="20,15">
-
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Relaxare în Bali"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{StaticResource LightGray}" />
-
-                        <Label Text="Ubud, Bali - Indonezia"
-                               TextColor="{StaticResource PrimaryBlue}"
-                               FontSize="14"
-                               FontAttributes="Italic" />
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Column="0"
-                                   Text="Buget: 3,200 €"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="13"
-                                   Opacity="0.8" />
-
-                            <Label Grid.Column="1"
-                                   Text="01/03/2024"
-                                   TextColor="{StaticResource LightGray}"
-                                   FontSize="12"
-                                   Opacity="0.6" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border BackgroundColor="{StaticResource MediumGray}"
-       Stroke="{StaticResource LightGray}"
-       StrokeThickness="0.5"
-       Padding="20,15">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10" />
-                    </Border.StrokeShape>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="Relaxare în Bali"
-               FontSize="18"
-               FontAttributes="Bold"
-               TextColor="{StaticResource LightGray}" />
-
-                        <Label Text="Ubud, Bali - Indonezia"
-               TextColor="{StaticResource PrimaryBlue}"
-               FontSize="14"
-               FontAttributes="Italic" />
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Grid.Column="0"
-                   Text="Buget: 3,200 €"
-                   TextColor="{StaticResource LightGray}"
-                   FontSize="13"
-                   Opacity="0.8" />
-
-                            <Label Grid.Column="1"
-                   Text="01/03/2024"
-                   TextColor="{StaticResource LightGray}"
-                   FontSize="12"
-                   Opacity="0.6" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-            </VerticalStackLayout>
-        </ScrollView>
-
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border BackgroundColor="{StaticResource MediumGray}" Stroke="{StaticResource LightGray}" StrokeThickness="0.5" Padding="18,14" Margin="16,8">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{Binding Titlu}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource LightGray}" />
+                                <Label Text="{Binding Destinatie.Denumire}" FontSize="14" TextColor="{StaticResource PrimaryBlue}" FontAttributes="Italic" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding Buget_Estimat, StringFormat='Buget: {0:C}'}" FontSize="13" TextColor="{StaticResource LightGray}" Opacity="0.85" />
+                                    <Label Grid.Column="1" Text="{Binding Data_Inregistrare, StringFormat='{0:dd/MM/yyyy}'}" FontSize="12" TextColor="{StaticResource LightGray}" Opacity="0.6" />
+                                </Grid>
+                                <Label Text="{Binding Descriere}" FontSize="12" TextColor="{StaticResource LightGray}" LineBreakMode="TailTruncation" MaxLines="3" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <ActivityIndicator x:Name="LoadingIndicator" IsRunning="True" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource PrimaryBlue}" />
+        </Grid>
     </Grid>
 </ContentPage>
