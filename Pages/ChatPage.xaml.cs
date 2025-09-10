@@ -1,8 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using Microsoft.Maui.Animations;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -11,11 +9,9 @@ public class ChatMessage : INotifyPropertyChanged
     public string Text { get; set; }
     public bool IsUser { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.Now;
-
     public string TimeString => Timestamp.ToString("HH:mm");
-    public string BubbleColor => IsUser ? (Application.Current?.Resources["PrimaryBlue"] as Color)?.ToHex() ?? "#2196F3" : "#444444";
+    public string BubbleColor => IsUser ? (Application.Current?.Resources["PrimaryBlue"] as Color)?.ToHex() ?? "#0092ca" : "#444444";
     public LayoutOptions HorizontalAlignment => IsUser ? LayoutOptions.End : LayoutOptions.Start;
-
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
@@ -28,8 +24,7 @@ public partial class ChatPage : ContentPage
     {
         InitializeComponent();
         MessagesView.BindingContext = _messages;
-        // Intro bot message
-        _messages.Add(new ChatMessage { Text = "Salut! Spune-mi orice – raspunsurile AI vin in curand.", IsUser = false });
+        _messages.Add(new ChatMessage { Text = "Salut! Spune-mi orice - raspunsurile AI vin in curand.", IsUser = false });
     }
 
     private async void OnSendClicked(object sender, EventArgs e)
@@ -40,7 +35,6 @@ public partial class ChatPage : ContentPage
         MessageEntry.Text = string.Empty;
         AddMessageAnimated(new ChatMessage { Text = text, IsUser = true });
 
-        // Simulated thinking delay
         await Task.Delay(600);
         AddMessageAnimated(new ChatMessage { Text = "Coming soon, stay tuned", IsUser = false });
     }
@@ -48,7 +42,6 @@ public partial class ChatPage : ContentPage
     private void AddMessageAnimated(ChatMessage msg)
     {
         _messages.Add(msg);
-        // Scroll to last
         MessagesView.ScrollTo(msg, position: ScrollToPosition.End, animate: true);
     }
 }

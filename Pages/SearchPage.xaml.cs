@@ -20,6 +20,13 @@ public partial class SearchPage : ContentPage
         InitializeComponent();
         ResultsView.ItemsSource = _results;
         SeedDummy();
+        HighlightFilters();
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        HighlightFilters();
     }
 
     private void SeedDummy()
@@ -43,16 +50,36 @@ public partial class SearchPage : ContentPage
                 "Sugestii" => "Sugestii",
                 _ => "All"
             };
-            UpdateFilterButtons();
+            HighlightFilters();
             ExecuteSearch(SearchEntry.Text);
         }
     }
 
-    private void UpdateFilterButtons()
+    private void HighlightFilters()
     {
-        AllFilter.BackgroundColor = _activeFilter == "All" ? (Color)Application.Current.Resources["PrimaryBlue"] : (Color)Application.Current.Resources["MediumGray"];
-        DestFilter.BackgroundColor = _activeFilter == "Destinatii" ? (Color)Application.Current.Resources["PrimaryBlue"] : (Color)Application.Current.Resources["MediumGray"];
-        SugFilter.BackgroundColor = _activeFilter == "Sugestii" ? (Color)Application.Current.Resources["PrimaryBlue"] : (Color)Application.Current.Resources["MediumGray"];
+        // Active = PrimaryBlue + White text, inactive revert to themed background from XAML
+        AllFilter.BackgroundColor = _activeFilter == "All" ? (Color)Application.Current.Resources["PrimaryBlue"] : GetInactiveBg(AllFilter.Text);
+        DestFilter.BackgroundColor = _activeFilter == "Destinatii" ? (Color)Application.Current.Resources["PrimaryBlue"] : GetInactiveBg(DestFilter.Text);
+        SugFilter.BackgroundColor = _activeFilter == "Sugestii" ? (Color)Application.Current.Resources["PrimaryBlue"] : GetInactiveBg(SugFilter.Text);
+
+        AllFilter.TextColor = _activeFilter == "All" ? Colors.White : GetInactiveText();
+        DestFilter.TextColor = _activeFilter == "Destinatii" ? Colors.White : GetInactiveText();
+        SugFilter.TextColor = _activeFilter == "Sugestii" ? Colors.White : GetInactiveText();
+    }
+
+    private Color GetInactiveBg(string key)
+    {
+        // Use theme binding equivalents: LightGray for light, MediumGray for dark
+        return Application.Current.UserAppTheme == AppTheme.Dark
+            ? (Color)Application.Current.Resources["MediumGray"]
+            : (Color)Application.Current.Resources["LightGray"];
+    }
+
+    private Color GetInactiveText()
+    {
+        return Application.Current.UserAppTheme == AppTheme.Dark
+            ? (Color)Application.Current.Resources["LightGray"]
+            : (Color)Application.Current.Resources["DarkGray"];
     }
 
     private void OnSearch(object sender, EventArgs e)
@@ -66,7 +93,7 @@ public partial class SearchPage : ContentPage
         if (string.IsNullOrWhiteSpace(query)) return;
         var q = query.Trim().ToLowerInvariant();
         var filtered = _all.Where(i =>
-            ( _activeFilter == "All" || i.Type == _activeFilter ) &&
+            (_activeFilter == "All" || i.Type == _activeFilter) &&
             (i.Title.ToLowerInvariant().Contains(q) || i.Subtitle.ToLowerInvariant().Contains(q))
         );
         foreach (var item in filtered)

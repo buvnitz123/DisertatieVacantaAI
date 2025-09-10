@@ -10,10 +10,10 @@
     <Color x:Key="PrimaryBlue">#0092ca</Color>
     <Color x:Key="LightGray">#eeeeee</Color>
 
-    <!-- Additional derived colors -->
-    <Color x:Key="TabUnselectedDark">#B0EEEEEE</Color> <!-- ~69% opacity light gray for dark mode unselected icons -->
+    <!-- Increased opacity for dark unselected (was #B0EEEEEE) -->
+    <Color x:Key="TabUnselectedDark">#DDFFFFFF</Color>
 
-    <!-- Basic neutrals still used for text/background contrast -->
+    <!-- Basic neutrals -->
     <Color x:Key="White">#FFFFFF</Color>
     <Color x:Key="Black">#000000</Color>
 

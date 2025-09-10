@@ -5,8 +5,8 @@
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
              Shell.NavBarIsVisible="False">
     <VerticalStackLayout Padding="30,60" Spacing="24">
-        <Label Text="Alege o poză de profil" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        <Label Text="Poți sări acest pas dacă dorești." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.7" />
+        <Label Text="Alege o poza de profil" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+        <Label Text="Poti sari acest pas daca doresti." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.7" />
         <Grid HorizontalOptions="Center" VerticalOptions="Center">
             <Border Stroke="{StaticResource PrimaryBlue}" StrokeThickness="2" WidthRequest="180" HeightRequest="180">
                 <Border.StrokeShape>
@@ -14,7 +14,8 @@
                 </Border.StrokeShape>
                 <Grid>
                     <Image x:Name="PreviewImage" Aspect="AspectFill" />
-                    <Label x:Name="TapHint" Text="Tap pentru a selecta\nȚine apăsat pt cameră" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+                    <Label x:Name="TapHint" Text="Tap pentru a selecta
+Tine apasat pt camera" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
                 </Grid>
             </Border>
         </Grid>
@@ -23,8 +24,8 @@
         <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
         <HorizontalStackLayout Spacing="12">
             <Button Text="Sari" Clicked="OnSkipClicked" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-            <Button Text="Finalizează" Clicked="OnFinishClicked" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
+            <Button Text="Finalizeaza" Clicked="OnFinishClicked" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
         </HorizontalStackLayout>
-        <Button Text="Renunță" Clicked="OnCancelClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+        <Button Text="Renunta" Clicked="OnCancelClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
     </VerticalStackLayout>
 </ContentPage>

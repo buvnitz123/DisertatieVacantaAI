@@ -16,18 +16,16 @@ public partial class SettingsPage : ContentPage
 		ThemeSwitch.Toggled -= OnThemeToggled; // prevent double firing
 		ThemeSwitch.IsToggled = pref == "dark";
 		ThemeSwitch.Toggled += OnThemeToggled;
-		UpdateThemeStatus();
 	}
 
 	private void OnThemeToggled(object sender, ToggledEventArgs e)
 	{
 		var mode = e.Value ? "dark" : "light";
 		App.SetTheme(mode);
-		UpdateThemeStatus();
 	}
 
-	private void UpdateThemeStatus()
+	private async void OnBack(object sender, EventArgs e)
 	{
-		ThemeStatusLabel.Text = $"Tema curent?: {(Application.Current.UserAppTheme == AppTheme.Dark ? "Dark" : "Light")}";
+		await Shell.Current.GoToAsync("//MainPage");
 	}
 }

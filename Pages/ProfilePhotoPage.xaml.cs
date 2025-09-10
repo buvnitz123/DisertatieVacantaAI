@@ -17,15 +17,11 @@ public partial class ProfilePhotoPage : ContentPage
         InitializeComponent();
         _repo = new UtilizatorRepository();
         var tap = new TapGestureRecognizer();
-        tap.Tapped += OnPickImageTapped;
+        tap.Tapped += OnPickOrCaptureTapped;
         PreviewImage.GestureRecognizers.Add(tap);
         TapHint.GestureRecognizers.Add(tap);
-
 #if ANDROID
-        var longPress = new TapGestureRecognizer { NumberOfTapsRequired = 2 }; // simulate long by double tap
-        longPress.Tapped += OnCaptureImageTapped;
-        PreviewImage.GestureRecognizers.Add(longPress);
-        TapHint.GestureRecognizers.Add(longPress);
+        // unified action sheet now
 #endif
     }
 
@@ -40,68 +36,98 @@ public partial class ProfilePhotoPage : ContentPage
         {
             StatusLabel.Text = $"User: {RegistrationSession.Draft.Nume} {RegistrationSession.Draft.Prenume}";
         }
+        if (PreviewImage.Source == null)
+        {
+            PreviewImage.Source = "profile_default.png"; // default placeholder
+        }
     }
 
-    private async void OnPickImageTapped(object sender, EventArgs e)
+    private async void OnPickOrCaptureTapped(object sender, EventArgs e)
     {
         if (_isBusy) return;
-        await PickImageAsync();
-    }
-
-    private async void OnCaptureImageTapped(object sender, EventArgs e)
-    {
 #if ANDROID
-        if (_isBusy) return;
+        string action = await DisplayActionSheet("Poza profil", "Anuleaza", null, "Fa o poza", "Alege din galerie");
+        if (action == "Fa o poza")
+        {
+            await SafeRunAsync(CaptureAsync);
+        }
+        else if (action == "Alege din galerie")
+        {
+            await SafeRunAsync(PickImageAsync);
+        }
+#endif
+    }
+
+    private async Task SafeRunAsync(Func<Task> op)
+    {
+        try
+        {
+            await op();
+        }
+        catch (Exception ex)
+        {
+            var msg = $"Operation failed: {ex.Message}\n{ex}";
+            Debug.WriteLine(msg);
+            ShowError(msg);
+        }
+    }
+
+    private async Task CaptureAsync()
+    {
         HideError();
         try
         {
             var photo = await MediaPicker.Default.CapturePhotoAsync();
             if (photo != null)
             {
-                using var stream = await photo.OpenReadAsync();
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                _pendingImageBytes = ms.ToArray();
-                PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(_pendingImageBytes));
-                TapHint.IsVisible = false;
-                StatusLabel.Text = "Imagine capturat?.";
+                await LoadImageFromFileResult(photo);
+                StatusLabel.Text = "Poza capturata.";
             }
         }
         catch (Exception ex)
         {
-            ShowError($"Camera error: {ex.Message}");
+            throw new InvalidOperationException("Capture failed", ex);
         }
-#endif
     }
 
     private async Task PickImageAsync()
     {
         HideError();
-#if ANDROID
         try
         {
             var result = await FilePicker.PickAsync(new PickOptions
             {
                 FileTypes = FilePickerFileType.Images,
-                PickerTitle = "Selecteaz? imagine"
+                PickerTitle = "Selecteaza imagine"
             });
 
             if (result != null)
             {
-                using var stream = await result.OpenReadAsync();
-                using var ms = new MemoryStream();
-                await stream.CopyToAsync(ms);
-                _pendingImageBytes = ms.ToArray();
-                PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(_pendingImageBytes));
-                TapHint.IsVisible = false;
-                StatusLabel.Text = "Imagine preg?tit?.";
+                await LoadImageFromFileResult(result);
+                StatusLabel.Text = "Imagine pregatita.";
             }
         }
         catch (Exception ex)
         {
-            ShowError($"Image selection failed: {ex.Message}");
+            throw new InvalidOperationException("Pick failed", ex);
         }
-#endif
+    }
+
+    private async Task LoadImageFromFileResult(FileResult file)
+    {
+        try
+        {
+            using var stream = await file.OpenReadAsync();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            _pendingImageBytes = ms.ToArray();
+            PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(_pendingImageBytes));
+            TapHint.IsVisible = false;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Image load failed", ex);
+        }
     }
 
     private async void OnFinishClicked(object sender, EventArgs e)
@@ -193,7 +219,7 @@ public partial class ProfilePhotoPage : ContentPage
         }
         catch (Exception ex)
         {
-            ShowError($"Finalize failed: {ex.Message}");
+            ShowError($"Finalize failed: {ex.Message}\n{ex}");
         }
         finally
         {

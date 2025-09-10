@@ -53,4 +53,9 @@ public partial class SugestiiPage : ContentPage
             LoadingIndicator.IsRunning = false;
         }
     }
+
+    private async void OnAddSugestie(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(NewSugestiePage));
+    }
 }

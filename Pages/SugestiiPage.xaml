@@ -39,6 +39,8 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
             <ActivityIndicator x:Name="LoadingIndicator" IsRunning="True" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource PrimaryBlue}" />
+            <!-- Floating Add Button -->
+            <Button Text="+" Clicked="OnAddSugestie" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" WidthRequest="56" HeightRequest="56" CornerRadius="28" HorizontalOptions="End" VerticalOptions="End" Margin="20" />
         </Grid>
     </Grid>
 </ContentPage>

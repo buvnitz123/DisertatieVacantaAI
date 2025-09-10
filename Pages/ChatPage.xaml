@@ -44,7 +44,7 @@
 
         <!-- Input Bar -->
         <Grid Grid.Row="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Padding="12,10" ColumnDefinitions="*,Auto" RowDefinitions="Auto" >
-            <Entry x:Name="MessageEntry" Placeholder="Scrie un mesaj..." PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" BackgroundColor="Transparent" Completed="OnSendClicked" />
+            <Entry x:Name="MessageEntry" Placeholder="Scrie un mesaj..." PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" BackgroundColor="Transparent" Completed="OnSendClicked" />
             <Button Text="➤" Grid.Column="1" Clicked="OnSendClicked" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" CornerRadius="18" WidthRequest="48" HeightRequest="48" />
         </Grid>
     </Grid>
