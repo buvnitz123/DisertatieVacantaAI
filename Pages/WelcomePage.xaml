@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.WelcomePage"
-             BackgroundColor="{StaticResource DarkGray}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
              Title="Welcome">
     <VerticalStackLayout Padding="30,60" Spacing="30">
         <Label x:Name="TitleLabel"
@@ -10,12 +10,12 @@
                FontSize="30"
                FontAttributes="Bold"
                HorizontalOptions="Center"
-               TextColor="{StaticResource LightGray}" />
+               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
         <Label x:Name="MessageLabel"
                Text="Welcome."
                FontSize="18"
                HorizontalOptions="Center"
-               TextColor="{StaticResource LightGray}"
+               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                Opacity="0.85" />
         <Button Text="Done"
                 BackgroundColor="{StaticResource PrimaryBlue}"

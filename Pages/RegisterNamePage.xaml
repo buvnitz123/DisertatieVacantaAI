@@ -3,19 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.RegisterNamePage"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{StaticResource DarkGray}">
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     <VerticalStackLayout Padding="30,60" Spacing="24">
-        <Label Text="Bun venit!" FontSize="32" FontAttributes="Bold" TextColor="{StaticResource LightGray}" />
-        <Label Text="Spune-ne numele tau." TextColor="{StaticResource LightGray}" Opacity="0.8" />
-        <Frame BackgroundColor="{StaticResource MediumGray}" CornerRadius="14" Padding="10">
-            <Entry x:Name="NumeEntry" Placeholder="Nume" PlaceholderColor="{StaticResource LightGray}" TextColor="White" />
+        <Label Text="Bun venit!" FontSize="32" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+        <Label Text="Spune-ne numele tau." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.8" />
+        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" CornerRadius="14" Padding="10">
+            <Entry x:Name="NumeEntry" Placeholder="Nume" PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
         </Frame>
-        <Frame BackgroundColor="{StaticResource MediumGray}" CornerRadius="14" Padding="10">
-            <Entry x:Name="PrenumeEntry" Placeholder="Prenume" PlaceholderColor="{StaticResource LightGray}" TextColor="White" />
+        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" CornerRadius="14" Padding="10">
+            <Entry x:Name="PrenumeEntry" Placeholder="Prenume" PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
         </Frame>
         <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
         <HorizontalStackLayout Spacing="12">
-            <Button Text="Renunta" Clicked="OnCancel" BackgroundColor="{StaticResource MediumGray}" TextColor="{StaticResource LightGray}" />
+            <Button Text="Renunta" Clicked="OnCancel" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
             <Button Text="Continua" Clicked="OnNext" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
         </HorizontalStackLayout>
     </VerticalStackLayout>

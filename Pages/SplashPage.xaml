@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SplashPage"
-             BackgroundColor="{StaticResource DarkGray}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
              Shell.NavBarIsVisible="False">
 
     <Grid>
@@ -12,14 +12,14 @@
             <Label Text="Vacation Planner AI" 
                    FontSize="36" 
                    FontAttributes="Bold"
-                   TextColor="{StaticResource LightGray}"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                    HorizontalOptions="Center" />
             
             <!-- Status Message -->
             <Label x:Name="StatusLabel"
                    Text="Initializing application..."
                    FontSize="16"
-                   TextColor="{StaticResource LightGray}"
+                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                    HorizontalOptions="Center"
                    Opacity="0.8" />
 
@@ -28,13 +28,13 @@
                 <ProgressBar x:Name="ProgressBar"
                              Progress="0"
                              ProgressColor="{StaticResource PrimaryBlue}"
-                             BackgroundColor="{StaticResource MediumGray}"
+                             BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
                              HeightRequest="8" />
                 
                 <Label x:Name="ProgressLabel"
                        Text="0%"
                        FontSize="14"
-                       TextColor="{StaticResource LightGray}"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                        HorizontalOptions="Center"
                        Opacity="0.7" />
             </StackLayout>

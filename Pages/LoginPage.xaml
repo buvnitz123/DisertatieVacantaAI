@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.LoginPage"
-             BackgroundColor="{StaticResource DarkGray}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
              Shell.NavBarIsVisible="False">
 
     <Grid>
@@ -14,46 +14,46 @@
                     <Label Text="Vacation Planner AI"
                            FontSize="32"
                            FontAttributes="Bold"
-                           TextColor="{StaticResource LightGray}"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                            HorizontalOptions="Center" />
 
                     <Label Text="Welcome back!"
                            FontSize="18"
-                           TextColor="{StaticResource LightGray}"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                            HorizontalOptions="Center"
                            Opacity="0.8" />
 
                     <StackLayout Spacing="20" Margin="0,40,0,0">
 
-                        <Frame BackgroundColor="{StaticResource MediumGray}"
+                        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
                                HasShadow="False"
                                CornerRadius="10"
                                Padding="0">
                             <Entry x:Name="EmailEntry"
                                    Placeholder="Email"
-                                   PlaceholderColor="{StaticResource LightGray}"
-                                   TextColor="{StaticResource LightGray}"
+                                   PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                                    BackgroundColor="Transparent"
                                    Keyboard="Email"
                                    Margin="15,10" />
                         </Frame>
 
-                        <Frame BackgroundColor="{StaticResource MediumGray}"
+                        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
                                HasShadow="False"
                                CornerRadius="10"
                                Padding="0">
                             <Grid>
                                 <Entry x:Name="PasswordEntry"
                                        Placeholder="Password"
-                                       PlaceholderColor="{StaticResource LightGray}"
-                                       TextColor="{StaticResource LightGray}"
+                                       PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                                        BackgroundColor="Transparent"
                                        IsPassword="True"
                                        Margin="15,10,50,10" />
                                 <Button x:Name="ShowPasswordButton"
                                         Text="👁"
                                         BackgroundColor="Transparent"
-                                        TextColor="{StaticResource LightGray}"
+                                        TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                         FontSize="18"
                                         WidthRequest="40"
                                         HeightRequest="40"
@@ -70,7 +70,7 @@
                                       Color="{StaticResource PrimaryBlue}"
                                       IsChecked="False" />
                             <Label Text="Remember me"
-                                   TextColor="{StaticResource LightGray}"
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                                    VerticalOptions="Center" />
                         </StackLayout>
 
@@ -87,8 +87,8 @@
                         <!-- Create Account Button -->
                         <Button x:Name="CreateAccountButton"
                                 Text="Create Account"
-                                BackgroundColor="{StaticResource MediumGray}"
-                                TextColor="{StaticResource LightGray}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                                 CornerRadius="10"
                                 HeightRequest="50"
                                 FontSize="15"

@@ -2,11 +2,18 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SettingsPage"
-             Title="SettingsPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to Settings Page"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Settings"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="24">
+            <Label Text="Setări" FontSize="24" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto" >
+                <Label Text="Dark Mode" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                <Switch x:Name="ThemeSwitch" Grid.Column="1" Toggled="OnThemeToggled" />
+            </Grid>
+            <Label x:Name="ThemeStatusLabel" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+            <BoxView HeightRequest="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+            <Label Text="(Alte setări în curând)" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

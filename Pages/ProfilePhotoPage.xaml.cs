@@ -21,7 +21,7 @@ public partial class ProfilePhotoPage : ContentPage
         PreviewImage.GestureRecognizers.Add(tap);
         TapHint.GestureRecognizers.Add(tap);
 
-#if ANDROID || IOS || MACCATALYST || WINDOWS
+#if ANDROID
         var longPress = new TapGestureRecognizer { NumberOfTapsRequired = 2 }; // simulate long by double tap
         longPress.Tapped += OnCaptureImageTapped;
         PreviewImage.GestureRecognizers.Add(longPress);
@@ -50,7 +50,7 @@ public partial class ProfilePhotoPage : ContentPage
 
     private async void OnCaptureImageTapped(object sender, EventArgs e)
     {
-#if ANDROID || IOS || MACCATALYST
+#if ANDROID
         if (_isBusy) return;
         HideError();
         try
@@ -77,7 +77,7 @@ public partial class ProfilePhotoPage : ContentPage
     private async Task PickImageAsync()
     {
         HideError();
-#if ANDROID || IOS || MACCATALYST || WINDOWS
+#if ANDROID
         try
         {
             var result = await FilePicker.PickAsync(new PickOptions

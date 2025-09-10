@@ -3,10 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.RegisterPage"
              Title="Create Account"
-             BackgroundColor="{StaticResource DarkGray}">
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     <ScrollView>
         <VerticalStackLayout Padding="30,40" Spacing="18">
-            <Label Text="Create Account" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource LightGray}" HorizontalOptions="Center" />
+            <Label Text="Create Account" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" HorizontalOptions="Center" />
             <Entry x:Name="NumeEntry" Placeholder="First Name (Nume)" />
             <Entry x:Name="PrenumeEntry" Placeholder="Last Name (Prenume)" />
             <Entry x:Name="EmailEntry" Placeholder="Email" Keyboard="Email" />
@@ -16,8 +16,8 @@
             <Entry x:Name="ConfirmPasswordEntry" Placeholder="Confirm Password" IsPassword="True" />
             <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
             <ActivityIndicator x:Name="BusyIndicator" IsRunning="False" IsVisible="False" />
-            <Button Text="Continue" Clicked="OnContinueClicked" BackgroundColor="{StaticResource PrimaryBlue}" />
-            <Button Text="Cancel" Clicked="OnCancelClicked" BackgroundColor="{StaticResource MediumGray}" />
+            <Button Text="Continue" Clicked="OnContinueClicked" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
+            <Button Text="Cancel" Clicked="OnCancelClicked" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

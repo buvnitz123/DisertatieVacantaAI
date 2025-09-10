@@ -3,17 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SearchPage"
              Title="Cautare"
-             BackgroundColor="{StaticResource DarkGray}">
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     <Grid RowDefinitions="Auto,Auto,*" Padding="20,20,20,0">
         <!-- Search Entry -->
-        <Frame Grid.Row="0" BackgroundColor="{StaticResource MediumGray}" CornerRadius="14" Padding="10" HasShadow="False">
+        <Frame Grid.Row="0" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" CornerRadius="14" Padding="10" HasShadow="False">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalOptions="Center">
                 <Label Text="🔍" VerticalOptions="Center" FontSize="18" />
                 <Entry Grid.Column="1"
                        x:Name="SearchEntry"
                        Placeholder="Cauta destinatii, sugestii..."
-                       PlaceholderColor="{StaticResource LightGray}"
-                       TextColor="White"
+                       PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                        BackgroundColor="Transparent"
                        Completed="OnSearch" />
                 <Button Grid.Column="2" Text="Go" Clicked="OnSearch" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" CornerRadius="12" />
@@ -23,24 +23,24 @@
         <!-- Filter placeholder -->
         <HorizontalStackLayout Grid.Row="1" Spacing="10" Padding="0,10,0,10">
             <Button Text="All" x:Name="AllFilter" Clicked="OnFilter" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
-            <Button Text="Destinatii" x:Name="DestFilter" Clicked="OnFilter" BackgroundColor="{StaticResource MediumGray}" TextColor="{StaticResource LightGray}" />
-            <Button Text="Sugestii" x:Name="SugFilter" Clicked="OnFilter" BackgroundColor="{StaticResource MediumGray}" TextColor="{StaticResource LightGray}" />
+            <Button Text="Destinatii" x:Name="DestFilter" Clicked="OnFilter" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+            <Button Text="Sugestii" x:Name="SugFilter" Clicked="OnFilter" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
         </HorizontalStackLayout>
 
         <!-- Results -->
         <CollectionView x:Name="ResultsView" Grid.Row="2" SelectionMode="None">
             <CollectionView.EmptyView>
                 <VerticalStackLayout Padding="40" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Introdu un termen pentru a cauta." TextColor="{StaticResource LightGray}" />
+                    <Label Text="Introdu un termen pentru a cauta." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border BackgroundColor="{StaticResource MediumGray}" Stroke="{StaticResource LightGray}" StrokeThickness="0.5" Padding="14" Margin="0,6">
+                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Stroke="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" StrokeThickness="0.5" Padding="14" Margin="0,6">
                         <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
                         <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource LightGray}" />
-                            <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{StaticResource LightGray}" Opacity="0.7" />
+                            <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                            <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.7" />
                         </VerticalStackLayout>
                     </Border>
                 </DataTemplate>

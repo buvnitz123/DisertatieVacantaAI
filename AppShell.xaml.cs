@@ -30,6 +30,20 @@ public partial class AppShell : Shell
         }
     }
 
+    private async void OnHomeMenuClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            Shell.Current.FlyoutIsPresented = false;
+            // Navigate to the tabbed Home root (double slash ensures shell section root)
+            await Shell.Current.GoToAsync("//MainPage");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Home navigation error: {ex.Message}");
+        }
+    }
+
     public static async Task LogoutAsync()
     {
         try
