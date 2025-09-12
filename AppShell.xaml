@@ -40,10 +40,10 @@
                     <TapGestureRecognizer Tapped="OnHomeHeaderClicked" />
                 </Border.GestureRecognizers>
                 <Grid Padding="25,15" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                    <Image Source="home.png"
-                           WidthRequest="24"
-                           HeightRequest="24"
-                           VerticalOptions="Center" />
+                    <Label Text="🏠"
+                           FontSize="20"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
                     <Label Grid.Column="1"
                            Text="Home"
                            FontSize="16"
@@ -71,10 +71,10 @@
                     <TapGestureRecognizer Tapped="OnSettingsClicked" />
                 </Border.GestureRecognizers>
                 <Grid Padding="25,15" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                    <Image Source="settings.png"
-                           WidthRequest="24"
-                           HeightRequest="24"
-                           VerticalOptions="Center" />
+                    <Label Text="⚙️"
+                           FontSize="20"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
                     <Label Grid.Column="1"
                            Text="Settings"
                            FontSize="16"
@@ -89,10 +89,10 @@
                     <TapGestureRecognizer Tapped="OnLogoutClicked" />
                 </Border.GestureRecognizers>
                 <Grid Padding="25,15" ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                    <Image Source="logout.png"
-                           WidthRequest="24"
-                           HeightRequest="24"
-                           VerticalOptions="Center" />
+                    <Label Text="🚪"
+                           FontSize="20"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
                     <Label Grid.Column="1"
                            Text="Logout"
                            FontSize="16"
