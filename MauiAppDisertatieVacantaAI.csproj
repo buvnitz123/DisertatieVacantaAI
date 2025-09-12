@@ -45,7 +45,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AWSSDK.S3" Version="4.0.6.12" />
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
 		<PackageReference Include="EntityFramework" Version="6.5.1" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />

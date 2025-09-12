@@ -158,5 +158,89 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
             config.AppSettings[key] = Encrypt(plainValue);
             // Note: In a real app, you'd want to save this back to a writable location
         }
+
+        // Enhanced test method with detailed diagnostics
+        public static async Task<bool> TestConfigurationAsync()
+        {
+            try
+            {
+                // Test 1: Can we load the configuration file?
+                ConfigurationData config;
+                try
+                {
+                    using var stream = await FileSystem.OpenAppPackageFileAsync("appsettings.json");
+                    using var reader = new StreamReader(stream);
+                    var json = await reader.ReadToEndAsync();
+                    config = JsonSerializer.Deserialize<ConfigurationData>(json);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Config file load failed: {ex.Message}");
+                    return false;
+                }
+
+                // Test 2: Does the config have the required structure?
+                if (config?.ConnectionStrings == null || 
+                    !config.ConnectionStrings.ContainsKey("DbContext"))
+                {
+                    System.Diagnostics.Debug.WriteLine("Config structure invalid - missing DbContext");
+                    return false;
+                }
+
+                // Test 3: Can we decrypt the connection string?
+                try
+                {
+                    var encryptedValue = config.ConnectionStrings["DbContext"];
+                    if (string.IsNullOrEmpty(encryptedValue))
+                    {
+                        System.Diagnostics.Debug.WriteLine("DbContext connection string is empty");
+                        return false;
+                    }
+
+                    var decrypted = Decrypt(encryptedValue);
+                    if (string.IsNullOrEmpty(decrypted))
+                    {
+                        System.Diagnostics.Debug.WriteLine("Decrypted connection string is empty");
+                        return false;
+                    }
+
+                    System.Diagnostics.Debug.WriteLine("Configuration test passed");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Decryption failed: {ex.Message}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Configuration test failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Simplified synchronous version for quick checks
+        public static bool TestConfiguration()
+        {
+            try
+            {
+                return TestConfigurationAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Sync config test failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Method to clear cached configuration (for retry scenarios)
+        public static void ClearCache()
+        {
+            lock (_lockObject)
+            {
+                _config = null;
+            }
+        }
     }
 }

@@ -4,17 +4,186 @@
              x:Class="MauiAppDisertatieVacantaAI.Pages.RegisterBirthPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
-    <VerticalStackLayout Padding="30,60" Spacing="24">
-        <Label Text="Perfect!" FontSize="32" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        <Label Text="Selecteaza data nasterii." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.8" />
-        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" CornerRadius="14" Padding="10">
-            <DatePicker x:Name="BirthDatePicker" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        </Frame>
-        <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
-        <HorizontalStackLayout Spacing="12">
-            <Button Text="Inapoi" Clicked="OnBack" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-            <Button Text="Continua" Clicked="OnNext" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
-        </HorizontalStackLayout>
-        <Button Text="Renunta" Clicked="OnCancel" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-    </VerticalStackLayout>
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="30,50" Spacing="24">
+            
+            <!-- Progress Indicator -->
+            <Grid Margin="0,10,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <!-- Step 1 - Complete -->
+                <BoxView Grid.Column="0" BackgroundColor="#4CAF50" 
+                         HeightRequest="4" CornerRadius="2" Margin="0,0,5,0"/>
+                <!-- Step 2 - Complete -->
+                <BoxView Grid.Column="1" BackgroundColor="#4CAF50" 
+                         HeightRequest="4" CornerRadius="2" Margin="5,0"/>
+                <!-- Step 3 - Active -->
+                <BoxView Grid.Column="2" BackgroundColor="{StaticResource PrimaryBlue}" 
+                         HeightRequest="4" CornerRadius="2" Margin="5,0"/>
+                <!-- Step 4 - Inactive -->
+                <BoxView Grid.Column="3" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                         HeightRequest="4" CornerRadius="2" Margin="5,0,0,0"/>
+            </Grid>
+            
+            <!-- Progress Text -->
+            <Label Text="Pasul 3 din 4" 
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,10"/>
+
+            <!-- Header Section -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Aproape gata! 🎂" 
+                       FontSize="28" 
+                       FontAttributes="Bold" 
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" 
+                       HorizontalOptions="Center"/>
+                <Label Text="Cand te-ai nascut? Aceasta informatie ne ajuta sa iti oferim recomandari personalizate" 
+                       FontSize="16"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                       Opacity="0.8" 
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+
+            <!-- Birthday Picker Section -->
+            <VerticalStackLayout Spacing="16" Margin="0,30,0,0">
+                <Label Text="Data nasterii" 
+                       FontSize="14" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
+                
+                <!-- Custom Date Picker Design -->
+                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                       CornerRadius="12" 
+                       Padding="0" 
+                       HasShadow="False"
+                       x:Name="DateFrame">
+                    <Grid Padding="16,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Label Grid.Column="0" 
+                               Text="📅" 
+                               FontSize="20" 
+                               VerticalOptions="Center"
+                               Margin="0,0,12,0"/>
+                               
+                        <DatePicker x:Name="BirthDatePicker" 
+                                   Grid.Column="1"
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                   BackgroundColor="Transparent"
+                                   FontSize="16"
+                                   DateSelected="OnDateSelected"/>
+                                   
+                        <Label x:Name="AgeLabel" 
+                               Grid.Column="2"
+                               Text="Varsta: -" 
+                               FontSize="14" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+                </Frame>
+
+                <!-- Quick Date Selection -->
+                <Label Text="Selectare rapida:" 
+                       FontSize="14" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                       Margin="0,10,0,0"/>
+                       
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0" 
+                            Text="Ani '90"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="8"
+                            HeightRequest="40"
+                            FontSize="13"
+                            Clicked="OnQuickDate90s"/>
+                    <Button Grid.Column="1" 
+                            Text="Anii 2000"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="8"
+                            HeightRequest="40"
+                            FontSize="13"
+                            Clicked="OnQuickDate2000s"/>
+                    <Button Grid.Column="2" 
+                            Text="Alta data"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="8"
+                            HeightRequest="40"
+                            FontSize="13"
+                            Clicked="OnQuickDateOther"/>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Error Message -->
+            <Label x:Name="ErrorLabel" 
+                   TextColor="#FF6B6B" 
+                   IsVisible="False" 
+                   FontSize="14"
+                   Margin="4,0,0,0"/>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="12" Margin="0,30,0,0">
+                <Button x:Name="ContinueButton"
+                        Text="Continua spre finalul inregistrarii" 
+                        Clicked="OnNext" 
+                        BackgroundColor="{StaticResource PrimaryBlue}" 
+                        TextColor="White"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        FontSize="16"
+                        FontAttributes="Bold"/>
+                
+                <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                    <Button Text="Inapoi" 
+                            Clicked="OnBack" 
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="12"
+                            HeightRequest="45"
+                            WidthRequest="100"
+                            FontSize="15"/>
+                    
+                    <Button Text="Renunta" 
+                            Clicked="OnCancel" 
+                            BackgroundColor="Transparent" 
+                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                            FontSize="15"
+                            WidthRequest="100"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Privacy Info -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark={StaticResource MediumGray}}" 
+                   CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="False"
+                   Margin="0,10,0,0">
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="🔒" FontSize="18" VerticalOptions="Start" Margin="0,2,0,0"/>
+                    <Label Text="Informatiile tale personale sunt protejate si folosite doar pentru a imbunatati experienta ta in aplicatie" 
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           VerticalOptions="Center"
+                           LineBreakMode="WordWrap"/>
+                </HorizontalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

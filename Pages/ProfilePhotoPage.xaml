@@ -4,28 +4,218 @@
              x:Class="MauiAppDisertatieVacantaAI.Pages.ProfilePhotoPage"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
              Shell.NavBarIsVisible="False">
-    <VerticalStackLayout Padding="30,60" Spacing="24">
-        <Label Text="Alege o poza de profil" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        <Label Text="Poti sari acest pas daca doresti." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.7" />
-        <Grid HorizontalOptions="Center" VerticalOptions="Center">
-            <Border Stroke="{StaticResource PrimaryBlue}" StrokeThickness="2" WidthRequest="180" HeightRequest="180">
-                <Border.StrokeShape>
-                    <Ellipse />
-                </Border.StrokeShape>
-                <Grid>
-                    <Image x:Name="PreviewImage" Aspect="AspectFill" />
-                    <Label x:Name="TapHint" Text="Tap pentru a selecta
-Tine apasat pt camera" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" />
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="30,50" Spacing="24">
+            
+            <!-- Progress Indicator -->
+            <Grid Margin="0,10,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <!-- All steps complete/active for final step -->
+                <BoxView Grid.Column="0" BackgroundColor="#4CAF50" 
+                         HeightRequest="4" CornerRadius="2" Margin="0,0,5,0"/>
+                <BoxView Grid.Column="1" BackgroundColor="#4CAF50" 
+                         HeightRequest="4" CornerRadius="2" Margin="5,0"/>
+                <BoxView Grid.Column="2" BackgroundColor="#4CAF50" 
+                         HeightRequest="4" CornerRadius="2" Margin="5,0"/>
+                <BoxView Grid.Column="3" BackgroundColor="{StaticResource PrimaryBlue}" 
+                         HeightRequest="4" CornerRadius="2" Margin="5,0,0,0"/>
+            </Grid>
+            
+            <!-- Progress Text -->
+            <Label Text="Pasul 4 din 4 - Finalizare" 
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,10"/>
+
+            <!-- Header Section -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Ultimul pas! 🎉" 
+                       FontSize="28" 
+                       FontAttributes="Bold" 
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" 
+                       HorizontalOptions="Center"/>
+                <Label Text="Adauga o poza de profil pentru a-ti personaliza contul (optional)" 
+                       FontSize="16"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                       Opacity="0.8" 
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+
+            <!-- User Info Preview -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark={StaticResource MediumGray}}" 
+                   CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="False"
+                   Margin="0,20,0,0">
+                <HorizontalStackLayout Spacing="12">
+                    <Label Text="👤" FontSize="18" VerticalOptions="Center"/>
+                    <VerticalStackLayout Spacing="2">
+                        <Label x:Name="UserPreviewLabel" 
+                               Text="Nume Utilizator" 
+                               FontSize="16" 
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
+                        <Label Text="Toate informatiile au fost salvate cu succes" 
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!-- Profile Photo Section -->
+            <VerticalStackLayout Spacing="20" Margin="0,20,0,0">
+                <!-- Photo Picker -->
+                <Grid HorizontalOptions="Center" VerticalOptions="Center">
+                    <Border Stroke="{StaticResource PrimaryBlue}" 
+                            StrokeThickness="3" 
+                            WidthRequest="160" 
+                            HeightRequest="160"
+                            x:Name="PhotoBorder">
+                        <Border.StrokeShape>
+                            <Ellipse />
+                        </Border.StrokeShape>
+                        <Grid>
+                            <Image x:Name="PreviewImage" 
+                                   Aspect="AspectFill"
+                                   IsVisible="False"/>
+                            <VerticalStackLayout x:Name="PlaceholderContent" 
+                                               Spacing="8" 
+                                               HorizontalOptions="Center" 
+                                               VerticalOptions="Center">
+                                <Label Text="📸" 
+                                       FontSize="36" 
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Atinge pentru&#10;a adauga poza" 
+                                       FontSize="14" 
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                       HorizontalOptions="Center" 
+                                       HorizontalTextAlignment="Center"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Photo Actions -->
+                    <Button x:Name="AddPhotoButton"
+                            Text="+"
+                            BackgroundColor="{StaticResource PrimaryBlue}"
+                            TextColor="White"
+                            CornerRadius="20"
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            FontSize="24"
+                            FontAttributes="Bold"
+                            HorizontalOptions="End"
+                            VerticalOptions="End"
+                            Margin="0,0,10,10"
+                            Clicked="OnAddPhotoClicked"/>
                 </Grid>
-            </Border>
-        </Grid>
-        <Label x:Name="StatusLabel" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-        <ActivityIndicator x:Name="BusyIndicator" IsVisible="False" IsRunning="False" Color="{StaticResource PrimaryBlue}" />
-        <Label x:Name="ErrorLabel" TextColor="Tomato" IsVisible="False" />
-        <HorizontalStackLayout Spacing="12">
-            <Button Text="Sari" Clicked="OnSkipClicked" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-            <Button Text="Finalizeaza" Clicked="OnFinishClicked" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
-        </HorizontalStackLayout>
-        <Button Text="Renunta" Clicked="OnCancelClicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-    </VerticalStackLayout>
+
+                <!-- Photo Action Buttons -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" 
+                      IsVisible="False" 
+                      x:Name="PhotoActionsGrid">
+                    <Button Grid.Column="0" 
+                            Text="📷 Camera"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="10"
+                            HeightRequest="45"
+                            FontSize="14"
+                            Clicked="OnCameraClicked"/>
+                    <Button Grid.Column="1" 
+                            Text="🖼️ Galerie"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="10"
+                            HeightRequest="45"
+                            FontSize="14"
+                            Clicked="OnGalleryClicked"/>
+                </Grid>
+
+                <!-- Photo Status -->
+                <Label x:Name="StatusLabel" 
+                       Text="" 
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center"
+                       IsVisible="False"/>
+            </VerticalStackLayout>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator x:Name="BusyIndicator" 
+                               IsVisible="False" 
+                               IsRunning="False" 
+                               Color="{StaticResource PrimaryBlue}"
+                               WidthRequest="40"
+                               HeightRequest="40"/>
+
+            <!-- Error Message -->
+            <Label x:Name="ErrorLabel" 
+                   TextColor="#FF6B6B" 
+                   IsVisible="False" 
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="16" Margin="0,30,0,0">
+                <Button x:Name="FinishButton"
+                        Text="🎉 Finalizeaza inregistrarea" 
+                        Clicked="OnFinishClicked" 
+                        BackgroundColor="{StaticResource PrimaryBlue}" 
+                        TextColor="White"
+                        CornerRadius="12"
+                        HeightRequest="55"
+                        FontSize="16"
+                        FontAttributes="Bold"/>
+                
+                <Button x:Name="SkipButton"
+                        Text="Sari acest pas si finalizeaza" 
+                        Clicked="OnSkipClicked" 
+                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        FontSize="15"/>
+                
+                <Button Text="Renunta" 
+                        Clicked="OnCancelClicked" 
+                        BackgroundColor="Transparent" 
+                        TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                        FontSize="14"/>
+            </VerticalStackLayout>
+
+            <!-- Tips Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light=#F0F8FF, Dark={StaticResource MediumGray}}" 
+                   CornerRadius="12" 
+                   Padding="16" 
+                   HasShadow="False"
+                   Margin="0,20,0,0">
+                <VerticalStackLayout Spacing="8">
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="💡" FontSize="16" VerticalOptions="Start"/>
+                        <Label Text="Sfaturi pentru o poza de profil buna:" 
+                               FontSize="14" 
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <Label Text="• Foloseste o imagine clara a fetei tale&#10;• Evita fundalurile aglomerate&#10;• Asigura-te ca esti singur in poza&#10;• Poti schimba poza oricand din profil" 
+                           FontSize="12"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           Margin="24,0,0,0"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

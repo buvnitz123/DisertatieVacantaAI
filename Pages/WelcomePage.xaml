@@ -3,24 +3,176 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.WelcomePage"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+             Shell.NavBarIsVisible="False"
              Title="Welcome">
-    <VerticalStackLayout Padding="30,60" Spacing="30">
-        <Label x:Name="TitleLabel"
-               Text="Account Created!"
-               FontSize="30"
-               FontAttributes="Bold"
-               HorizontalOptions="Center"
-               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        <Label x:Name="MessageLabel"
-               Text="Welcome."
-               FontSize="18"
-               HorizontalOptions="Center"
-               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
-               Opacity="0.85" />
-        <Button Text="Done"
-                BackgroundColor="{StaticResource PrimaryBlue}"
-                TextColor="White"
-                HeightRequest="50"
-                Clicked="OnDoneClicked" />
-    </VerticalStackLayout>
+
+    <Grid>
+        <!-- Background Gradient -->
+        <BoxView BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource DarkGray}}" />
+
+        <ScrollView>
+            <VerticalStackLayout Padding="40,80" Spacing="32" HorizontalOptions="Center">
+
+                <!-- Success Icon -->
+                <Grid HorizontalOptions="Center" VerticalOptions="Center">
+                    <Border Stroke="{StaticResource PrimaryBlue}" 
+                            StrokeThickness="4" 
+                            WidthRequest="120" 
+                            HeightRequest="120">
+                        <Border.StrokeShape>
+                            <Ellipse />
+                        </Border.StrokeShape>
+                        <Border BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark={StaticResource MediumGray}}" >
+                            <Border.StrokeShape>
+                                <Ellipse />
+                            </Border.StrokeShape>
+                            <Label Text="✓" 
+                                   FontSize="48" 
+                                   TextColor="{StaticResource PrimaryBlue}"
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center"
+                                   FontAttributes="Bold"/>
+                        </Border>
+                    </Border>
+                </Grid>
+
+                <!-- Welcome Message -->
+                <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                    <Label Text="Bine ai venit! 🎉" 
+                           FontSize="32" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+
+                    <Label x:Name="MessageLabel"
+                           Text="Contul tau a fost creat cu succes!"
+                           FontSize="18"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           Opacity="0.9" />
+                </VerticalStackLayout>
+
+                <!-- Features Preview -->
+                <Frame BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource MediumGray}}" 
+                       CornerRadius="16" 
+                       Padding="24" 
+                       HasShadow="True"
+                       Margin="0,20,0,0">
+                    <VerticalStackLayout Spacing="20">
+                        <Label Text="Ce poti face acum:" 
+                               FontSize="18" 
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                               HorizontalOptions="Center"/>
+
+                        <VerticalStackLayout Spacing="16">
+                            <!-- Feature 1 -->
+                            <HorizontalStackLayout Spacing="16">
+                                <Border BackgroundColor="{StaticResource PrimaryBlue}" 
+                                        WidthRequest="40" 
+                                        HeightRequest="40">
+                                    <Border.StrokeShape>
+                                        <Ellipse />
+                                    </Border.StrokeShape>
+                                    <Label Text="🏖️" 
+                                           FontSize="20" 
+                                           HorizontalOptions="Center" 
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                    <Label Text="Exploreaza destinatii" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
+                                    <Label Text="Descopera locuri frumoase pentru vacanta ta" 
+                                           FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                           LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+
+                            <!-- Feature 2 -->
+                            <HorizontalStackLayout Spacing="16">
+                                <Border BackgroundColor="{StaticResource PrimaryBlue}" 
+                                        WidthRequest="40" 
+                                        HeightRequest="40">
+                                    <Border.StrokeShape>
+                                        <Ellipse />
+                                    </Border.StrokeShape>
+                                    <Label Text="🤖" 
+                                           FontSize="20" 
+                                           HorizontalOptions="Center" 
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                    <Label Text="Asistent AI personal" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
+                                    <Label Text="Primeste recomandari personalizate pentru vacanta perfecta" 
+                                           FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                           LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+
+                            <!-- Feature 3 -->
+                            <HorizontalStackLayout Spacing="16">
+                                <Border BackgroundColor="{StaticResource PrimaryBlue}" 
+                                        WidthRequest="40" 
+                                        HeightRequest="40">
+                                    <Border.StrokeShape>
+                                        <Ellipse />
+                                    </Border.StrokeShape>
+                                    <Label Text="❤️" 
+                                           FontSize="20" 
+                                           HorizontalOptions="Center" 
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                                    <Label Text="Salveaza favoritele" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
+                                    <Label Text="Creaza-ti lista cu destinatiile preferate" 
+                                           FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                           LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Action Button -->
+                <Button Text="🚀 Sa incepem aventura!"
+                        BackgroundColor="{StaticResource PrimaryBlue}"
+                        TextColor="White"
+                        CornerRadius="16"
+                        HeightRequest="56"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        Margin="0,20,0,0"
+                        Clicked="OnDoneClicked" />
+
+                <!-- Additional Tips -->
+                <Frame BackgroundColor="{AppThemeBinding Light=#F0F8FF, Dark={StaticResource MediumGray}}" 
+                       CornerRadius="12" 
+                       Padding="16" 
+                       HasShadow="False"
+                       Margin="0,10,0,0">
+                    <HorizontalStackLayout Spacing="12">
+                        <Label Text="💡" FontSize="18" VerticalOptions="Start" Margin="0,2,0,0"/>
+                        <Label Text="Iti poti actualiza profilul si preferintele oricand din sectiunea de setari" 
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                               VerticalOptions="Center"
+                               LineBreakMode="WordWrap"/>
+                    </HorizontalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

@@ -15,9 +15,29 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         // Force EF model initialization to avoid first-hit delays later
         public void Initialize()
         {
-            using var context = new AppContext();
-            // Ensure the context and model are initialized without forcing reinitialization
-            context.Database.Initialize(false);
+            try
+            {
+                using var context = new AppContext();
+                
+                // Test the connection first
+                if (!context.Database.Exists())
+                {
+                    throw new InvalidOperationException("Database does not exist or cannot be reached");
+                }
+                
+                // Ensure the context and model are initialized without forcing reinitialization
+                context.Database.Initialize(false);
+                
+                // Perform a simple test query to ensure everything works
+                var testQuery = context.Utilizatori.Take(1).ToList();
+                
+                System.Diagnostics.Debug.WriteLine("Database initialization successful");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Database initialization failed: {ex}");
+                throw new Exception($"Failed to initialize database: {ex.Message}", ex);
+            }
         }
 
         public IEnumerable<Utilizator> GetAll()
