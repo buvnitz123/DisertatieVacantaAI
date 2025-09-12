@@ -9,16 +9,10 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class FavoriteRepository : IRepository<Favorite>
     {
-        private readonly AppContext _context;
-
-        public FavoriteRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<Favorite> GetAll()
         {
-            return _context.Favorite.ToList();
+            using var context = new AppContext();
+            return context.Favorite.ToList();
         }
 
         public Favorite GetById(int id)
@@ -30,14 +24,16 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 
         public void Insert(Favorite entity)
         {
-            _context.Favorite.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Favorite.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(Favorite entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)

@@ -167,18 +167,19 @@ public partial class ProfilePhotoPage : ContentPage
                 return;
             }
 
-            int newId = _repo.GenerateTimeBasedId();
-            Debug.WriteLine($"[ProfilePhoto] Generated time-based ID: {newId}");
+            int newId = _repo.GenerateNextId();
+            Debug.WriteLine($"[ProfilePhoto] Generated next ID: {newId}");
 
-            string photoRelativePath = null;
-            if (includePhoto && _pendingImageBytes != null)
+            string relativePath = null;
+            if (includePhoto && _pendingImageBytes != null) 
             {
                 try
                 {
-                    var fileName = $"profiles/profile_{newId}.jpg";
-                    var contentType = S3Utils.GetContentTypeFromFileName("profile.jpg");
-                    var _ = await S3Utils.UploadImageAsync(_pendingImageBytes, fileName, contentType);
-                    photoRelativePath = fileName;
+                    // Upload with fixed name; store only relative path in DB
+                    var blobName = $"profiles/profile_user_{newId}.jpg";
+                    var contentType = AzureBlobService.GetContentTypeFromFileName(blobName);
+                    var _ = await AzureBlobService.UploadImageWithFixedNameAsync(_pendingImageBytes, blobName, contentType);
+                    relativePath = blobName;
                 }
                 catch (Exception ex)
                 {
@@ -194,7 +195,7 @@ public partial class ProfilePhotoPage : ContentPage
                 Prenume = draft.Prenume,
                 Email = draft.Email,
                 Parola = EncryptionUtils.Encrypt(draft.Parola),
-                PozaProfil = photoRelativePath,
+                PozaProfil = relativePath, // store relative path to fit DB size
                 Data_Nastere = draft.DataNastere ?? new DateTime(2000,1,1),
                 Telefon = draft.Telefon,
                 EsteActiv = 1

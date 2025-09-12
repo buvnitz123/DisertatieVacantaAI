@@ -9,42 +9,40 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class PunctDeInteresRepository : IRepository<PunctDeInteres>
     {
-        private readonly AppContext _context;
-
-        public PunctDeInteresRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<PunctDeInteres> GetAll()
         {
-            return _context.PuncteDeInteres.ToList();
+            using var context = new AppContext();
+            return context.PuncteDeInteres.ToList();
         }
 
         public PunctDeInteres GetById(int id)
         {
-            return _context.PuncteDeInteres.Find(id);
+            using var context = new AppContext();
+            return context.PuncteDeInteres.Find(id);
         }
 
         public void Insert(PunctDeInteres entity)
         {
-            _context.PuncteDeInteres.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.PuncteDeInteres.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(PunctDeInteres entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.PuncteDeInteres.Find(id);
             if (entity != null)
             {
-                _context.PuncteDeInteres.Remove(entity);
-                _context.SaveChanges();
+                context.PuncteDeInteres.Remove(entity);
+                context.SaveChanges();
             }
         }
     }

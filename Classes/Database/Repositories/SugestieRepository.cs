@@ -9,51 +9,71 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class SugestieRepository : IRepository<Sugestie>
     {
-        private readonly AppContext _context;
-
-        public SugestieRepository()
-        {
-            _context = new AppContext();
-        }
+        // Remove the persistent context field to prevent memory leaks
 
         public IEnumerable<Sugestie> GetAll()
         {
-            return _context.Sugestii.ToList();
+            using var context = new AppContext();
+            return context.Sugestii.ToList();
         }
 
         public Sugestie GetById(int id)
         {
-            return _context.Sugestii.Find(id);
+            using var context = new AppContext();
+            return context.Sugestii.Find(id);
         }
 
         public void Insert(Sugestie entity)
         {
-            _context.Sugestii.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Sugestii.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(Sugestie entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.Sugestii.Find(id);
             if (entity != null)
             {
-                _context.Sugestii.Remove(entity);
-                _context.SaveChanges();
+                context.Sugestii.Remove(entity);
+                context.SaveChanges();
             }
         }
 
-        // New: get suggestions for a specific user including destination and ordered by date desc
+        // ? FIX N+1: Eager load Destinatie to avoid multiple queries
         public IEnumerable<Sugestie> GetByUser(int userId)
         {
-            return _context.Sugestii
-                .Include(s => s.Destinatie)
+            using var context = new AppContext();
+            return context.Sugestii
+                .Include(s => s.Destinatie) // ? EAGER LOADING - eliminates N+1!
                 .Where(s => s.Id_Utilizator == userId)
+                .OrderByDescending(s => s.Data_Inregistrare)
+                .ToList();
+        }
+
+        // ? BONUS: Get single suggestion with destination (avoids extra query)
+        public Sugestie GetByIdWithDestination(int id)
+        {
+            using var context = new AppContext();
+            return context.Sugestii
+                .Include(s => s.Destinatie)
+                .FirstOrDefault(s => s.Id_Sugestie == id);
+        }
+
+        // ? BONUS: Get all suggestions with destinations for performance
+        public IEnumerable<Sugestie> GetAllWithDestinations()
+        {
+            using var context = new AppContext();
+            return context.Sugestii
+                .Include(s => s.Destinatie)
                 .OrderByDescending(s => s.Data_Inregistrare)
                 .ToList();
         }

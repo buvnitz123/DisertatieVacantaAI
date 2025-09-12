@@ -9,42 +9,40 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class MesajAIRepository : IRepository<MesajAI>
     {
-        private readonly AppContext _context;
-
-        public MesajAIRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<MesajAI> GetAll()
         {
-            return _context.MesajeAI.ToList();
+            using var context = new AppContext();
+            return context.MesajeAI.ToList();
         }
 
         public MesajAI GetById(int id)
         {
-            return _context.MesajeAI.Find(id);
+            using var context = new AppContext();
+            return context.MesajeAI.Find(id);
         }
 
         public void Insert(MesajAI entity)
         {
-            _context.MesajeAI.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.MesajeAI.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(MesajAI entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.MesajeAI.Find(id);
             if (entity != null)
             {
-                _context.MesajeAI.Remove(entity);
-                _context.SaveChanges();
+                context.MesajeAI.Remove(entity);
+                context.SaveChanges();
             }
         }
     }

@@ -9,43 +9,66 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class RecenzieRepository : IRepository<Recenzie>
     {
-        private readonly AppContext _context;
-
-        public RecenzieRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<Recenzie> GetAll()
         {
-            return _context.Recenzii.ToList();
+            using var context = new AppContext();
+            return context.Recenzii.ToList();
         }
 
         public Recenzie GetById(int id)
         {
-            return _context.Recenzii.Find(id);
+            using var context = new AppContext();
+            return context.Recenzii.Find(id);
         }
 
         public void Insert(Recenzie entity)
         {
-            _context.Recenzii.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Recenzii.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(Recenzie entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.Recenzii.Find(id);
             if (entity != null)
             {
-                _context.Recenzii.Remove(entity);
-                _context.SaveChanges();
+                context.Recenzii.Remove(entity);
+                context.SaveChanges();
             }
+        }
+
+        // ? OPTIMIZED: Get reviews with related entities to avoid N+1
+        public IEnumerable<Recenzie> GetByDestinationWithDetails(int destinationId)
+        {
+            using var context = new AppContext();
+            return context.Recenzii
+                .Include(r => r.Utilizator)
+                .Include(r => r.PunctDeInteres)
+                .Include(r => r.Destinatie)
+                .Where(r => r.Id_Destinatie == destinationId)
+                .OrderByDescending(r => r.Data_Creare)
+                .ToList();
+        }
+
+        // ? OPTIMIZED: Get reviews by user with details
+        public IEnumerable<Recenzie> GetByUserWithDetails(int userId)
+        {
+            using var context = new AppContext();
+            return context.Recenzii
+                .Include(r => r.Destinatie)
+                .Include(r => r.PunctDeInteres)
+                .Where(r => r.Id_Utilizator == userId)
+                .OrderByDescending(r => r.Data_Creare)
+                .ToList();
         }
     }
 }

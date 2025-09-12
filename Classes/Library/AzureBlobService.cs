@@ -10,7 +10,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
 {
     // Kept the original class name (S3Utils) to avoid touching other code paths.
     // Internally now uses Azure Blob Storage.
-    public static class S3Utils
+    public static class AzureBlobService
     {
         private static readonly string ContainerName = "vacantaai";
 
@@ -65,6 +65,36 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
             catch (Exception ex)
             {
                 Debug.WriteLine($"[AzureBlob] Upload error: {ex}");
+                throw new Exception($"Failed to upload image to Azure Blob: {ex.Message}", ex);
+            }
+        }
+
+        // Uploads to an exact blob name (overwrites existing) and sets content type
+        public static async Task<string> UploadImageWithFixedNameAsync(byte[] imageBytes, string blobName, string contentType)
+        {
+            if (imageBytes == null || imageBytes.Length == 0)
+                throw new ArgumentException("Image bytes empty", nameof(imageBytes));
+            if (string.IsNullOrWhiteSpace(blobName))
+                throw new ArgumentException("Blob name required", nameof(blobName));
+
+            try
+            {
+                var container = CreateContainerClient();
+                var blobClient = container.GetBlobClient(blobName);
+
+                using var ms = new MemoryStream(imageBytes);
+                // Overwrite existing if any
+                await blobClient.UploadAsync(ms, overwrite: true);
+
+                // Set content type
+                var headers = new BlobHttpHeaders { ContentType = string.IsNullOrWhiteSpace(contentType) ? GetContentTypeFromFileName(blobName) : contentType };
+                await blobClient.SetHttpHeadersAsync(headers);
+
+                return blobClient.Uri.ToString();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[AzureBlob] Upload (fixed name) error: {ex}");
                 throw new Exception($"Failed to upload image to Azure Blob: {ex.Message}", ex);
             }
         }

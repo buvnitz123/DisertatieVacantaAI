@@ -1,6 +1,7 @@
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using System.Collections.ObjectModel;
+using MauiAppDisertatieVacantaAI.Classes.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -31,7 +32,7 @@ public partial class SugestiiPage : ContentPage
             LoadingIndicator.IsRunning = true;
             _items.Clear();
 
-            var idStr = await SecureStorage.GetAsync("UserId");
+            var idStr = await UserSession.GetUserIdAsync();
             if (string.IsNullOrEmpty(idStr) || !int.TryParse(idStr, out _userId))
             {
                 return; // not logged

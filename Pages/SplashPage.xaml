@@ -8,12 +8,22 @@
     <Grid>
         <StackLayout VerticalOptions="Center" Spacing="40" Padding="40">
             
-            <!-- App Logo/Title -->
-            <Label Text="Vacation Planner AI" 
+            <!-- App Title (restored) -->
+            <Label x:Name="TitleLabel"
+                   Text="Vacation Planner AI" 
                    FontSize="36" 
                    FontAttributes="Bold"
                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
-                   HorizontalOptions="Center" />
+                   HorizontalOptions="Center"
+                   Opacity="0" />
+            
+            <!-- App Logo Image with fade animation -->
+            <Image x:Name="LogoImage"
+                   Source="dotnet_bot.png"
+                   HeightRequest="180"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   Opacity="0" />
             
             <!-- Status Message -->
             <Label x:Name="StatusLabel"
@@ -21,7 +31,7 @@
                    FontSize="16"
                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                    HorizontalOptions="Center"
-                   Opacity="0.8" />
+                   Opacity="0" />
 
             <!-- Progress Bar -->
             <StackLayout Spacing="10">
@@ -29,21 +39,23 @@
                              Progress="0"
                              ProgressColor="{StaticResource PrimaryBlue}"
                              BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
-                             HeightRequest="8" />
+                             HeightRequest="8" 
+                             Opacity="0" />
                 
                 <Label x:Name="ProgressLabel"
                        Text="0%"
                        FontSize="14"
                        TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                        HorizontalOptions="Center"
-                       Opacity="0.7" />
+                       Opacity="0" />
             </StackLayout>
 
             <!-- Loading Indicator -->
             <ActivityIndicator x:Name="LoadingIndicator"
                                IsRunning="True"
                                Color="{StaticResource PrimaryBlue}"
-                               HeightRequest="50" />
+                               HeightRequest="50" 
+                               Opacity="0" />
 
             <!-- Error Message -->
             <Frame x:Name="ErrorFrame"

@@ -10,65 +10,93 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class UtilizatorRepository : IRepository<Utilizator>
     {
-        private readonly AppContext _context;
-
-        public UtilizatorRepository()
+        // Remove the persistent context field to prevent memory leaks
+        
+        // Force EF model initialization to avoid first-hit delays later
+        public void Initialize()
         {
-            _context = new AppContext();
+            using var context = new AppContext();
+            // Ensure the context and model are initialized without forcing reinitialization
+            context.Database.Initialize(false);
         }
 
-        public IEnumerable<Utilizator> GetAll() => _context.Utilizatori.ToList();
+        public IEnumerable<Utilizator> GetAll()
+        {
+            using var context = new AppContext();
+            return context.Utilizatori.ToList();
+        }
 
-        public Utilizator GetById(int id) => _context.Utilizatori.Find(id);
+        public Utilizator GetById(int id)
+        {
+            using var context = new AppContext();
+            return context.Utilizatori.Find(id);
+        }
 
-        public Utilizator GetByEmail(string email) => _context.Utilizatori.FirstOrDefault(u => u.Email == email);
+        public Utilizator GetByEmail(string email)
+        {
+            using var context = new AppContext();
+            return context.Utilizatori.FirstOrDefault(u => u.Email == email);
+        }
 
-        public bool EmailExists(string email) => _context.Utilizatori.Any(u => u.Email == email);
+        public bool EmailExists(string email)
+        {
+            using var context = new AppContext();
+            return context.Utilizatori.Any(u => u.Email == email);
+        }
 
         public void Insert(Utilizator entity)
         {
-            _context.Utilizatori.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Utilizatori.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(Utilizator entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.Utilizatori.Find(id);
             if (entity != null)
             {
-                _context.Utilizatori.Remove(entity);
-                _context.SaveChanges();
+                context.Utilizatori.Remove(entity);
+                context.SaveChanges();
             }
         }
 
-        // Time-based manual ID (seconds since 2024-01-01 UTC, collision increments)
-        public int GenerateTimeBasedId()
+        // Generate next available ID using MAX(Id) + 1 strategy
+        public int GenerateNextId()
         {
-            var baseDate = new System.DateTime(2024, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
-            int candidate = (int)(System.DateTime.UtcNow - baseDate).TotalSeconds;
-            int attempt = candidate;
-            int safety = 0;
-            while (GetById(attempt) != null)
+            try
             {
-                attempt++;
-                safety++;
-                if (safety > 2000)
-                    throw new System.Exception("Could not allocate a unique user ID after many attempts.");
+                using var context = new AppContext();
+                // Get the maximum existing ID, default to 0 if no users exist
+                var maxId = context.Utilizatori.Any() 
+                    ? context.Utilizatori.Max(u => u.Id_Utilizator) 
+                    : 0;
+                
+                return maxId + 1;
             }
-            return attempt;
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error generating next ID: {ex.Message}");
+                // Fallback to timestamp-based approach if MAX query fails
+                var baseDate = new System.DateTime(2024, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+                return (int)(System.DateTime.UtcNow - baseDate).TotalSeconds;
+            }
         }
 
         // Encrypted password login (fallback to legacy plain)
         public Utilizator GetByEmailAndPassword(string email, string password)
         {
+            using var context = new AppContext();
             string encrypted = EncryptionUtils.Encrypt(password);
-            return _context.Utilizatori
+            return context.Utilizatori
                 .FirstOrDefault(u =>
                     u.Email == email &&
                     u.EsteActiv == 1 &&

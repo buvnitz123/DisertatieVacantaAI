@@ -9,42 +9,40 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class FacilitateRepository : IRepository<Facilitate>
     {
-        private readonly AppContext _context;
-
-        public FacilitateRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<Facilitate> GetAll()
         {
-            return _context.Facilitati.ToList();
+            using var context = new AppContext();
+            return context.Facilitati.ToList();
         }
 
         public Facilitate GetById(int id)
         {
-            return _context.Facilitati.Find(id);
+            using var context = new AppContext();
+            return context.Facilitati.Find(id);
         }
 
         public void Insert(Facilitate entity)
         {
-            _context.Facilitati.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Facilitati.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(Facilitate entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.Facilitati.Find(id);
             if (entity != null)
             {
-                _context.Facilitati.Remove(entity);
-                _context.SaveChanges();
+                context.Facilitati.Remove(entity);
+                context.SaveChanges();
             }
         }
     }

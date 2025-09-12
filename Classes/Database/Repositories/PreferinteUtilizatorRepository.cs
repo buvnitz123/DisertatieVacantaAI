@@ -9,42 +9,40 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class PreferinteUtilizatorRepository : IRepository<PreferinteUtilizator>
     {
-        private readonly AppContext _context;
-
-        public PreferinteUtilizatorRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<PreferinteUtilizator> GetAll()
         {
-            return _context.PreferinteUtilizator.ToList();
+            using var context = new AppContext();
+            return context.PreferinteUtilizator.ToList();
         }
 
         public PreferinteUtilizator GetById(int id)
         {
-            return _context.PreferinteUtilizator.Find(id);
+            using var context = new AppContext();
+            return context.PreferinteUtilizator.Find(id);
         }
 
         public void Insert(PreferinteUtilizator entity)
         {
-            _context.PreferinteUtilizator.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.PreferinteUtilizator.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(PreferinteUtilizator entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.PreferinteUtilizator.Find(id);
             if (entity != null)
             {
-                _context.PreferinteUtilizator.Remove(entity);
-                _context.SaveChanges();
+                context.PreferinteUtilizator.Remove(entity);
+                context.SaveChanges();
             }
         }
     }

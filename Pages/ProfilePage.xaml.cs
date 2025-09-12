@@ -1,5 +1,8 @@
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+using MauiAppDisertatieVacantaAI.Classes.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 using System.Diagnostics;
+using System.IO;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -7,6 +10,8 @@ public partial class ProfilePage : ContentPage
 {
     private readonly UtilizatorRepository _repo = new UtilizatorRepository();
     private int _userId;
+    private bool _hasCustomPhoto;
+    private string _currentPhotoUrl;
 
     public ProfilePage()
     {
@@ -27,16 +32,20 @@ public partial class ProfilePage : ContentPage
     {
         try
         {
-            var idStr = await SecureStorage.GetAsync("UserId");
+            var idStr = await UserSession.GetUserIdAsync();
             if (string.IsNullOrEmpty(idStr) || !int.TryParse(idStr, out _userId))
             {
                 NameLabel.Text = "Neautentificat";
+                _hasCustomPhoto = false;
+                _currentPhotoUrl = null;
                 return;
             }
             var user = _repo.GetById(_userId);
             if (user == null)
             {
                 NameLabel.Text = "Utilizator inexistent";
+                _hasCustomPhoto = false;
+                _currentPhotoUrl = null;
                 return;
             }
             NameLabel.Text = $"{user.Nume} {user.Prenume}";
@@ -51,13 +60,18 @@ public partial class ProfilePage : ContentPage
                 try
                 {
                     var path = user.PozaProfil;
+                    // Normalize old relative values to absolute for display/state
                     if (!path.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                     {
                         var baseUrl = "https://vacantaai.blob.core.windows.net/vacantaai";
                         path = $"{baseUrl}/{path}";
                     }
-                    ProfileImage.Source = new UriImageSource { Uri = new Uri(path), CachingEnabled = true, CacheValidity = TimeSpan.FromHours(12) };
+                    // Cache busting to ensure latest image is fetched after updates
+                    var uri = new Uri(path + (path.Contains("?") ? "&" : "?") + "v=" + DateTime.UtcNow.Ticks);
+                    ProfileImage.Source = new UriImageSource { Uri = uri, CachingEnabled = true, CacheValidity = TimeSpan.FromHours(12) };
                     InitialsLabel.IsVisible = false;
+                    _hasCustomPhoto = true;
+                    _currentPhotoUrl = path;
                 }
                 catch (Exception exImg)
                 {
@@ -81,6 +95,154 @@ public partial class ProfilePage : ContentPage
     {
         ProfileImage.Source = "profile_default.png"; // default placeholder image
         InitialsLabel.IsVisible = false;
+        _hasCustomPhoto = false;
+        _currentPhotoUrl = null;
+    }
+
+    private async Task<bool> EnsureCameraAndStoragePermissionsAsync()
+    {
+#if ANDROID
+        var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        if (cameraStatus != PermissionStatus.Granted)
+        {
+            cameraStatus = await Permissions.RequestAsync<Permissions.Camera>();
+            if (cameraStatus != PermissionStatus.Granted)
+                return false;
+        }
+
+        // For picking from gallery on Android 13+
+        var readImagesStatus = await Permissions.CheckStatusAsync<Permissions.Photos>();
+        if (readImagesStatus != PermissionStatus.Granted)
+        {
+            readImagesStatus = await Permissions.RequestAsync<Permissions.Photos>();
+            if (readImagesStatus != PermissionStatus.Granted)
+                return false;
+        }
+#endif
+        return true;
+    }
+
+    private async Task SetProfileImageAsync(FileResult file)
+    {
+        if (file == null) return;
+        try
+        {
+            // Prefer using FullPath if available and accessible (opens a fresh stream when needed)
+            if (!string.IsNullOrEmpty(file.FullPath) && File.Exists(file.FullPath))
+            {
+                ProfileImage.Source = ImageSource.FromFile(file.FullPath);
+                InitialsLabel.IsVisible = false;
+                await UploadProfilePhotoAsync(file);
+                return;
+            }
+
+            // Fallback: copy to memory to avoid using a disposed stream
+            using var stream = await file.OpenReadAsync();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+            ProfileImage.Source = ImageSource.FromStream(() => new MemoryStream(bytes));
+            InitialsLabel.IsVisible = false;
+
+            await UploadProfilePhotoAsync(bytes);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Eroare", $"Nu s-a putut incarca imaginea: {ex.Message}", "OK");
+            Debug.WriteLine($"SetProfileImageAsync error: {ex}\n{ex.StackTrace}");
+        }
+    }
+
+    private async Task UploadProfilePhotoAsync(FileResult file)
+    {
+        try
+        {
+            using var stream = await file.OpenReadAsync();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            await UploadProfilePhotoAsync(ms.ToArray());
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"UploadProfilePhotoAsync(file) error: {ex}");
+        }
+    }
+
+    private async Task UploadProfilePhotoAsync(byte[] bytes)
+    {
+        try
+        {
+            if (_userId <= 0) return;
+            var blobName = $"profiles/profile_user_{_userId}.jpg";
+            var contentType = AzureBlobService.GetContentTypeFromFileName(blobName);
+            var url = await AzureBlobService.UploadImageWithFixedNameAsync(bytes, blobName, contentType);
+
+            // Persist relative path to fit DB (50 chars)
+            var relativePath = blobName;
+            var user = _repo.GetById(_userId);
+            if (user != null)
+            {
+                user.PozaProfil = relativePath;
+                _repo.Update(user);
+            }
+            _hasCustomPhoto = true;
+            _currentPhotoUrl = $"https://vacantaai.blob.core.windows.net/vacantaai/{relativePath}";
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Eroare", $"Upload esuat: {ex.Message}", "OK");
+            Debug.WriteLine($"UploadProfilePhotoAsync(bytes) error: {ex}");
+        }
+    }
+
+    private async Task DeleteProfilePhotoAsync()
+    {
+        try
+        {
+            if (!_hasCustomPhoto)
+            {
+                await DisplayAlert("Info", "Nu exista o poza de profil de sters.", "OK");
+                return;
+            }
+
+            bool confirm = await DisplayAlert("Confirmare", "Sigur stergi poza de profil?", "Da", "Nu");
+            if (!confirm) return;
+
+            // Get the latest user state
+            var user = _repo.GetById(_userId);
+            if (user == null)
+            {
+                await DisplayAlert("Eroare", "Utilizator inexistent.", "OK");
+                return;
+            }
+
+            var urlOrRelative = user.PozaProfil;
+            if (string.IsNullOrWhiteSpace(urlOrRelative))
+            {
+                await DisplayAlert("Info", "Nu exista o poza de profil de sters.", "OK");
+                return;
+            }
+
+            // Normalize to absolute URL if relative
+            var absoluteUrl = urlOrRelative.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? urlOrRelative
+                : $"https://vacantaai.blob.core.windows.net/vacantaai/{urlOrRelative}";
+
+            // Attempt blob deletion (best-effort)
+            _ = AzureBlobService.DeleteImage(absoluteUrl);
+
+            // Update DB: set null
+            user.PozaProfil = null;
+            _repo.Update(user);
+
+            // UI: reset to default
+            SetDefaultImage();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Eroare", $"Stergere esuata: {ex.Message}", "OK");
+            Debug.WriteLine($"DeleteProfilePhotoAsync error: {ex}");
+        }
     }
 
     private async void OnProfileImageTapped(object sender, TappedEventArgs e)
@@ -88,17 +250,22 @@ public partial class ProfilePage : ContentPage
 #if ANDROID
         try
         {
-            string action = await DisplayActionSheet("Foto profil", "Anuleaza", null, "Fa o poza", "Alege din galerie");
+            // Always show the delete option; it will no-op on default image
+            string action = await DisplayActionSheet("Foto profil", "Anuleaza", null, "Fa o poza", "Alege din galerie", "Sterge poza");
             if (action == "Fa o poza")
-            {
+            {   
                 try
                 {
+                    if (!await EnsureCameraAndStoragePermissionsAsync())
+                    {
+                        await DisplayAlert("Permisiuni", "Permisiunile pentru camera/imagini sunt necesare.", "OK");
+                        return;
+                    }
+
                     var photo = await MediaPicker.Default.CapturePhotoAsync();
                     if (photo != null)
                     {
-                        using var stream = await photo.OpenReadAsync();
-                        ProfileImage.Source = ImageSource.FromStream(() => stream);
-                        InitialsLabel.IsVisible = false;
+                        await SetProfileImageAsync(photo);
                     }
                 }
                 catch (Exception exCam)
@@ -111,12 +278,16 @@ public partial class ProfilePage : ContentPage
             {
                 try
                 {
+                    if (!await EnsureCameraAndStoragePermissionsAsync())
+                    {
+                        await DisplayAlert("Permisiuni", "Permisiunile pentru acces la imagini sunt necesare.", "OK");
+                        return;
+                    }
+
                     var result = await FilePicker.PickAsync(new PickOptions { FileTypes = FilePickerFileType.Images });
                     if (result != null)
                     {
-                        using var stream = await result.OpenReadAsync();
-                        ProfileImage.Source = ImageSource.FromStream(() => stream);
-                        InitialsLabel.IsVisible = false;
+                        await SetProfileImageAsync(result);
                     }
                 }
                 catch (Exception exPick)
@@ -124,6 +295,10 @@ public partial class ProfilePage : ContentPage
                     await DisplayAlert("Eroare", $"Selectie esuata: {exPick.Message}", "OK");
                     Debug.WriteLine($"Gallery pick error: {exPick}\n{exPick.StackTrace}");
                 }
+            }
+            else if (action == "Sterge poza")
+            {
+                await DeleteProfilePhotoAsync();
             }
         }
         catch (Exception ex)

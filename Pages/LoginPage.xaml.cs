@@ -1,5 +1,6 @@
 using System;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+using MauiAppDisertatieVacantaAI.Classes.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -36,13 +37,22 @@ public partial class LoginPage : ContentPage
 
             if (user != null)
             {
-                // Salvează starea de login dacă Remember Me este bifat
-                if (RememberMeCheckBox.IsChecked)
+                // ALWAYS clear any previous session data first
+                UserSession.ClearSession();
+
+                // Set current session (persist only if Remember Me is checked)
+                bool persist = RememberMeCheckBox.IsChecked;
+                UserSession.SetCurrentUser(
+                    user.Id_Utilizator.ToString(),
+                    user.Email,
+                    user.Nume,
+                    user.Prenume,
+                    persist
+                );
+
+                if (persist)
                 {
-                    await SecureStorage.SetAsync("IsLoggedIn", "true");
-                    await SecureStorage.SetAsync("UserEmail", user.Email);
-                    await SecureStorage.SetAsync("UserId", user.Id_Utilizator.ToString());
-                    await SecureStorage.SetAsync("UserName", $"{user.Nume} {user.Prenume}");
+                    await UserSession.SetLoggedInAsync(true);
                 }
 
                 // Navigare la pagina principală

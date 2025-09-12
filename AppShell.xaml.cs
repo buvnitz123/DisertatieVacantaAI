@@ -1,4 +1,5 @@
 ﻿using MauiAppDisertatieVacantaAI.Pages;
+using MauiAppDisertatieVacantaAI.Classes.Session;
 
 namespace MauiAppDisertatieVacantaAI;
 
@@ -55,10 +56,8 @@ public partial class AppShell : Shell
     {
         try
         {
-            SecureStorage.Remove("IsLoggedIn");
-            SecureStorage.Remove("UserEmail");
-            SecureStorage.Remove("UserId");
-            SecureStorage.Remove("UserName");
+            // Use UserSession to properly clear both in-memory and persistent session
+            UserSession.ClearSession();
             await Shell.Current.GoToAsync("//LoginPage");
         }
         catch (Exception ex)

@@ -9,16 +9,10 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class DestinatieFacilitateRepository : IRepository<DestinatieFacilitate>
     {
-        private readonly AppContext _context;
-
-        public DestinatieFacilitateRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<DestinatieFacilitate> GetAll()
         {
-            return _context.DestinatieFacilitate.ToList();
+            using var context = new AppContext();
+            return context.DestinatieFacilitate.ToList();
         }
 
         public DestinatieFacilitate GetById(int id)
@@ -30,14 +24,16 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 
         public void Insert(DestinatieFacilitate entity)
         {
-            _context.DestinatieFacilitate.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.DestinatieFacilitate.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(DestinatieFacilitate entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)

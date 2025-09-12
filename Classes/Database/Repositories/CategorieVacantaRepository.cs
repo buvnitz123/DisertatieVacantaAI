@@ -10,38 +10,36 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class CategorieVacantaRepository : IRepository<CategorieVacanta>
     {
-        private readonly AppContext _context;
-
-        public CategorieVacantaRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<CategorieVacanta> GetAll()
         {
-            return _context.CategoriiVacanta.ToList();
+            using var context = new AppContext();
+            return context.CategoriiVacanta.ToList();
         }
 
         public CategorieVacanta GetById(int id)
         {
-            return _context.CategoriiVacanta.Find(id);
+            using var context = new AppContext();
+            return context.CategoriiVacanta.Find(id);
         }
 
         public void Insert(CategorieVacanta entity)
         {
-            _context.CategoriiVacanta.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.CategoriiVacanta.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(CategorieVacanta entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.CategoriiVacanta.Find(id);
             if (entity != null)
             {
                 // Delete image from S3 if exists
@@ -49,7 +47,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                 {
                     try
                     {
-                        S3Utils.DeleteImage(entity.ImagineUrl);
+                        AzureBlobService.DeleteImage(entity.ImagineUrl);
                     }
                     catch (Exception ex)
                     {
@@ -58,8 +56,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                     }
                 }
 
-                _context.CategoriiVacanta.Remove(entity);
-                _context.SaveChanges();
+                context.CategoriiVacanta.Remove(entity);
+                context.SaveChanges();
             }
         }
     }

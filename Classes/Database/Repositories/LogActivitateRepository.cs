@@ -9,42 +9,40 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class LogActivitateRepository : IRepository<LogActivitate>
     {
-        private readonly AppContext _context;
-
-        public LogActivitateRepository()
-        {
-            _context = new AppContext();
-        }
-
         public IEnumerable<LogActivitate> GetAll()
         {
-            return _context.LogActivitate.ToList();
+            using var context = new AppContext();
+            return context.LogActivitate.ToList();
         }
 
         public LogActivitate GetById(int id)
         {
-            return _context.LogActivitate.Find(id);
+            using var context = new AppContext();
+            return context.LogActivitate.Find(id);
         }
 
         public void Insert(LogActivitate entity)
         {
-            _context.LogActivitate.Add(entity);
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.LogActivitate.Add(entity);
+            context.SaveChanges();
         }
 
         public void Update(LogActivitate entity)
         {
-            _context.Entry(entity).State = EntityState.Modified;
-            _context.SaveChanges();
+            using var context = new AppContext();
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
         public void Delete(int id)
         {
-            var entity = GetById(id);
+            using var context = new AppContext();
+            var entity = context.LogActivitate.Find(id);
             if (entity != null)
             {
-                _context.LogActivitate.Remove(entity);
-                _context.SaveChanges();
+                context.LogActivitate.Remove(entity);
+                context.SaveChanges();
             }
         }
     }
