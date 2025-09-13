@@ -9,6 +9,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
     {
         [Key]
         [Column("Id_ConversatieAI")]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id_ConversatieAI { get; set; }
 
         [Required]
@@ -17,7 +18,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
         public string Denumire { get; set; }
 
         [Required]
-        [Column("Data_Creare")]
+        [Column("Data_Creare", TypeName = "datetime2")]
         public DateTime Data_Creare { get; set; }
 
         [Required]

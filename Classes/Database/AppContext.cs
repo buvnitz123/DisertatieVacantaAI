@@ -18,6 +18,16 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
             modelBuilder.Entity<Facilitate>()
                 .Property(f => f.Id_Facilitate)
                 .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+
+            // Configure ConversatieAI to NOT use identity for primary key (manual assignment)
+            modelBuilder.Entity<ConversatieAI>()
+                .Property(c => c.Id_ConversatieAI)
+                .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+
+            // Configure MesajAI to NOT use identity for primary key (manual assignment)
+            modelBuilder.Entity<MesajAI>()
+                .Property(m => m.Id_Mesaj)
+                .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             
             base.OnModelCreating(modelBuilder);
         }

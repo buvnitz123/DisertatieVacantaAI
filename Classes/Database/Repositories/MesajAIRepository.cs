@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Interfaces;
+using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
@@ -21,11 +22,64 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             return context.MesajeAI.Find(id);
         }
 
-        public void Insert(MesajAI entity)
+        public IEnumerable<MesajAI> GetByConversationId(int conversationId)
         {
             using var context = new AppContext();
-            context.MesajeAI.Add(entity);
-            context.SaveChanges();
+            return context.MesajeAI.Where(m => m.Id_ConversatieAI == conversationId).ToList();
+        }
+
+        // Generate next available ID using MAX(Id) + 1 strategy
+        public int GenerateNextId()
+        {
+            try
+            {
+                using var context = new AppContext();
+                // Get the maximum existing ID, default to 0 if no messages exist
+                var maxId = context.MesajeAI.Any() ? context.MesajeAI.Max(m => m.Id_Mesaj) : 0;
+                var nextId = maxId + 1;
+                Debug.WriteLine($"Generated next MesajAI ID: {nextId} (max was: {maxId})");
+                return nextId;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error generating next MesajAI ID: {ex.Message}");
+                throw;
+            }
+        }
+
+        public void Insert(MesajAI entity)
+        {
+            try
+            {
+                using var context = new AppContext();
+                
+                // Generate ID if not already set
+                if (entity.Id_Mesaj == 0)
+                {
+                    entity.Id_Mesaj = GenerateNextId();
+                }
+                
+                Debug.WriteLine($"Inserting MesajAI: Id={entity.Id_Mesaj}, Mesaj={entity.Mesaj}, Id_ConversatieAI={entity.Id_ConversatieAI}, Mesaj_User={entity.Mesaj_User}, Data_Creare={entity.Data_Creare}");
+                
+                context.MesajeAI.Add(entity);
+                int result = context.SaveChanges();
+                
+                Debug.WriteLine($"SaveChanges returned: {result}");
+                
+                if (result == 0)
+                {
+                    throw new InvalidOperationException("No records were saved to the database.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in MesajAIRepository.Insert: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                throw;
+            }
         }
 
         public void Update(MesajAI entity)
