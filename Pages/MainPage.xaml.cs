@@ -1,24 +1,56 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.DTO;
+using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using System.Diagnostics;
 using MauiAppDisertatieVacantaAI.Classes.Session;
+using System.Collections.ObjectModel;
 
 namespace MauiAppDisertatieVacantaAI.Pages
 {
+    // ViewModel classes for data binding
+    public class CategoryDisplayItem
+    {
+        public int Id { get; set; }
+        public string Denumire { get; set; }
+        public string ImageUrl { get; set; }
+    }
+
+    public class DestinationDisplayItem
+    {
+        public int Id { get; set; }
+        public string Denumire { get; set; }
+        public string Location { get; set; }
+        public string ImageUrl { get; set; }
+    }
+
+    public class PointOfInterestDisplayItem
+    {
+        public int Id { get; set; }
+        public string Denumire { get; set; }
+        public string Tip { get; set; }
+        public string ImageUrl { get; set; }
+    }
+
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+        private readonly CategorieVacantaRepository _categorieRepo = new();
+        private readonly DestinatieRepository _destinatieRepo = new();
+        private readonly PunctDeInteresRepository _poiRepo = new();
+        private readonly ImaginiDestinatieRepository _imaginiDestRepo = new();
+        private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
+
+        private ObservableCollection<DestinationDisplayItem> _destinations = new();
+        private ObservableCollection<PointOfInterestDisplayItem> _pointsOfInterest = new();
 
         public MainPage()
         {
             InitializeComponent();
-            // Don't load user info in constructor - it won't refresh on navigation
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            // Load user info every time the page appears to ensure fresh data
             await LoadUserInfoAsync();
+            await LoadHomeContentAsync();
         }
 
         private async Task LoadUserInfoAsync()
@@ -29,7 +61,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 var user = await UserSession.GetUserFromSessionAsync();
                 if (user != null)
                 {
-                    WelcomeLabel.Text = $"Welcome, {user.Nume} {user.Prenume}".Trim();
+                    WelcomeLabel.Text = $"Bine ai venit, {user.Nume}!".Trim();
                     return;
                 }
 
@@ -37,38 +69,279 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 string userName = await UserSession.GetUserNameAsync();
                 if (!string.IsNullOrEmpty(userName))
                 {
-                    WelcomeLabel.Text = $"Welcome, {userName}";
+                    WelcomeLabel.Text = $"Bine ai venit, {userName}!";
                 }
                 else
                 {
-                    string userEmail = await UserSession.GetUserEmailAsync();
-                    if (!string.IsNullOrEmpty(userEmail))
-                    {
-                        WelcomeLabel.Text = $"Welcome, {userEmail}";
-                    }
-                    else
-                    {
-                        WelcomeLabel.Text = "Welcome!";
-                    }
+                    WelcomeLabel.Text = "Bine ai venit!";
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error loading user info: {ex.Message}");
-                WelcomeLabel.Text = "Welcome!"; // Fallback display
+                WelcomeLabel.Text = "Bine ai venit!"; // Fallback display
             }
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private async Task LoadHomeContentAsync()
         {
-            count++;
+            try
+            {
+                LoadingIndicator.IsRunning = true;
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+                // Load all content in parallel
+                await Task.WhenAll(
+                    LoadCategoriesAsync(),
+                    LoadDestinationsAsync(),
+                    LoadPointsOfInterestAsync()
+                );
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading home content: {ex.Message}");
+                await DisplayAlert("Eroare", "Nu s-au putut incarca datele", "OK");
+            }
+            finally
+            {
+                LoadingIndicator.IsRunning = false;
+            }
+        }
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+        private async Task LoadCategoriesAsync()
+        {
+            try
+            {
+                var categories = await Task.Run(() => _categorieRepo.GetAll().Take(4).ToList());
+                
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    CategoriesGrid.Children.Clear();
+                    
+                    if (!categories.Any())
+                    {
+                        NoCategoriesLabel.IsVisible = true;
+                        return;
+                    }
+
+                    NoCategoriesLabel.IsVisible = false;
+
+                    for (int i = 0; i < categories.Count; i++)
+                    {
+                        var category = categories[i];
+                        var row = i / 2;
+                        var col = i % 2;
+
+                        var categoryFrame = CreateCategoryFrame(category);
+                        Grid.SetRow(categoryFrame, row);
+                        Grid.SetColumn(categoryFrame, col);
+                        CategoriesGrid.Children.Add(categoryFrame);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading categories: {ex.Message}");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    NoCategoriesLabel.IsVisible = true;
+                });
+            }
+        }
+
+        private async Task LoadDestinationsAsync()
+        {
+            try
+            {
+                var destinations = await Task.Run(() => _destinatieRepo.GetAll().Take(5).ToList());
+                
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    _destinations.Clear();
+
+                    if (!destinations.Any())
+                    {
+                        NoDestinationsLabel.IsVisible = true;
+                        DestinationsCarousel.IsVisible = false;
+                        return;
+                    }
+
+                    NoDestinationsLabel.IsVisible = false;
+                    DestinationsCarousel.IsVisible = true;
+
+                    foreach (var dest in destinations)
+                    {
+                        var imageUrl = await GetFirstDestinationImageAsync(dest.Id_Destinatie);
+                        var displayItem = new DestinationDisplayItem
+                        {
+                            Id = dest.Id_Destinatie,
+                            Denumire = dest.Denumire,
+                            Location = $"{dest.Oras}, {dest.Tara}",
+                            ImageUrl = imageUrl ?? "placeholder_image.png"
+                        };
+                        _destinations.Add(displayItem);
+                    }
+
+                    DestinationsCarousel.ItemsSource = _destinations;
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading destinations: {ex.Message}");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    NoDestinationsLabel.IsVisible = true;
+                    DestinationsCarousel.IsVisible = false;
+                });
+            }
+        }
+
+        private async Task LoadPointsOfInterestAsync()
+        {
+            try
+            {
+                var pois = await Task.Run(() => _poiRepo.GetAll().Take(5).ToList());
+                
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    _pointsOfInterest.Clear();
+
+                    if (!pois.Any())
+                    {
+                        NoPointsLabel.IsVisible = true;
+                        PointsOfInterestCarousel.IsVisible = false;
+                        return;
+                    }
+
+                    NoPointsLabel.IsVisible = false;
+                    PointsOfInterestCarousel.IsVisible = true;
+
+                    foreach (var poi in pois)
+                    {
+                        var imageUrl = await GetFirstPoiImageAsync(poi.Id_PunctDeInteres);
+                        var displayItem = new PointOfInterestDisplayItem
+                        {
+                            Id = poi.Id_PunctDeInteres,
+                            Denumire = poi.Denumire,
+                            Tip = poi.Tip ?? "Atractie",
+                            ImageUrl = imageUrl ?? "placeholder_image.png"
+                        };
+                        _pointsOfInterest.Add(displayItem);
+                    }
+
+                    PointsOfInterestCarousel.ItemsSource = _pointsOfInterest;
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading points of interest: {ex.Message}");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    NoPointsLabel.IsVisible = true;
+                    PointsOfInterestCarousel.IsVisible = false;
+                });
+            }
+        }
+
+        private Frame CreateCategoryFrame(CategorieVacanta category)
+        {
+            var frame = new Frame
+            {
+                BackgroundColor = Colors.White,
+                CornerRadius = 12,
+                Padding = 0,
+                HasShadow = true,
+                BorderColor = Colors.Transparent
+            };
+
+            var tapGesture = new TapGestureRecognizer();
+            tapGesture.Tapped += (s, e) => OnCategoryTapped(category);
+            frame.GestureRecognizers.Add(tapGesture);
+
+            var grid = new Grid();
+
+            var image = new Image
+            {
+                Source = !string.IsNullOrEmpty(category.ImagineUrl) ? category.ImagineUrl : "placeholder_image.png",
+                Aspect = Aspect.AspectFill,
+                VerticalOptions = LayoutOptions.Fill,
+                HorizontalOptions = LayoutOptions.Fill
+            };
+
+            var overlay = new BoxView
+            {
+                Color = Color.FromArgb("#80000000"),
+                VerticalOptions = LayoutOptions.End,
+                HeightRequest = 50
+            };
+
+            var label = new Label
+            {
+                Text = category.Denumire,
+                FontSize = 14,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Colors.White,
+                VerticalOptions = LayoutOptions.End,
+                HorizontalOptions = LayoutOptions.Center,
+                Padding = new Thickness(8, 0, 8, 10),
+                LineBreakMode = LineBreakMode.TailTruncation
+            };
+
+            grid.Children.Add(image);
+            grid.Children.Add(overlay);
+            grid.Children.Add(label);
+            frame.Content = grid;
+
+            return frame;
+        }
+
+        private async Task<string> GetFirstDestinationImageAsync(int destinationId)
+        {
+            try
+            {
+                var images = await Task.Run(() => _imaginiDestRepo.GetByDestinationId(destinationId));
+                return images?.FirstOrDefault()?.ImagineUrl;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting destination image: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task<string> GetFirstPoiImageAsync(int poiId)
+        {
+            try
+            {
+                var images = await Task.Run(() => _imaginiPoiRepo.GetByPointOfInterestId(poiId));
+                return images?.FirstOrDefault()?.ImagineUrl;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting POI image: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Event handlers
+        private async void OnCategoryTapped(CategorieVacanta category)
+        {
+            await DisplayAlert("Categorie", $"Ai selectat categoria: {category.Denumire}", "OK");
+        }
+
+        private async void OnDestinationTapped(object sender, TappedEventArgs e)
+        {
+            if (sender is Element element && element.BindingContext is DestinationDisplayItem destination)
+            {
+                await DisplayAlert("Destinatie", $"Ai selectat destinatia: {destination.Denumire}", "OK");
+            }
+        }
+
+        private async void OnPointOfInterestTapped(object sender, TappedEventArgs e)
+        {
+            if (sender is Element element && element.BindingContext is PointOfInterestDisplayItem poi)
+            {
+                await DisplayAlert("Punct de Interes", $"Ai selectat: {poi.Denumire}", "OK");
+            }
         }
     }
 }

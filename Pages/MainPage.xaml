@@ -4,55 +4,191 @@
              x:Class="MauiAppDisertatieVacantaAI.Pages.MainPage"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
 
-    <Grid>
-        <ScrollView>
-            <VerticalStackLayout
-                Padding="30,80,30,30"
-                Spacing="25">
-                
-                <!-- Welcome Message -->
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="30">
+            
+            <!-- Welcome Section -->
+            <VerticalStackLayout Spacing="10">
                 <Label x:Name="WelcomeLabel"
-                       Text="Welcome back!"
+                       Text="Bine ai venit!"
                        FontSize="28"
                        FontAttributes="Bold"
                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                        HorizontalOptions="Center" />
                 
-                <Image
-                    Source="dotnet_bot.png"
-                    HeightRequest="185"
-                    Aspect="AspectFit"
-                    SemanticProperties.Description="dot net bot in a hovercraft number nine" />
-
-                <Label
-                    Text="Vacation Planner AI"
-                    FontSize="24"
-                    FontAttributes="Bold"
-                    TextColor="{StaticResource PrimaryBlue}"
-                    HorizontalOptions="Center"
-                    SemanticProperties.HeadingLevel="Level1" />
-
-                <Label
-                    Text="Your AI-powered vacation planning assistant"
-                    FontSize="16"
-                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
-                    HorizontalOptions="Center"
-                    Opacity="0.8"
-                    SemanticProperties.HeadingLevel="Level2" />
-
-                <Button
-                    x:Name="CounterBtn"
-                    Text="Click me" 
-                    BackgroundColor="{StaticResource PrimaryBlue}"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="50"
-                    FontSize="16"
-                    SemanticProperties.Hint="Counts the number of times you click"
-                    Clicked="OnCounterClicked"
-                    HorizontalOptions="Fill" />
+                <Label Text="Descopera destinatii minunate"
+                       FontSize="16"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center"
+                       Opacity="0.8" />
             </VerticalStackLayout>
-        </ScrollView>
-    </Grid>
+
+            <!-- Categories Section -->
+            <VerticalStackLayout Spacing="15">
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Start">
+                    <Label Text="🏷️" FontSize="20" VerticalOptions="Center"/>
+                    <Label Text="Categorii populare"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <Grid x:Name="CategoriesGrid"
+                      RowDefinitions="120,120"
+                      ColumnDefinitions="*,*"
+                      RowSpacing="15"
+                      ColumnSpacing="15">
+                    <!-- Categories will be populated programmatically -->
+                </Grid>
+
+                <Label x:Name="NoCategoriesLabel"
+                       Text="Nu sunt categorii disponibile momentan"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center"
+                       IsVisible="False"
+                       Opacity="0.7" />
+            </VerticalStackLayout>
+
+            <!-- Destinations Section -->
+            <VerticalStackLayout Spacing="15">
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Start">
+                    <Label Text="🏞️" FontSize="20" VerticalOptions="Center"/>
+                    <Label Text="Destinatii recomandate"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <CollectionView x:Name="DestinationsCarousel"
+                                HeightRequest="200"
+                                ItemsLayout="HorizontalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource MediumGray}}"
+                                   WidthRequest="180"
+                                   CornerRadius="15"
+                                   Margin="5,10"
+                                   Padding="0"
+                                   HasShadow="True">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnDestinationTapped" />
+                                </Frame.GestureRecognizers>
+                                
+                                <Grid>
+                                    <Image Source="{Binding ImageUrl}"
+                                           Aspect="AspectFill"
+                                           VerticalOptions="Fill"
+                                           HorizontalOptions="Fill" />
+                                    
+                                    <!-- Overlay -->
+                                    <BoxView Color="#80000000"
+                                             VerticalOptions="End" 
+                                             HeightRequest="80" />
+                                    
+                                    <!-- Text overlay -->
+                                    <VerticalStackLayout VerticalOptions="End" Padding="15,10">
+                                        <Label Text="{Binding Denumire}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding Location}"
+                                               FontSize="12"
+                                               TextColor="White"
+                                               Opacity="0.9"
+                                               LineBreakMode="TailTruncation" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Label x:Name="NoDestinationsLabel"
+                       Text="Nu sunt destinatii disponibile momentan"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center"
+                       IsVisible="False"
+                       Opacity="0.7" />
+            </VerticalStackLayout>
+
+            <!-- Points of Interest Section -->
+            <VerticalStackLayout Spacing="15">
+                <HorizontalStackLayout Spacing="10" HorizontalOptions="Start">
+                    <Label Text="📍" FontSize="20" VerticalOptions="Center"/>
+                    <Label Text="Puncte de interes"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <CollectionView x:Name="PointsOfInterestCarousel"
+                                HeightRequest="180"
+                                ItemsLayout="HorizontalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource MediumGray}}"
+                                   WidthRequest="160"
+                                   CornerRadius="12"
+                                   Margin="5,10"
+                                   Padding="0"
+                                   HasShadow="True">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPointOfInterestTapped" />
+                                </Frame.GestureRecognizers>
+                                
+                                <Grid>
+                                    <Image Source="{Binding ImageUrl}"
+                                           Aspect="AspectFill"
+                                           VerticalOptions="Fill"
+                                           HorizontalOptions="Fill" />
+                                    
+                                    <!-- Overlay -->
+                                    <BoxView Color="#80000000"
+                                             VerticalOptions="End" 
+                                             HeightRequest="70" />
+                                    
+                                    <!-- Text overlay -->
+                                    <VerticalStackLayout VerticalOptions="End" Padding="12,8">
+                                        <Label Text="{Binding Denumire}"
+                                               FontSize="14"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding Tip}"
+                                               FontSize="11"
+                                               TextColor="White"
+                                               Opacity="0.8"
+                                               LineBreakMode="TailTruncation" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Label x:Name="NoPointsLabel"
+                       Text="Nu sunt puncte de interes disponibile momentan"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center"
+                       IsVisible="False"
+                       Opacity="0.7" />
+            </VerticalStackLayout>
+
+            <!-- Loading indicator -->
+            <ActivityIndicator x:Name="LoadingIndicator"
+                               IsRunning="False"
+                               Color="{StaticResource PrimaryBlue}"
+                               HeightRequest="40"
+                               HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>
