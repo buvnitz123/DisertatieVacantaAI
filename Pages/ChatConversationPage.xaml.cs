@@ -23,6 +23,12 @@ public partial class ChatConversationPage : ContentPage
     private int _conversationId;
     private int _currentUserId;
     private bool _isAIResponding = false;
+    
+    // Pagination properties
+    private const int MessagesPerPage = 10;
+    private int _currentPage = 0;
+    private bool _hasMoreMessages = true;
+    private bool _isLoadingMessages = false;
 
     public ChatConversationPage()
     {
@@ -72,48 +78,114 @@ public partial class ChatConversationPage : ContentPage
         }
     }
 
-    private async Task LoadMessagesAsync()
+    private async Task LoadMessagesAsync(bool loadMore = false)
     {
+        if (_isLoadingMessages) return;
+        
         try
         {
+            _isLoadingMessages = true;
+            
+            if (!loadMore)
+            {
+                // Reset pagination for initial load
+                _currentPage = 0;
+                _hasMoreMessages = true;
+            }
+
             await Task.Run(() =>
             {
+                // Get total count first
+                var totalMessages = _mesajRepo.GetByConversationId(_conversationId).Count();
+                
+                // Calculate skip count (for DESC order, we need to get latest messages first)
+                var skip = _currentPage * MessagesPerPage;
+                
                 var messages = _mesajRepo.GetByConversationId(_conversationId)
-                    .OrderBy(m => m.Data_Creare)
+                    .OrderByDescending(m => m.Data_Creare) // Get newest first
+                    .Skip(skip)
+                    .Take(MessagesPerPage)
+                    .OrderBy(m => m.Data_Creare) // Then order chronologically for display
                     .ToList();
+
+                // Check if there are more messages
+                var hasMore = totalMessages > (_currentPage + 1) * MessagesPerPage;
 
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    _messages.Clear();
-
-                    if (!messages.Any())
+                    if (!loadMore)
                     {
-                        // Add welcome message for empty conversations
-                        _messages.Add(new ChatMessage 
-                        { 
-                            Text = "👋 Salut! Sunt Travel Assistant AI (powered by GPT-4o Mini) și sunt aici să te ajut să planifici vacanța perfectă! Spune-mi ce destinație te interesează sau ce fel de experiență de călătorie cauți.", 
-                            IsUser = false,
-                            Timestamp = DateTime.Now
-                        });
+                        // Initial load - clear and add welcome message if no messages
+                        _messages.Clear();
+                        
+                        if (!messages.Any())
+                        {
+                            _messages.Add(new ChatMessage 
+                            { 
+                                Text = "👋 Salut! Sunt Travel Assistant AI (powered by GPT-4o Mini) și sunt aici să te ajut să planifici vacanța perfectă! Spune-mi ce destinație te interesează sau ce fel de experiență de călătorie cauți.", 
+                                IsUser = false,
+                                Timestamp = DateTime.Now
+                            });
+                        }
+                        else
+                        {
+                            // Add messages
+                            foreach (var msg in messages)
+                            {
+                                _messages.Add(new ChatMessage
+                                {
+                                    Text = msg.Mesaj,
+                                    IsUser = msg.Mesaj_User == 1,
+                                    Timestamp = msg.Data_Creare
+                                });
+                            }
+                        }
+
+                        // Scroll to last message on initial load
+                        if (_messages.Count > 0)
+                        {
+                            MessagesView.ScrollTo(_messages.Last(), position: ScrollToPosition.End, animate: false);
+                        }
                     }
                     else
                     {
-                        foreach (var msg in messages)
+                        // Load more - insert at beginning
+                        var currentCount = _messages.Count;
+                        var insertIndex = 0;
+                        
+                        // Skip welcome message if present
+                        if (currentCount > 0 && _messages[0].Text.Contains("Travel Assistant AI"))
                         {
-                            _messages.Add(new ChatMessage
+                            insertIndex = 1;
+                        }
+
+                        for (int i = messages.Count - 1; i >= 0; i--)
+                        {
+                            var msg = messages[i];
+                            _messages.Insert(insertIndex, new ChatMessage
                             {
                                 Text = msg.Mesaj,
                                 IsUser = msg.Mesaj_User == 1,
                                 Timestamp = msg.Data_Creare
                             });
                         }
+
+                        // Maintain scroll position (scroll to the message that was first before)
+                        if (currentCount > insertIndex)
+                        {
+                            var targetIndex = insertIndex + messages.Count;
+                            if (targetIndex < _messages.Count)
+                            {
+                                MessagesView.ScrollTo(_messages[targetIndex], position: ScrollToPosition.Start, animate: false);
+                            }
+                        }
                     }
 
-                    // Scroll to last message
-                    if (_messages.Count > 0)
-                    {
-                        MessagesView.ScrollTo(_messages.Last(), position: ScrollToPosition.End, animate: false);
-                    }
+                    _hasMoreMessages = hasMore;
+                    _currentPage++;
+                    
+                    // Update button visibility
+                    UpdateLoadMoreButtonVisibility();
                 });
             });
         }
@@ -122,13 +194,22 @@ public partial class ChatConversationPage : ContentPage
             Debug.WriteLine($"Error loading messages: {ex.Message}");
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                _messages.Clear();
-                _messages.Add(new ChatMessage 
-                { 
-                    Text = "Eroare la incarcarea mesajelor. Te rog incearca din nou.", 
-                    IsUser = false 
-                });
+                if (!loadMore)
+                {
+                    _messages.Clear();
+                    _messages.Add(new ChatMessage 
+                    { 
+                        Text = "Eroare la incarcarea mesajelor. Te rog incearca din nou.", 
+                        IsUser = false 
+                    });
+                }
+                UpdateLoadMoreButtonVisibility();
             });
+        }
+        finally
+        {
+            _isLoadingMessages = false;
+            UpdateLoadMoreButtonVisibility();
         }
     }
 
@@ -281,5 +362,38 @@ public partial class ChatConversationPage : ContentPage
     {
         _messages.Add(msg);
         MessagesView.ScrollTo(msg, position: ScrollToPosition.End, animate: true);
+    }
+
+    private async void OnLoadMoreClicked(object sender, EventArgs e)
+    {
+        await LoadOlderMessagesAsync();
+    }
+
+    private void UpdateLoadMoreButtonVisibility()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            // Show button only if there are more messages and we're not loading
+            var shouldShow = _hasMoreMessages && !_isLoadingMessages && _messages.Count > 1;
+            LoadMoreButton.IsVisible = shouldShow;
+            LoadingMoreIndicator.IsVisible = _isLoadingMessages && _hasMoreMessages;
+        });
+    }
+
+    private async Task LoadOlderMessagesAsync()
+    {
+        if (!_hasMoreMessages || _isLoadingMessages)
+            return;
+
+        try
+        {
+            UpdateLoadMoreButtonVisibility(); // Show loading indicator
+            await LoadMessagesAsync(loadMore: true);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading older messages: {ex.Message}");
+            await DisplayAlert("Eroare", "Nu s-au putut incarca mesajele mai vechi", "OK");
+        }
     }
 }

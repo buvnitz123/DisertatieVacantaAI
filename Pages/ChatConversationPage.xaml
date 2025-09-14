@@ -15,6 +15,32 @@
                         VerticalScrollBarVisibility="Never"
                         Margin="10,10,10,0"
                         ItemSizingStrategy="MeasureAllItems">
+            
+            <!-- Header for Load More button -->
+            <CollectionView.Header>
+                <Grid x:Name="LoadMoreHeader" Padding="0,10">
+                    <Button x:Name="LoadMoreButton"
+                            Text="⬆️ Încarcă mai multe mesaje"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource PrimaryBlue}"
+                            BorderColor="{StaticResource PrimaryBlue}"
+                            BorderWidth="1"
+                            CornerRadius="20"
+                            HeightRequest="40"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            Clicked="OnLoadMoreClicked"
+                            IsVisible="False" />
+                    
+                    <ActivityIndicator x:Name="LoadingMoreIndicator"
+                                       IsRunning="False"
+                                       Color="{StaticResource PrimaryBlue}"
+                                       HeightRequest="30"
+                                       HorizontalOptions="Center"
+                                       IsVisible="False" />
+                </Grid>
+            </CollectionView.Header>
+            
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid Padding="4">
