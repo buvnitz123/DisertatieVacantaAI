@@ -6,146 +6,131 @@
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     
     <!-- Main Grid with two views: Conversation List and Chat View -->
-    <Grid>
-        <!-- Conversation List View -->
-        <Grid x:Name="ConversationListView" RowDefinitions="Auto,*,Auto" Padding="10" IsVisible="True">
-            <!-- Header -->
-            <StackLayout Grid.Row="0" Orientation="Vertical" Spacing="10" Margin="0,10,0,20">
-                <Label Text="Conversatiile tale AI" 
-                       FontSize="24" 
-                       FontAttributes="Bold" 
-                       HorizontalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
-                <Label Text="Selecteaza o conversatie existenta sau creaza una noua"
-                       FontSize="14"
-                       HorizontalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-            </StackLayout>
+    <Grid RowDefinitions="Auto,*,Auto" Padding="10">
+        <!-- Header -->
+        <StackLayout Grid.Row="0" Orientation="Vertical" Spacing="8" Margin="0,20,0,25">
+            <Label Text="💬 Conversatiile tale AI" 
+                   FontSize="26" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
+            <Label Text="Selecteaza o conversatie existenta sau creaza una noua"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                   Margin="20,0" />
+        </StackLayout>
 
-            <!-- Conversations List -->
-            <ScrollView Grid.Row="1">
-                <StackLayout>
-                    <!-- Loading Indicator -->
-                    <ActivityIndicator x:Name="LoadingIndicator" 
-                                       IsRunning="False" 
-                                       IsVisible="False" 
-                                       Color="{StaticResource PrimaryBlue}" 
-                                       VerticalOptions="Center" 
-                                       Margin="0,20" />
+        <!-- Conversations List -->
+        <ScrollView Grid.Row="1">
+            <StackLayout>
+                <!-- Loading Indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                   IsRunning="False" 
+                                   IsVisible="False" 
+                                   Color="{StaticResource PrimaryBlue}" 
+                                   VerticalOptions="Center" 
+                                   Margin="0,20" />
 
-                    <!-- No Conversations Message -->
-                    <Label x:Name="NoConversationsLabel" 
-                           Text="Nu ai inca conversatii. Creaza prima ta conversatie!" 
-                           IsVisible="False"
-                           FontSize="16" 
-                           HorizontalOptions="Center" 
-                           VerticalOptions="Center"
-                           Margin="20"
+                <!-- No Conversations Message -->
+                <StackLayout x:Name="NoConversationsLabel" 
+                             IsVisible="False"
+                             VerticalOptions="Center" 
+                             HorizontalOptions="Center"
+                             Spacing="15"
+                             Margin="40">
+                    <Label Text="🤖"
+                           FontSize="60"
+                           HorizontalOptions="Center"
+                           Opacity="0.3" />
+                    <Label Text="Nu ai inca conversatii"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                    <Label Text="Creaza prima ta conversatie AI pentru a incepe sa planifici vacante personalizate!"
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           Margin="0,5,0,0" />
+                </StackLayout>
 
-                    <!-- Conversations Collection -->
-                    <CollectionView x:Name="ConversationsCollection" 
-                                    ItemsSource="{Binding}"
-                                    SelectionMode="None"
-                                    VerticalScrollBarVisibility="Never">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="0,5">
-                                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
-                                           BorderColor="Transparent"
-                                           CornerRadius="12"
-                                           Padding="15"
-                                           HasShadow="True">
+                <!-- Conversations Collection -->
+                <CollectionView x:Name="ConversationsCollection" 
+                                ItemsSource="{Binding}"
+                                SelectionMode="None"
+                                VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="0,5">
+                                <SwipeView BackgroundColor="Transparent">
+                                    <SwipeView.RightItems>
+                                        <SwipeItems Mode="Reveal">
+                                            <SwipeItem Text="✏️ Modifica"
+                                                      BackgroundColor="{StaticResource PrimaryBlue}"
+                                                      Command="{Binding Source={x:Reference ConversationsCollection}, Path=BindingContext.EditConversationCommand}"
+                                                      CommandParameter="{Binding}" />
+                                            <SwipeItem Text="🗑️ Sterge"
+                                                      BackgroundColor="#E74C3C"
+                                                      Command="{Binding Source={x:Reference ConversationsCollection}, Path=BindingContext.DeleteConversationCommand}"
+                                                      CommandParameter="{Binding}" />
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+                                    
+                                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                                           BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
+                                           CornerRadius="16"
+                                           Padding="20,15"
+                                           HasShadow="True"
+                                           Margin="2">
                                         <Frame.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnConversationTapped" />
                                         </Frame.GestureRecognizers>
                                         
-                                        <StackLayout Spacing="5">
-                                            <Label Text="{Binding Denumire}" 
-                                                   FontSize="16" 
-                                                   FontAttributes="Bold"
-                                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
-                                            <Label Text="{Binding FormattedDate}" 
-                                                   FontSize="12"
-                                                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-                                        </StackLayout>
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                            <!-- Conversation Info -->
+                                            <StackLayout Grid.Column="0" Spacing="6">
+                                                <Label Text="{Binding Denumire}" 
+                                                       FontSize="16" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1" />
+                                                <Label Text="{Binding FormattedDate}" 
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                                            </StackLayout>
+                                            
+                                            <!-- Visual Indicator -->
+                                            <Label Grid.Column="1"
+                                                   Text="💬"
+                                                   FontSize="20"
+                                                   VerticalOptions="Center"
+                                                   Opacity="0.6" />
+                                        </Grid>
                                     </Frame>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </StackLayout>
-            </ScrollView>
+                                </SwipeView>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
 
-            <!-- New Conversation Button -->
-            <Button Grid.Row="2" 
-                    x:Name="NewConversationButton"
-                    Text="+ Conversatie Noua"
-                    BackgroundColor="{StaticResource PrimaryBlue}"
-                    TextColor="White"
-                    CornerRadius="12"
-                    Padding="15"
-                    Margin="0,20,0,10"
-                    Clicked="OnNewConversationClicked" />
-        </Grid>
-
-        <!-- Chat View -->
-        <Grid x:Name="ChatView" RowDefinitions="Auto,*,Auto" Padding="0" IsVisible="False">
-            <!-- Chat Header - Compact without title -->
-            <Button x:Name="BackButton"
-                    Grid.Row="0"
-                    Text="Inapoi"
-                    BackgroundColor="{StaticResource PrimaryBlue}"
-                    TextColor="White"
-                    BorderWidth="0"
-                    FontSize="14"
-                    Padding="15,10"
-                    CornerRadius="0"
-                    HorizontalOptions="Start"
-                    Clicked="OnBackToConversationsClicked" />
-
-            <!-- Messages -->
-            <CollectionView x:Name="MessagesView"
-                            Grid.Row="1"
-                            ItemsSource="{Binding}"
-                            SelectionMode="None"
-                            VerticalScrollBarVisibility="Never"
-                            Margin="10,5,10,0"
-                            ItemSizingStrategy="MeasureAllItems">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="4">
-                            <Grid.Resources>
-                                <Style TargetType="Frame" x:Key="BubbleStyle">
-                                    <Setter Property="CornerRadius" Value="16" />
-                                    <Setter Property="Padding" Value="12,8" />
-                                    <Setter Property="HasShadow" Value="False" />
-                                </Style>
-                            </Grid.Resources>
-                            <Frame Style="{StaticResource BubbleStyle}"
-                                   BackgroundColor="{Binding BubbleColor}"
-                                   HorizontalOptions="{Binding HorizontalAlignment}"
-                                   MaximumWidthRequest="280">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label Text="{Binding Text}"
-                                           TextColor="White"
-                                           LineBreakMode="WordWrap" />
-                                    <Label Text="{Binding TimeString}"
-                                           FontSize="10"
-                                           HorizontalOptions="End"
-                                           TextColor="#CCCCCC" />
-                                </VerticalStackLayout>
-                            </Frame>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
-            <!-- Input Bar -->
-            <Grid Grid.Row="2" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Padding="12,10" ColumnDefinitions="*,Auto" RowDefinitions="Auto" >
-                <Entry x:Name="MessageEntry" Placeholder="Scrie un mesaj..." PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" BackgroundColor="Transparent" Completed="OnSendClicked" />
-                <Button Text="➤" Grid.Column="1" Clicked="OnSendClicked" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" CornerRadius="18" WidthRequest="48" HeightRequest="48" />
-            </Grid>
-        </Grid>
+        <!-- New Conversation Button -->
+        <Button Grid.Row="2" 
+                x:Name="NewConversationButton"
+                Text="✨ Conversatie Noua"
+                BackgroundColor="{StaticResource PrimaryBlue}"
+                TextColor="White"
+                FontSize="16"
+                FontAttributes="Bold"
+                CornerRadius="16"
+                Padding="20,15"
+                Margin="0,25,0,15"
+                Clicked="OnNewConversationClicked"
+                Shadow="{OnPlatform Default={x:Null}, iOS={Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}}" />
     </Grid>
 </ContentPage>

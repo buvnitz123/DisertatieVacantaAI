@@ -99,5 +99,28 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                 context.SaveChanges();
             }
         }
+
+        public void DeleteByConversationId(int conversationId)
+        {
+            try
+            {
+                using var context = new AppContext();
+                var messages = context.MesajeAI.Where(m => m.Id_ConversatieAI == conversationId).ToList();
+                
+                Debug.WriteLine($"Deleting {messages.Count} messages for conversation ID: {conversationId}");
+                
+                if (messages.Any())
+                {
+                    context.MesajeAI.RemoveRange(messages);
+                    int result = context.SaveChanges();
+                    Debug.WriteLine($"Deleted {result} messages successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in MesajAIRepository.DeleteByConversationId: {ex.Message}");
+                throw;
+            }
+        }
     }
 }

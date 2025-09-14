@@ -5,6 +5,7 @@ using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Session;
 using System.Diagnostics;
+using System.Windows.Input;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -21,33 +22,28 @@ public class ConversationDisplayItem : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
 
-public class ChatMessage : INotifyPropertyChanged
-{
-    public string Text { get; set; } = string.Empty;
-    public bool IsUser { get; set; }
-    public DateTime Timestamp { get; set; } = DateTime.Now;
-    public string TimeString => Timestamp.ToString("HH:mm:ss");
-    public string BubbleColor => IsUser ? (Application.Current?.Resources["PrimaryBlue"] as Color)?.ToHex() ?? "#0092ca" : "#444444";
-    public LayoutOptions HorizontalAlignment => IsUser ? LayoutOptions.End : LayoutOptions.Start;
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-}
-
 public partial class ChatPage : ContentPage
 {
     private readonly ConversatieAIRepository _conversatieRepo = new();
     private readonly MesajAIRepository _mesajRepo = new();
     private readonly ObservableCollection<ConversationDisplayItem> _conversations = new();
-    private readonly ObservableCollection<ChatMessage> _messages = new();
     
-    private ConversationDisplayItem _selectedConversation;
     private int _currentUserId;
+
+    public ICommand EditConversationCommand { get; private set; }
+    public ICommand DeleteConversationCommand { get; private set; }
 
     public ChatPage()
     {
         InitializeComponent();
         ConversationsCollection.ItemsSource = _conversations;
-        MessagesView.ItemsSource = _messages;
+        
+        // Initialize commands
+        EditConversationCommand = new Command<ConversationDisplayItem>(async (conversation) => await EditConversationNameAsync(conversation));
+        DeleteConversationCommand = new Command<ConversationDisplayItem>(async (conversation) => await DeleteConversationAsync(conversation));
+        
+        // Set binding context for commands
+        ConversationsCollection.BindingContext = this;
     }
 
     protected override async void OnAppearing()
@@ -241,15 +237,8 @@ public partial class ChatPage : ContentPage
     {
         try
         {
-            _selectedConversation = conversation;
-            // Removed ChatTitleLabel since we eliminated the title from header
-
-            // Load messages for this conversation
-            await LoadMessagesAsync(conversation.Id);
-
-            // Switch to chat view
-            ConversationListView.IsVisible = false;
-            ChatView.IsVisible = true;
+            // Navigate to the new ChatConversationPage with parameters
+            await Shell.Current.GoToAsync($"{nameof(ChatConversationPage)}?conversationId={conversation.Id}&conversationName={Uri.EscapeDataString(conversation.Denumire)}");
         }
         catch (Exception ex)
         {
@@ -258,163 +247,81 @@ public partial class ChatPage : ContentPage
         }
     }
 
-    private async Task LoadMessagesAsync(int conversationId)
+    private async Task EditConversationNameAsync(ConversationDisplayItem conversation)
     {
         try
         {
-            await Task.Run(() =>
+            string newName = await DisplayPromptAsync(
+                "Modifica numele",
+                "Introdu noul nume pentru conversatie:",
+                "Salveaza",
+                "Anuleaza",
+                conversation.Denumire,
+                50);
+
+            if (string.IsNullOrWhiteSpace(newName) || newName.Trim() == conversation.Denumire)
+                return;
+
+            Debug.WriteLine($"Updating conversation {conversation.Id} name from '{conversation.Denumire}' to '{newName.Trim()}'");
+
+            // Get the conversation entity from database
+            var conversationEntity = _conversatieRepo.GetById(conversation.Id);
+            if (conversationEntity == null)
             {
-                var messages = _mesajRepo.GetByConversationId(conversationId)
-                    .OrderBy(m => m.Data_Creare)
-                    .ToList();
+                await DisplayAlert("Eroare", "Conversatia nu a fost gasita", "OK");
+                return;
+            }
 
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    _messages.Clear();
+            // Update the name
+            conversationEntity.Denumire = newName.Trim();
+            _conversatieRepo.Update(conversationEntity);
 
-                    if (!messages.Any())
-                    {
-                        // Add welcome message for empty conversations
-                        _messages.Add(new ChatMessage 
-                        { 
-                            Text = "Salut! Aceasta este o conversatie noua. Pune-mi orice intrebare despre vacante!", 
-                            IsUser = false,
-                            Timestamp = DateTime.Now
-                        });
-                    }
-                    else
-                    {
-                        foreach (var msg in messages)
-                        {
-                            _messages.Add(new ChatMessage
-                            {
-                                Text = msg.Mesaj,
-                                IsUser = msg.Mesaj_User == 1,
-                                Timestamp = msg.Data_Creare
-                            });
-                        }
-                    }
+            Debug.WriteLine("Conversation name updated successfully");
 
-                    // Scroll to last message
-                    if (_messages.Count > 0)
-                    {
-                        MessagesView.ScrollTo(_messages.Last(), position: ScrollToPosition.End, animate: false);
-                    }
-                });
-            });
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error loading messages: {ex.Message}");
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                _messages.Clear();
-                _messages.Add(new ChatMessage 
-                { 
-                    Text = "Eroare la incarcarea mesajelor. Te rog incearca din nou.", 
-                    IsUser = false 
-                });
-            });
-        }
-    }
-
-    private async void OnSendClicked(object sender, EventArgs e)
-    {
-        if (_selectedConversation == null) return;
-
-        var text = MessageEntry.Text?.Trim();
-        if (string.IsNullOrEmpty(text)) return;
-
-        try
-        {
-            MessageEntry.Text = string.Empty;
-            
-            // Add user message to UI
-            var userMessage = new ChatMessage { Text = text, IsUser = true };
-            AddMessageAnimated(userMessage);
-
-            // Save user message to database (ID will be auto-generated by repository)
-            var userMesaj = new MesajAI
-            {
-                // Don't set Id_Mesaj - let the repository generate it
-                Mesaj = text,
-                Data_Creare = DateTime.Now,
-                Mesaj_User = 1, // 1 = user message
-                Id_ConversatieAI = _selectedConversation.Id
-            };
-            _mesajRepo.Insert(userMesaj);
-
-            // Simulate AI response (since we don't have AI integration yet)
-            await Task.Delay(600);
-            
-            var aiResponseText = GetSimulatedAIResponse(text);
-            var aiMessage = new ChatMessage { Text = aiResponseText, IsUser = false };
-            AddMessageAnimated(aiMessage);
-
-            // Save AI response to database (ID will be auto-generated by repository)
-            var aiMesaj = new MesajAI
-            {
-                // Don't set Id_Mesaj - let the repository generate it
-                Mesaj = aiResponseText,
-                Data_Creare = DateTime.Now,
-                Mesaj_User = 0, // 0 = AI message
-                Id_ConversatieAI = _selectedConversation.Id
-            };
-            _mesajRepo.Insert(aiMesaj);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error sending message: {ex.Message}");
-            await DisplayAlert("Eroare", "Nu s-a putut trimite mesajul", "OK");
-        }
-    }
-
-    private string GetSimulatedAIResponse(string userMessage)
-    {
-        // Simple simulated responses based on keywords
-        var message = userMessage.ToLower();
-        
-        if (message.Contains("salut") || message.Contains("buna"))
-            return "Salut! Sunt aici sa te ajut cu planificarea vacantelor tale. Ce destinatie te intereseaza?";
-        
-        if (message.Contains("vacanta") || message.Contains("calatorie"))
-            return "Excelent! Iti pot recomanda destinatii minunate. Ce tip de vacanta preferi - la mare, la munte, city break sau aventura?";
-        
-        if (message.Contains("mare") || message.Contains("plaja"))
-            return "Plajele sunt perfecte pentru relaxare! Romania are litoral frumos la Marea Neagra, iar in strainatate poti incerca Grecia, Bulgaria sau Croatia.";
-        
-        if (message.Contains("munte"))
-            return "Muntii sunt ideali pentru aventura si aer curat! Carpatii Romaniei sunt magnifici, dar poti explora si Alpii sau Pirinei.";
-        
-        if (message.Contains("buget") || message.Contains("pret"))
-            return "Inteleg ca bugetul e important. Poti avea vacante minunate la orice buget - de la weekend-uri aproape de casa la calatorii internationale. Spune-mi ce suma ai in minte?";
-        
-        return "Foarte interesant! Iti voi gasi recomandari personalizate curand. Pentru moment, exploreaza destinatiile disponibile in aplicatie.";
-    }
-
-    private void AddMessageAnimated(ChatMessage msg)
-    {
-        _messages.Add(msg);
-        MessagesView.ScrollTo(msg, position: ScrollToPosition.End, animate: true);
-    }
-
-    private async void OnBackToConversationsClicked(object sender, EventArgs e)
-    {
-        try
-        {
-            _selectedConversation = null;
-            _messages.Clear();
-            
-            // Switch back to conversation list
-            ChatView.IsVisible = false;
-            ConversationListView.IsVisible = true;
-            
-            // Refresh conversations in case anything changed
+            // Reload the conversations list
             await LoadConversationsAsync();
+
+            await DisplayAlert("Succes", "Numele conversatiei a fost modificat cu succes!", "OK");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error going back to conversations: {ex.Message}");
+            Debug.WriteLine($"Error updating conversation name: {ex.Message}");
+            await DisplayAlert("Eroare", $"Nu s-a putut modifica numele: {ex.Message}", "OK");
+        }
+    }
+
+    private async Task DeleteConversationAsync(ConversationDisplayItem conversation)
+    {
+        try
+        {
+            bool confirmDelete = await DisplayAlert(
+                "Confirmare stergere",
+                $"Esti sigur ca vrei sa stergi conversatia '{conversation.Denumire}'?\n\nAceasta actiune va sterge si toate mesajele din conversatie si nu poate fi anulata.",
+                "Da, sterge",
+                "Anuleaza");
+
+            if (!confirmDelete)
+                return;
+
+            Debug.WriteLine($"Deleting conversation {conversation.Id} and all its messages");
+
+            // First delete all messages from this conversation
+            _mesajRepo.DeleteByConversationId(conversation.Id);
+            Debug.WriteLine("All messages deleted successfully");
+
+            // Then delete the conversation itself
+            _conversatieRepo.Delete(conversation.Id);
+            Debug.WriteLine("Conversation deleted successfully");
+
+            // Reload the conversations list
+            await LoadConversationsAsync();
+
+            await DisplayAlert("Succes", "Conversatia si toate mesajele au fost sterse cu succes!", "OK");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error deleting conversation: {ex.Message}");
+            await DisplayAlert("Eroare", $"Nu s-a putut sterge conversatia: {ex.Message}", "OK");
         }
     }
 }

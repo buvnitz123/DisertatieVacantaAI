@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.ChatConversationPage"
+             Title="Chat"
+             Shell.NavBarIsVisible="True"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
+    
+    <Grid RowDefinitions="*,Auto">
+        <!-- Messages -->
+        <CollectionView x:Name="MessagesView"
+                        Grid.Row="0"
+                        ItemsSource="{Binding}"
+                        SelectionMode="None"
+                        VerticalScrollBarVisibility="Never"
+                        Margin="10,10,10,0"
+                        ItemSizingStrategy="MeasureAllItems">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="4">
+                        <Grid.Resources>
+                            <Style TargetType="Frame" x:Key="BubbleStyle">
+                                <Setter Property="CornerRadius" Value="16" />
+                                <Setter Property="Padding" Value="12,8" />
+                                <Setter Property="HasShadow" Value="False" />
+                            </Style>
+                        </Grid.Resources>
+                        <Frame Style="{StaticResource BubbleStyle}"
+                               BackgroundColor="{Binding BubbleColor}"
+                               HorizontalOptions="{Binding HorizontalAlignment}"
+                               MaximumWidthRequest="280">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Text}"
+                                       TextColor="White"
+                                       LineBreakMode="WordWrap" />
+                                <Label Text="{Binding TimeString}"
+                                       FontSize="10"
+                                       HorizontalOptions="End"
+                                       TextColor="#CCCCCC" />
+                            </VerticalStackLayout>
+                        </Frame>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Input Bar -->
+        <Grid Grid.Row="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Padding="12,10" ColumnDefinitions="*,Auto" RowDefinitions="Auto" >
+            <Entry x:Name="MessageEntry" 
+                   Placeholder="Scrie un mesaj..." 
+                   PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
+                   BackgroundColor="Transparent" 
+                   Completed="OnSendClicked"
+                   ReturnType="Send" />
+            <Button Text="➤" 
+                    Grid.Column="1" 
+                    x:Name="SendButton"
+                    Clicked="OnSendClicked" 
+                    BackgroundColor="{StaticResource PrimaryBlue}" 
+                    TextColor="White" 
+                    CornerRadius="18" 
+                    WidthRequest="48" 
+                    HeightRequest="48" />
+        </Grid>
+    </Grid>
+</ContentPage>

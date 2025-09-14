@@ -17,6 +17,12 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
             return await EncryptionUtils.GetDecryptedAppSettingAsync("pexelsAPI");
         }
 
+        // OpenAI API
+        public static async Task<string> GetOpenAIApiKeyAsync()
+        {
+            return await EncryptionUtils.GetDecryptedAppSettingAsync("OpenAI.ApiKey");
+        }
+
         // Database Connection
         public static async Task<string> GetDbConnectionStringAsync()
         {
@@ -45,7 +51,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
             }
         }
 
-        // Initialization check (now Azure + Pexels + DB)
+        // Initialization check (now Azure Blob + Pexels + DB + OpenAI)
         public static async Task<bool> InitializeAppAsync()
         {
             try
@@ -53,10 +59,26 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
                 var azureBlobConn = await GetAzureBlobConnectionStringAsync();
                 var pexelsApiKey = await GetPexelsApiKeyAsync();
                 var dbConnectionString = await GetDbConnectionStringAsync();
+                var openAIApiKey = await GetOpenAIApiKeyAsync();
 
-                return !string.IsNullOrEmpty(azureBlobConn) &&
-                       !string.IsNullOrEmpty(pexelsApiKey) &&
-                       !string.IsNullOrEmpty(dbConnectionString);
+                bool basicConfigOk = !string.IsNullOrEmpty(azureBlobConn) &&
+                                    !string.IsNullOrEmpty(pexelsApiKey) &&
+                                    !string.IsNullOrEmpty(dbConnectionString) &&
+                                    !string.IsNullOrEmpty(openAIApiKey);
+
+                if (basicConfigOk)
+                {
+                    // Test OpenAI connection
+                    var openAIService = new MauiAppDisertatieVacantaAI.Classes.Services.OpenAIService();
+                    bool openAIWorking = await openAIService.InitializeAsync();
+                    
+                    if (!openAIWorking)
+                    {
+                        System.Diagnostics.Debug.WriteLine("OpenAI service failed to initialize, but continuing with app startup");
+                    }
+                }
+
+                return basicConfigOk;
             }
             catch (Exception ex)
             {
