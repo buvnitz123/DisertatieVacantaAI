@@ -2,49 +2,243 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SearchPage"
-             Title="Cautare"
+             Title="Căutare Destinații"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
-    <Grid RowDefinitions="Auto,Auto,*" Padding="20,20,20,0">
+    
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="20,20,20,0">
+        
         <!-- Search Entry -->
-        <Frame Grid.Row="0" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" CornerRadius="14" Padding="10" HasShadow="False">
+        <Frame Grid.Row="0" 
+               BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+               CornerRadius="14" 
+               Padding="10" 
+               HasShadow="False">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" VerticalOptions="Center">
                 <Label Text="🔍" VerticalOptions="Center" FontSize="18" />
                 <Entry Grid.Column="1"
                        x:Name="SearchEntry"
-                       Placeholder="Cauta destinatii, sugestii..."
+                       Placeholder="Caută destinații, categorizii, facilități..."
                        PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                        BackgroundColor="Transparent"
-                       Completed="OnSearch" />
-                <Button Grid.Column="2" Text="Go" Clicked="OnSearch" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" CornerRadius="12" />
+                       TextChanged="OnSearchTextChanged"
+                       Focused="OnSearchEntryFocused"
+                       Unfocused="OnSearchEntryUnfocused" />
+                <HorizontalStackLayout Grid.Column="2" Spacing="5">
+                    <Button x:Name="HistoryToggleButton"
+                            Text="▼" 
+                            Clicked="OnHistoryToggleClicked" 
+                            BackgroundColor="Transparent" 
+                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="12"
+                            WidthRequest="30"
+                            FontSize="14"
+                            ToolTipProperties.Text="Istoric căutări" />
+                    <Button x:Name="ClearButton"
+                            Text="✖" 
+                            Clicked="OnClearSearch" 
+                            BackgroundColor="Transparent" 
+                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="12"
+                            WidthRequest="30"
+                            IsVisible="False" />
+                </HorizontalStackLayout>
             </Grid>
         </Frame>
 
-        <!-- Filter placeholder -->
-        <HorizontalStackLayout Grid.Row="1" Spacing="10" Padding="0,10,0,10">
-            <Button Text="All" x:Name="AllFilter" Clicked="OnFilter" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
-            <Button Text="Destinatii" x:Name="DestFilter" Clicked="OnFilter" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-            <Button Text="Sugestii" x:Name="SugFilter" Clicked="OnFilter" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        </HorizontalStackLayout>
+        <!-- Search History / Autocomplete -->
+        <Frame x:Name="SearchHistoryFrame"
+               Grid.Row="1" 
+               BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+               CornerRadius="12"
+               Padding="8"
+               HasShadow="True"
+               IsVisible="False"
+               Margin="0,5,0,5">
+            <StackLayout Spacing="5">
+                <Label Text="Căutări recente" 
+                       FontSize="12" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                       Padding="8,4" />
+                <CollectionView x:Name="SearchHistoryCollectionView"
+                                ItemsSource="{Binding SearchHistoryItems}"
+                                SelectionMode="None"
+                                MaximumHeightRequest="150">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="2" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="Transparent" Padding="8,6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnHistoryItemTapped" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                    <Label Text="🕒" FontSize="14" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" 
+                                           Text="{Binding .}" 
+                                           FontSize="14"
+                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="2" 
+                                           Text="↗" 
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </Frame>
+
+        <!-- Filters -->
+        <ScrollView Grid.Row="2" Orientation="Horizontal" Padding="0,10,0,10">
+            <HorizontalStackLayout Spacing="10">
+                <Button Text="Toate" 
+                        x:Name="AllFilter" 
+                        Clicked="OnFilterClicked" 
+                        BackgroundColor="{StaticResource PrimaryBlue}" 
+                        TextColor="White"
+                        CornerRadius="15"
+                        HeightRequest="35"
+                        FontSize="14" />
+                <Button Text="Categorii" 
+                        x:Name="CategoriesFilter" 
+                        Clicked="OnFilterClicked" 
+                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                        CornerRadius="15"
+                        HeightRequest="35"
+                        FontSize="14" />
+                <Button Text="Facilități" 
+                        x:Name="FacilitiesFilter" 
+                        Clicked="OnFilterClicked" 
+                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                        CornerRadius="15"
+                        HeightRequest="35"
+                        FontSize="14" />
+                <Button Text="Puncte Interes" 
+                        x:Name="PoiFilter" 
+                        Clicked="OnFilterClicked" 
+                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                        CornerRadius="15"
+                        HeightRequest="35"
+                        FontSize="14" />
+                <!-- Price Range & Sort Options -->
+                <Button Text="💰 Preț" 
+                        x:Name="PriceRangeButton" 
+                        Clicked="OnPriceRangeClicked" 
+                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                        CornerRadius="15"
+                        HeightRequest="35"
+                        FontSize="14" />
+                <Button Text="📊 Sortare" 
+                        x:Name="SortButton" 
+                        Clicked="OnSortClicked" 
+                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                        CornerRadius="15"
+                        HeightRequest="35"
+                        FontSize="14" />
+            </HorizontalStackLayout>
+        </ScrollView>
 
         <!-- Results -->
-        <CollectionView x:Name="ResultsView" Grid.Row="2" SelectionMode="None">
+        <CollectionView x:Name="ResultsCollectionView" 
+                        Grid.Row="3" 
+                        SelectionMode="None"
+                        VerticalScrollBarVisibility="Always">
             <CollectionView.EmptyView>
                 <VerticalStackLayout Padding="40" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="Introdu un termen pentru a cauta." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                    <Label x:Name="EmptyStateLabel"
+                           Text="Introdu un termen pentru a căuta destinații." 
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
+            
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Stroke="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" StrokeThickness="0.5" Padding="14" Margin="0,6">
-                        <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                            <Label Text="{Binding Subtitle}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.7" />
-                        </VerticalStackLayout>
+                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                            Stroke="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" 
+                            StrokeThickness="1" 
+                            Padding="0" 
+                            Margin="0,5">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDestinationTapped" />
+                        </Border.GestureRecognizers>
+                        
+                        <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto,Auto" Padding="12">
+                            <!-- Image -->
+                            <Frame Grid.RowSpan="3" 
+                                   CornerRadius="8" 
+                                   Padding="0" 
+                                   HasShadow="False"
+                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}"
+                                   WidthRequest="80"
+                                   HeightRequest="80">
+                                <Image Source="{Binding ImageUrl}" 
+                                       Aspect="AspectFill"
+                                       BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" />
+                            </Frame>
+                            
+                            <!-- Content -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" Padding="12,0,0,0">
+                                <Label Text="{Binding Denumire}" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Location}" 
+                                       FontSize="14" 
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                       LineBreakMode="TailTruncation" />
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="💰" FontSize="12" />
+                                    <Label Text="{Binding PretAdult, StringFormat='Adult: {0:C}'}" 
+                                           FontSize="12" 
+                                           TextColor="{StaticResource PrimaryBlue}"
+                                           FontAttributes="Bold" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <!-- Load More Button -->
+        <Button x:Name="LoadMoreButton"
+                Grid.Row="4"
+                Text="Încarcă mai multe (10)"
+                Clicked="OnLoadMoreClicked"
+                BackgroundColor="{StaticResource PrimaryBlue}"
+                TextColor="White"
+                CornerRadius="25"
+                HeightRequest="50"
+                FontSize="16"
+                FontAttributes="Bold"
+                Margin="0,10,0,20"
+                IsVisible="False" />
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator x:Name="LoadingIndicator"
+                          Grid.Row="3"
+                          IsRunning="False"
+                          IsVisible="False"
+                          Color="{StaticResource PrimaryBlue}"
+                          VerticalOptions="Center"
+                          HorizontalOptions="Center" />
     </Grid>
 </ContentPage>

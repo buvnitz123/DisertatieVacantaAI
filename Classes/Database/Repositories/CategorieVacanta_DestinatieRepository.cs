@@ -22,6 +22,24 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             return null;
         }
 
+        // Metodă nouă pentru căutare după categoria
+        public IEnumerable<CategorieVacanta_Destinatie> GetByCategoryId(int categoryId)
+        {
+            using var context = new AppContext();
+            return context.CategorieVacanta_Destinatie
+                .Where(cd => cd.Id_CategorieVacanta == categoryId)
+                .ToList();
+        }
+
+        // Metodă nouă pentru căutare după destinația
+        public IEnumerable<CategorieVacanta_Destinatie> GetByDestinationId(int destinationId)
+        {
+            using var context = new AppContext();
+            return context.CategorieVacanta_Destinatie
+                .Where(cd => cd.Id_Destinatie == destinationId)
+                .ToList();
+        }
+
         public void Insert(CategorieVacanta_Destinatie entity)
         {
             using var context = new AppContext();
@@ -40,6 +58,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         {
             // CategorieVacanta_Destinatie are cheie compusă, deci Delete(int id) nu este aplicabil direct
             // Această metodă ar trebui să primească parametrii cheii compuse
+        }
+
+        // Metodă pentru ștergere cu cheie compusă
+        public void Delete(int destinationId, int categoryId)
+        {
+            using var context = new AppContext();
+            var entity = context.CategorieVacanta_Destinatie
+                .FirstOrDefault(cd => cd.Id_Destinatie == destinationId && cd.Id_CategorieVacanta == categoryId);
+            if (entity != null)
+            {
+                context.CategorieVacanta_Destinatie.Remove(entity);
+                context.SaveChanges();
+            }
         }
     }
 }

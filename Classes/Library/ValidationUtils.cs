@@ -202,6 +202,51 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
 
         #endregion
 
+        #region Price Range Validation
+
+        /// <summary>
+        /// Valideaz? un interval de pre?
+        /// </summary>
+        /// <param name="minPrice">Pre?ul minim</param>
+        /// <param name="maxPrice">Pre?ul maxim</param>
+        /// <returns>True dac? intervalul este valid, false altfel</returns>
+        public static bool IsValidPriceRange(decimal minPrice, decimal maxPrice)
+        {
+            return minPrice >= 0 && maxPrice > minPrice;
+        }
+
+        /// <summary>
+        /// Valideaz? c? un pre? este valid (non-negativ)
+        /// </summary>
+        /// <param name="price">Pre?ul de validat</param>
+        /// <returns>True dac? pre?ul este valid, false altfel</returns>
+        public static bool IsValidPrice(decimal price)
+        {
+            return price >= 0;
+        }
+
+        /// <summary>
+        /// Ob?ine mesajul de eroare pentru interval de pre? invalid
+        /// </summary>
+        /// <param name="minPrice">Pre?ul minim</param>
+        /// <param name="maxPrice">Pre?ul maxim</param>
+        /// <returns>Mesajul de eroare</returns>
+        public static string GetPriceRangeValidationMessage(decimal minPrice, decimal maxPrice)
+        {
+            if (minPrice < 0)
+                return "Pre?ul minim nu poate fi negativ.";
+            
+            if (maxPrice < 0)
+                return "Pre?ul maxim nu poate fi negativ.";
+                
+            if (maxPrice <= minPrice)
+                return $"Pre?ul maxim ({maxPrice:0.00}€) trebuie s? fie mai mare decât pre?ul minim ({minPrice:0.00}€).";
+                
+            return "Intervalul de pre? este valid.";
+        }
+
+        #endregion
+
         #region Validation Messages
 
         /// <summary>
