@@ -16,6 +16,9 @@
     <!-- Basic neutrals -->
     <Color x:Key="White">#FFFFFF</Color>
     <Color x:Key="Black">#000000</Color>
+    
+    <!-- Loading overlay background -->
+    <Color x:Key="LoadingOverlayBackground">#80000000</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryBlue}" />

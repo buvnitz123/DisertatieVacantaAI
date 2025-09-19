@@ -515,11 +515,24 @@ public partial class SearchPage : ContentPage
     {
         if (sender is Border border && border.BindingContext is DestinationSearchResult destination)
         {
-            await DisplayAlert(
-                "Destinație", 
-                $"Ai selectat destinația: {destination.Denumire}\n\nLocație: {destination.Location}\nPreț adult: {destination.PretAdult:C}\nPreț minor: {destination.PretMinor:C}", 
-                "OK"
-            );
+            try
+            {
+                Debug.WriteLine($"[SearchPage] Navigating to destination details with ID: {destination.Id_Destinatie}");
+                await Shell.Current.GoToAsync($"{nameof(DestinationDetailsPage)}?destinationId={destination.Id_Destinatie}");
+                Debug.WriteLine($"[SearchPage] Navigation completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error navigating to destination details: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                await DisplayAlert("Eroare", "Nu s-a putut deschide pagina destinatiei.", "OK");
+            }
+        }
+        else
+        {
+            Debug.WriteLine($"[SearchPage] OnDestinationTapped called but sender or BindingContext is null");
+            Debug.WriteLine($"[SearchPage] Sender type: {sender?.GetType()?.Name}");
+            Debug.WriteLine($"[SearchPage] BindingContext type: {(sender as Border)?.BindingContext?.GetType()?.Name}");
         }
     }
 

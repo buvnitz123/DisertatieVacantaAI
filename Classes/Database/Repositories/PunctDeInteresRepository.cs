@@ -21,6 +21,14 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             return context.PuncteDeInteres.Find(id);
         }
 
+        public IEnumerable<PunctDeInteres> GetByDestinationId(int destinationId)
+        {
+            using var context = new AppContext();
+            return context.PuncteDeInteres
+                         .Where(p => p.Id_Destinatie == destinationId)
+                         .ToList();
+        }
+
         public void Insert(PunctDeInteres entity)
         {
             using var context = new AppContext();

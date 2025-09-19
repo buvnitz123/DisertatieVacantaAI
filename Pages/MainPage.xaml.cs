@@ -332,7 +332,24 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             if (sender is Element element && element.BindingContext is DestinationDisplayItem destination)
             {
-                await DisplayAlert("Destinatie", $"Ai selectat destinatia: {destination.Denumire}", "OK");
+                try
+                {
+                    Debug.WriteLine($"[MainPage] Navigating to destination details with ID: {destination.Id}");
+                    await Shell.Current.GoToAsync($"{nameof(DestinationDetailsPage)}?destinationId={destination.Id}");
+                    Debug.WriteLine($"[MainPage] Navigation completed successfully");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error navigating to destination details: {ex.Message}");
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                    await DisplayAlert("Eroare", "Nu s-a putut deschide pagina destinatiei.", "OK");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"[MainPage] OnDestinationTapped called but sender or BindingContext is null");
+                Debug.WriteLine($"[MainPage] Sender type: {sender?.GetType()?.Name}");
+                Debug.WriteLine($"[MainPage] BindingContext type: {(sender as Element)?.BindingContext?.GetType()?.Name}");
             }
         }
 
