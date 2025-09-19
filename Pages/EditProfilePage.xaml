@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.EditProfilePage"
+             Title="Editare profil"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
+    <ScrollView>
+        <VerticalStackLayout Padding="20,30" Spacing="25">
+            
+            <!-- Header -->
+            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Label Text="✏️" FontSize="40" HorizontalOptions="Center" />
+                <Label Text="Editează informațiile personale" 
+                       FontSize="18" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <!-- Error Label -->
+            <Label x:Name="ErrorLabel" 
+                   IsVisible="False" 
+                   TextColor="Red" 
+                   FontSize="14" 
+                   HorizontalTextAlignment="Center"
+                   Padding="10"
+                   BackgroundColor="#FFEBEE" />
+
+            <!-- Form Fields -->
+            <VerticalStackLayout Spacing="20">
+                
+                <!-- Nume -->
+                <Frame x:Name="NumeFrame" 
+                       BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                       BorderColor="Transparent" 
+                       CornerRadius="12" 
+                       Padding="0"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="8" Padding="15">
+                        <Label Text="Nume *" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <Entry x:Name="NumeEntry" 
+                               Placeholder="Introdu numele" 
+                               FontSize="16"
+                               BackgroundColor="Transparent"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Prenume -->
+                <Frame x:Name="PrenumeFrame" 
+                       BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                       BorderColor="Transparent" 
+                       CornerRadius="12" 
+                       Padding="0"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="8" Padding="15">
+                        <Label Text="Prenume *" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <Entry x:Name="PrenumeEntry" 
+                               Placeholder="Introdu prenumele" 
+                               FontSize="16"
+                               BackgroundColor="Transparent"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Email -->
+                <Frame x:Name="EmailFrame" 
+                       BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                       BorderColor="Transparent" 
+                       CornerRadius="12" 
+                       Padding="0"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="8" Padding="15">
+                        <Label Text="Email *" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <Entry x:Name="EmailEntry" 
+                               Placeholder="exemplu@email.com" 
+                               Keyboard="Email"
+                               FontSize="16"
+                               BackgroundColor="Transparent"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Data nașterii -->
+                <Frame x:Name="DataNasteriiFrame" 
+                       BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                       BorderColor="Transparent" 
+                       CornerRadius="12" 
+                       Padding="0"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="8" Padding="15">
+                        <Label Text="Data nașterii *" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <DatePicker x:Name="DataNasteriiPicker" 
+                                    FontSize="16"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                    Format="dd/MM/yyyy" />
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+
+            <!-- Password Change Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                   BorderColor="Transparent" 
+                   CornerRadius="16" 
+                   Padding="20">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🔒 Schimbă parola (opțional)" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    
+                    <!-- Current Password -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Parola curentă" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <Entry x:Name="CurrentPasswordEntry" 
+                               Placeholder="Introdu parola curentă" 
+                               IsPassword="True"
+                               FontSize="14"
+                               BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+
+                    <!-- New Password -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Parola nouă" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <Entry x:Name="NewPasswordEntry" 
+                               Placeholder="Introdu parola nouă" 
+                               IsPassword="True"
+                               FontSize="14"
+                               BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+
+                    <!-- Confirm New Password -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Confirmă parola nouă" 
+                               FontSize="12" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.8" />
+                        <Entry x:Name="ConfirmPasswordEntry" 
+                               Placeholder="Confirmă parola nouă" 
+                               IsPassword="True"
+                               FontSize="14"
+                               BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator x:Name="BusyIndicator" 
+                               IsVisible="False" 
+                               IsRunning="False" 
+                               Color="{StaticResource PrimaryBlue}" 
+                               HeightRequest="40" />
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="12">
+                <Button x:Name="SaveButton" 
+                        Text="💾 Salvează modificările" 
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="{StaticResource PrimaryBlue}" 
+                        TextColor="White" 
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        CornerRadius="25" />
+                        
+                <Button x:Name="CancelButton" 
+                        Text="❌ Anulează" 
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="Transparent" 
+                        TextColor="{StaticResource PrimaryBlue}" 
+                        BorderColor="{StaticResource PrimaryBlue}"
+                        BorderWidth="2"
+                        FontSize="16"
+                        HeightRequest="50"
+                        CornerRadius="25" />
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

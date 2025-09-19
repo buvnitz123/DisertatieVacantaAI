@@ -1,4 +1,4 @@
-using MauiAppDisertatieVacantaAI.Classes.Config;
+﻿using MauiAppDisertatieVacantaAI.Classes.Config;
 using System.Diagnostics;
 using OpenAI;
 using OpenAI.Chat;
@@ -43,30 +43,30 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
                 {
                     if (!await InitializeAsync())
                     {
-                        return "Ne pare r?u, serviciul AI nu este disponibil momentan. Te rog �ncearc? din nou mai t�rziu.";
+                        return "Ne pare rău, serviciul AI nu este disponibil momentan. Te rog încearcă din nou mai târziu.";
                     }
                 }
 
                 var messages = new List<ChatMessage>
                 {
-                    new SystemChatMessage(@"E?ti un asistent AI specializat �n planificarea vacan?elor ?i c?l?toriilor. 
+                    new SystemChatMessage(@"Ești un asistent AI specializat în planificarea vacanțelor și călătoriilor. 
                         Nume: Travel Assistant AI
-                        Rolul t?u: S? aju?i utilizatorii s? planifice vacan?e perfecte, s? oferi recomand?ri de destina?ii, sfaturi de c?l?torie ?i informa?ii utile.
+                        Rolul tău: Să ajuți utilizatorii să planifice vacanțe perfecte, să oferi recomandări de destinații, sfaturi de călătorie și informații utile.
                         
-                        Instruc?ii:
-                        - R?spunde �ntotdeauna �n rom�n?
-                        - Fii prietenos, entuziast ?i util
-                        - Ofer? recomand?ri personalizate bazate pe preferin?ele utilizatorului
-                        - Include sfaturi practice pentru c?l?torie (buget, transport, cazare, activit??i)
-                        - Dac? nu ?tii ceva specific, recunoa?te ?i ofer? alternative
-                        - �ntreab? pentru detalii suplimentare c�nd e necesar pentru a da recomand?ri mai bune
-                        - Fii concis dar informativ - r?spunsuri de 2-4 propozi?ii �n general
+                        Instrucțiuni:
+                        - Răspunde întotdeauna în română
+                        - Fii prietenos, entuziast și util
+                        - Oferă recomandări personalizate bazate pe preferințele utilizatorului
+                        - Include sfaturi practice pentru călătorie (buget, transport, cazare, activități)
+                        - Dacă nu știi ceva specific, recunoaște și oferă alternative
+                        - Întreabă pentru detalii suplimentare când e necesar pentru a da recomandări mai bune
+                        - Fii concis dar informativ - răspunsuri de 2-4 propoziții în general
                         
-                        C�nd vorbe?ti despre destina?ii, include:
-                        - Atrac?ii principale
-                        - Perioada optim? pentru vizit?
+                        Când vorbești despre destinații, include:
+                        - Atracții principale
+                        - Perioada optimă pentru vizită
                         - Aproximative de buget
-                        - Modalit??i de transport
+                        - Modalități de transport
                         - Sfaturi practice")
                 };
 
@@ -98,12 +98,12 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
                 {
                     var aiResponse = completion.Value.Content[0].Text;
                     Debug.WriteLine($"Received response from OpenAI: {aiResponse}");
-                    return aiResponse ?? "Ne pare r?u, nu am putut genera un r?spuns. Te rog �ncearc? din nou.";
+                    return aiResponse ?? "Ne pare rău, nu am putut genera un răspuns. Te rog încearcă din nou.";
                 }
                 else
                 {
                     Debug.WriteLine("No valid response content found");
-                    return "Ne pare r?u, nu am primit un r?spuns valid. Te rog �ncearc? din nou.";
+                    return "Ne pare rău, nu am primit un răspuns valid. Te rog încearcă din nou.";
                 }
             }
             catch (Exception ex)
@@ -113,27 +113,27 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
                 // Handle specific OpenAI exceptions for better user experience
                 if (ex.Message.Contains("unauthorized") || ex.Message.Contains("401"))
                 {
-                    return "Ne pare r?u, cheia API nu este valid?. Te rog contacteaz? administratorul.";
+                    return "Ne pare rău, cheia API nu este validă. Te rog contactează administratorul.";
                 }
                 else if (ex.Message.Contains("rate limit") || ex.Message.Contains("429"))
                 {
-                    return "Prea multe cereri. Te rog �ncearc? din nou �n c�teva secunde.";
+                    return "Prea multe cereri. Te rog încearcă din nou în câteva secunde.";
                 }
                 else if (ex.Message.Contains("insufficient") || ex.Message.Contains("402"))
                 {
-                    return "Creditul API a fost epuizat. Te rog contacteaz? administratorul.";
+                    return "Creditul API a fost epuizat. Te rog contactează administratorul.";
                 }
                 
-                return "Ne pare r?u, a ap?rut o eroare �n comunicarea cu serviciul AI. Te rog �ncearc? din nou.";
+                return "Ne pare rău, a apărut o eroare în comunicarea cu serviciul AI. Te rog încearcă din nou.";
             }
         }
 
         public async Task<string> GetVacationRecommendationAsync(string destination, string budget, string duration, string travelStyle)
         {
-            var prompt = $@"Vreau s? planific o vacan?? la {destination}. 
-                          Bugetul meu este {budget}, durata c?l?toriei {duration}, 
-                          ?i prefer un stil de c?l?torie {travelStyle}. 
-                          Po?i s?-mi dai o recomandare detaliat? cu atrac?ii, cazare, transport ?i sfaturi de buget?";
+            var prompt = $@"Vreau să planific o vacanță la {destination}. 
+                          Bugetul meu este {budget}, durata călătoriei {duration}, 
+                          și prefer un stil de călătorie {travelStyle}. 
+                          Poți să-mi dai o recomandare detaliată cu atracții, cazare, transport și sfaturi de buget?";
             
             return await GetChatResponseAsync(prompt);
         }

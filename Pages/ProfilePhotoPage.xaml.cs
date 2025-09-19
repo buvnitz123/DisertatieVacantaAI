@@ -327,7 +327,6 @@ public partial class ProfilePhotoPage : ContentPage
                 Parola = EncryptionUtils.Encrypt(draft.Parola),
                 PozaProfil = relativePath,
                 Data_Nastere = draft.DataNastere ?? new DateTime(2000, 1, 1),
-                Telefon = draft.Telefon,
                 EsteActiv = 1
             };
 

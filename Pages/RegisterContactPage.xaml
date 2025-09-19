@@ -45,7 +45,7 @@
                        FontAttributes="Bold" 
                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" 
                        HorizontalOptions="Center"/>
-                <Label Text="Acum hai sa configuram detaliile de contact si securitatea contului" 
+                <Label Text="Acum hai să configurăm adresa de email și parola pentru contul tău" 
                        FontSize="16"
                        TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
                        Opacity="0.8" 
@@ -90,29 +90,6 @@
                     </Frame>
                 </VerticalStackLayout>
 
-                <!-- Phone -->
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Numarul de telefon" 
-                           FontSize="14" 
-                           FontAttributes="Bold"
-                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
-                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
-                           CornerRadius="12" 
-                           Padding="0" 
-                           HasShadow="False"
-                           x:Name="TelefonFrame">
-                        <Entry x:Name="TelefonEntry" 
-                               Placeholder="+40 7XX XXX XXX" 
-                               PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
-                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
-                               BackgroundColor="Transparent"
-                               Keyboard="Telephone"
-                               Margin="16,12"
-                               TextChanged="OnTelefonTextChanged"
-                               ReturnType="Next"/>
-                    </Frame>
-                </VerticalStackLayout>
-
                 <!-- Password -->
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Parola" 
@@ -126,7 +103,7 @@
                            x:Name="ParolaFrame">
                         <Grid>
                             <Entry x:Name="ParolaEntry" 
-                                   Placeholder="Minim 6 caractere" 
+                                   Placeholder="Introdu o parolă" 
                                    PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                                    BackgroundColor="Transparent"
@@ -149,7 +126,7 @@
                         </Grid>
                     </Frame>
                     
-                    <!-- Password Strength Indicator -->
+                    <!-- Password Strength Indicator (informativ, nu pentru validare) -->
                     <HorizontalStackLayout Spacing="4" Margin="4,4,0,0">
                         <BoxView x:Name="StrengthBar1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
                                  WidthRequest="20" HeightRequest="3" CornerRadius="1.5"/>
@@ -159,7 +136,7 @@
                                  WidthRequest="20" HeightRequest="3" CornerRadius="1.5"/>
                         <BoxView x:Name="StrengthBar4" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
                                  WidthRequest="20" HeightRequest="3" CornerRadius="1.5"/>
-                        <Label x:Name="StrengthLabel" Text="Forta parolei" 
+                        <Label x:Name="StrengthLabel" Text="Puterea parolei" 
                                FontSize="12" 
                                TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                VerticalOptions="Center"
@@ -169,7 +146,7 @@
 
                 <!-- Confirm Password -->
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="Confirma parola" 
+                    <Label Text="Confirmă parola" 
                            FontSize="14" 
                            FontAttributes="Bold"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
@@ -212,7 +189,7 @@
             <!-- Action Buttons -->
             <VerticalStackLayout Spacing="12" Margin="0,20,0,0">
                 <Button x:Name="ContinueButton"
-                        Text="Continua" 
+                        Text="Continuă" 
                         Clicked="OnNext" 
                         BackgroundColor="{StaticResource PrimaryBlue}" 
                         TextColor="White"
@@ -223,7 +200,7 @@
                         IsEnabled="False"/>
                 
                 <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
-                    <Button Text="Inapoi" 
+                    <Button Text="Înapoi" 
                             Clicked="OnBack" 
                             BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
                             TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
@@ -232,7 +209,7 @@
                             WidthRequest="100"
                             FontSize="15"/>
                     
-                    <Button Text="Renunta" 
+                    <Button Text="Renunță" 
                             Clicked="OnCancel" 
                             BackgroundColor="Transparent" 
                             TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
@@ -249,14 +226,14 @@
                    Margin="0,10,0,0">
                 <VerticalStackLayout Spacing="8">
                     <HorizontalStackLayout Spacing="8">
-                        <Label Text="🔒" FontSize="16" VerticalOptions="Start"/>
-                        <Label Text="Sfaturi pentru o parola sigura:" 
+                        <Label Text="💡" FontSize="16" VerticalOptions="Start"/>
+                        <Label Text="Informații despre parolă:" 
                                FontSize="14" 
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
                                VerticalOptions="Center"/>
                     </HorizontalStackLayout>
-                    <Label Text="• Foloseste minim 8 caractere&#10;• Combina litere mari si mici&#10;• Adauga numere si simboluri&#10;• Evita cuvinte comune" 
+                    <Label Text="• Poți folosi orice parolă dorești&#10;• Indicatorul de putere te ajută să vezi cât de sigură este&#10;• Pentru siguranță maximă, combină litere, numere și simboluri" 
                            FontSize="12"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                            Margin="24,0,0,0"/>

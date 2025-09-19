@@ -1,4 +1,5 @@
 using MauiAppDisertatieVacantaAI.Classes.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -34,8 +35,7 @@ public partial class RegisterNamePage : ContentPage
 
     private void ValidateForm()
     {
-        bool isValid = !string.IsNullOrWhiteSpace(NumeEntry.Text?.Trim()) && 
-                      !string.IsNullOrWhiteSpace(PrenumeEntry.Text?.Trim());
+        bool isValid = ValidationUtils.IsValidNameForm(NumeEntry.Text, PrenumeEntry.Text);
         
         ContinueButton.IsEnabled = isValid;
         ContinueButton.Opacity = isValid ? 1.0 : 0.6;
@@ -54,39 +54,30 @@ public partial class RegisterNamePage : ContentPage
         
         ErrorLabel.IsVisible = false;
         
-        // Validation with visual feedback
-        if (string.IsNullOrWhiteSpace(nume))
+        // Validation with visual feedback using ValidationUtils
+        if (!ValidationUtils.IsValidNume(nume))
         {
-            ShowError("Te rog introdu numele de familie", NumeFrame);
+            var message = string.IsNullOrWhiteSpace(nume) 
+                ? ValidationUtils.GetNameValidationMessage("numele de familie") 
+                : ValidationUtils.GetNameLengthValidationMessage("Numele");
+            ShowError(message, NumeFrame);
             NumeEntry.Focus();
             return;
         }
         
-        if (string.IsNullOrWhiteSpace(prenume))
+        if (!ValidationUtils.IsValidPrenume(prenume))
         {
-            ShowError("Te rog introdu prenumele", PrenumeFrame);
-            PrenumeEntry.Focus();
-            return;
-        }
-
-        // Additional validation
-        if (nume.Length < 2)
-        {
-            ShowError("Numele trebuie sa aiba cel putin 2 caractere", NumeFrame);
-            NumeEntry.Focus();
-            return;
-        }
-
-        if (prenume.Length < 2)
-        {
-            ShowError("Prenumele trebuie sa aiba cel putin 2 caractere", PrenumeFrame);
+            var message = string.IsNullOrWhiteSpace(prenume) 
+                ? ValidationUtils.GetNameValidationMessage("prenumele") 
+                : ValidationUtils.GetNameLengthValidationMessage("Prenumele");
+            ShowError(message, PrenumeFrame);
             PrenumeEntry.Focus();
             return;
         }
 
         // Disable button and show loading state
         ContinueButton.IsEnabled = false;
-        ContinueButton.Text = "Se incarca...";
+        ContinueButton.Text = "Se încarc?...";
         
         try
         {
@@ -100,7 +91,7 @@ public partial class RegisterNamePage : ContentPage
         finally
         {
             ContinueButton.IsEnabled = true;
-            ContinueButton.Text = "Continua";
+            ContinueButton.Text = "Continu?";
         }
     }
 

@@ -1,4 +1,4 @@
-using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.Session;
 using MauiAppDisertatieVacantaAI.Classes.Library;
 using System.Diagnostics;
@@ -50,7 +50,6 @@ public partial class ProfilePage : ContentPage
             }
             NameLabel.Text = $"{user.Nume} {user.Prenume}";
             EmailLabel.Text = user.Email;
-            PhoneValue.Text = user.Telefon;
             BirthValue.Text = user.Data_Nastere.ToString("dd MMM yyyy");
             StatusValue.Text = user.EsteActiv == 1 ? "Activ" : "Inactiv";
             InitialsLabel.Text = $"{(string.IsNullOrWhiteSpace(user.Nume)?"?":user.Nume[0])}{(string.IsNullOrWhiteSpace(user.Prenume)?"":user.Prenume[0])}".ToUpper();
@@ -94,7 +93,7 @@ public partial class ProfilePage : ContentPage
     private void SetDefaultImage()
     {
         ProfileImage.Source = "profile_default.png"; // default placeholder image
-        InitialsLabel.IsVisible = false;
+        InitialsLabel.IsVisible = true;
         _hasCustomPhoto = false;
         _currentPhotoUrl = null;
     }
@@ -148,7 +147,7 @@ public partial class ProfilePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Eroare", $"Nu s-a putut incarca imaginea: {ex.Message}", "OK");
+            await DisplayAlert("Eroare", $"Nu s-a putut încărca imaginea: {ex.Message}", "OK");
             Debug.WriteLine($"SetProfileImageAsync error: {ex}\n{ex.StackTrace}");
         }
     }
@@ -190,7 +189,7 @@ public partial class ProfilePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Eroare", $"Upload esuat: {ex.Message}", "OK");
+            await DisplayAlert("Eroare", $"Upload eșuat: {ex.Message}", "OK");
             Debug.WriteLine($"UploadProfilePhotoAsync(bytes) error: {ex}");
         }
     }
@@ -201,11 +200,11 @@ public partial class ProfilePage : ContentPage
         {
             if (!_hasCustomPhoto)
             {
-                await DisplayAlert("Info", "Nu exista o poza de profil de sters.", "OK");
+                await DisplayAlert("Info", "Nu există o poză de profil de șters.", "OK");
                 return;
             }
 
-            bool confirm = await DisplayAlert("Confirmare", "Sigur stergi poza de profil?", "Da", "Nu");
+            bool confirm = await DisplayAlert("Confirmare", "Sigur ștergi poza de profil?", "Da", "Nu");
             if (!confirm) return;
 
             // Get the latest user state
@@ -219,7 +218,7 @@ public partial class ProfilePage : ContentPage
             var urlOrRelative = user.PozaProfil;
             if (string.IsNullOrWhiteSpace(urlOrRelative))
             {
-                await DisplayAlert("Info", "Nu exista o poza de profil de sters.", "OK");
+                await DisplayAlert("Info", "Nu există o poză de profil de șters.", "OK");
                 return;
             }
 
@@ -240,7 +239,7 @@ public partial class ProfilePage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Eroare", $"Stergere esuata: {ex.Message}", "OK");
+            await DisplayAlert("Eroare", $"Ștergere eșuată: {ex.Message}", "OK");
             Debug.WriteLine($"DeleteProfilePhotoAsync error: {ex}");
         }
     }
@@ -251,14 +250,14 @@ public partial class ProfilePage : ContentPage
         try
         {
             // Always show the delete option; it will no-op on default image
-            string action = await DisplayActionSheet("Foto profil", "Anuleaza", null, "Fa o poza", "Alege din galerie", "Sterge poza");
-            if (action == "Fa o poza")
+            string action = await DisplayActionSheet("Foto profil", "Anulează", null, "Fă o poză", "Alege din galerie", "Șterge poza");
+            if (action == "Fă o poză")
             {   
                 try
                 {
                     if (!await EnsureCameraAndStoragePermissionsAsync())
                     {
-                        await DisplayAlert("Permisiuni", "Permisiunile pentru camera/imagini sunt necesare.", "OK");
+                        await DisplayAlert("Permisiuni", "Permisiunile pentru cameră/imagini sunt necesare.", "OK");
                         return;
                     }
 
@@ -270,7 +269,7 @@ public partial class ProfilePage : ContentPage
                 }
                 catch (Exception exCam)
                 {
-                    await DisplayAlert("Eroare", $"Camera indisponibila: {exCam.Message}", "OK");
+                    await DisplayAlert("Eroare", $"Cameră indisponibilă: {exCam.Message}", "OK");
                     Debug.WriteLine($"Camera capture error: {exCam}\n{exCam.StackTrace}");
                 }
             }
@@ -292,11 +291,11 @@ public partial class ProfilePage : ContentPage
                 }
                 catch (Exception exPick)
                 {
-                    await DisplayAlert("Eroare", $"Selectie esuata: {exPick.Message}", "OK");
+                    await DisplayAlert("Eroare", $"Selecție eșuată: {exPick.Message}", "OK");
                     Debug.WriteLine($"Gallery pick error: {exPick}\n{exPick.StackTrace}");
                 }
             }
-            else if (action == "Sterge poza")
+            else if (action == "Șterge poza")
             {
                 await DeleteProfilePhotoAsync();
             }
@@ -310,6 +309,16 @@ public partial class ProfilePage : ContentPage
 
     private async void OnEditProfile(object sender, EventArgs e)
     {
-        await DisplayAlert("Info", "Editare profil - in curand.", "OK");
+        await Shell.Current.GoToAsync(nameof(EditProfilePage));
+    }
+
+    private async void OnLogout(object sender, EventArgs e)
+    {
+        bool confirm = await DisplayAlert("Confirmare", "Sigur vrei să te deconectezi?", "Da", "Nu");
+        if (confirm)
+        {
+            UserSession.ClearSession();
+            await Shell.Current.GoToAsync("//LoginPage");
+        }
     }
 }

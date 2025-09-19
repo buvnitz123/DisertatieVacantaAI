@@ -36,10 +36,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
         [Column("Data_Nastere")]
         public DateTime Data_Nastere { get; set; }
 
-        [Required, StringLength(50)]
-        [Column("Telefon")]
-        public string Telefon { get; set; }
-
         [Required]
         [Column("EsteActiv")]
         public int EsteActiv { get; set; }

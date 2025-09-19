@@ -5,40 +5,156 @@
              Title="Profil"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     <ScrollView>
-        <VerticalStackLayout Padding="30,40" Spacing="28">
-            <!-- Photo -->
-            <Grid HorizontalOptions="Center">
-                <Border Stroke="{StaticResource PrimaryBlue}" StrokeThickness="2" WidthRequest="160" HeightRequest="160">
-                    <Border.StrokeShape><Ellipse/></Border.StrokeShape>
-                    <Grid>
-                        <Image x:Name="ProfileImage" Aspect="AspectFill" />
-                        <Label x:Name="InitialsLabel" Text="?" TextColor="White" FontSize="48" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+        <VerticalStackLayout Padding="20,30" Spacing="25">
+            
+            <!-- Header Card with Profile Photo and Basic Info -->
+            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                   Padding="25,30" 
+                   CornerRadius="20" 
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
+                    
+                    <!-- Profile Photo -->
+                    <Grid HorizontalOptions="Center">
+                        <Border Stroke="{StaticResource PrimaryBlue}" 
+                                StrokeThickness="3" 
+                                WidthRequest="140" 
+                                HeightRequest="140">
+                            <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                            <Grid>
+                                <Image x:Name="ProfileImage" Aspect="AspectFill" />
+                                <Label x:Name="InitialsLabel" 
+                                       Text="?" 
+                                       TextColor="White" 
+                                       FontSize="42" 
+                                       FontAttributes="Bold" 
+                                       HorizontalOptions="Center" 
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        
+                        <!-- Edit Photo Indicator -->
+                        <Border BackgroundColor="{StaticResource PrimaryBlue}"
+                                Stroke="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                                StrokeThickness="2"
+                                WidthRequest="35"
+                                HeightRequest="35"
+                                HorizontalOptions="End"
+                                VerticalOptions="End"
+                                Margin="0,0,5,5">
+                            <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                            <Label Text="📷" 
+                                   FontSize="16" 
+                                   HorizontalOptions="Center" 
+                                   VerticalOptions="Center"
+                                   TextColor="White" />
+                        </Border>
                     </Grid>
-                </Border>
-            </Grid>
 
-            <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
-                <Label x:Name="NameLabel" FontSize="26" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" HorizontalTextAlignment="Center" />
-                <Label x:Name="EmailLabel" FontSize="14" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.8" HorizontalTextAlignment="Center" />
-            </VerticalStackLayout>
-
-            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4">
-                <Label Text="Telefon" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                <Label x:Name="PhoneValue" Grid.Column="1" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-                <Label Grid.Row="1" Text="Data nasterii" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                <Label x:Name="BirthValue" Grid.Row="1" Grid.Column="1" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-                <Label Grid.Row="2" Text="Status" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                <Label x:Name="StatusValue" Grid.Row="2" Grid.Column="1" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-            </Grid>
-
-            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Padding="18" CornerRadius="16">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Despre" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                    <Label x:Name="AboutLabel" Text="Cont creat in aplicatie." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" FontSize="13" />
+                    <!-- Name and Email -->
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label x:Name="NameLabel" 
+                               FontSize="28" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" 
+                               HorizontalTextAlignment="Center" />
+                        <Label x:Name="EmailLabel" 
+                               FontSize="15" 
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               Opacity="0.9" 
+                               HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    
                 </VerticalStackLayout>
             </Frame>
 
-            <Button Text="Editeaza profil" x:Name="EditButton" Clicked="OnEditProfile" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" />
+            <!-- Details Card -->
+            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                   Padding="25" 
+                   CornerRadius="20" 
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
+                    
+                    <Label Text="📋 Detalii personale" 
+                           FontSize="18" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    
+                    <Grid RowDefinitions="Auto,Auto" 
+                          ColumnDefinitions="Auto,*" 
+                          ColumnSpacing="15" 
+                          RowSpacing="15">
+                        
+                        <!-- Birth Date -->
+                        <Label Text="🎂" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Data nașterii" 
+                                   FontSize="12" 
+                                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                                   Opacity="0.8" />
+                            <Label x:Name="BirthValue" 
+                                   FontSize="16" 
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        </VerticalStackLayout>
+                        
+                        <!-- Status -->
+                        <Label Grid.Row="1" Text="✅" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
+                            <Label Text="Status cont" 
+                                   FontSize="12" 
+                                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                                   Opacity="0.8" />
+                            <Label x:Name="StatusValue" 
+                                   FontSize="16" 
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        </VerticalStackLayout>
+                        
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- About Section -->
+            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                   Padding="20" 
+                   CornerRadius="16" 
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="ℹ️ Despre aplicație" 
+                           FontAttributes="Bold" 
+                           FontSize="16"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    <Label x:Name="AboutLabel" 
+                           Text="Planifică vacanțe perfecte cu ajutorul AI-ului nostru inteligent. Descoperă destinații noi și primește recomandări personalizate!" 
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                           FontSize="14" 
+                           LineHeight="1.4" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Spacing="12">
+                <Button Text="✏️ Editează profilul" 
+                        x:Name="EditButton" 
+                        Clicked="OnEditProfile" 
+                        BackgroundColor="{StaticResource PrimaryBlue}" 
+                        TextColor="White" 
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        CornerRadius="25" />
+                        
+                <Button Text="🚪 Deconectare" 
+                        x:Name="LogoutButton" 
+                        Clicked="OnLogout" 
+                        BackgroundColor="Transparent" 
+                        TextColor="{StaticResource PrimaryBlue}" 
+                        BorderColor="{StaticResource PrimaryBlue}"
+                        BorderWidth="2"
+                        FontSize="16"
+                        HeightRequest="50"
+                        CornerRadius="25" />
+            </VerticalStackLayout>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

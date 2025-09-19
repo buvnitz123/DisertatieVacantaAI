@@ -1,6 +1,6 @@
-using MauiAppDisertatieVacantaAI.Classes.Session;
+﻿using MauiAppDisertatieVacantaAI.Classes.Session;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
-using System.Text.RegularExpressions;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -16,8 +16,6 @@ public partial class RegisterContactPage : ContentPage
         // Restore previous values if available
         if (!string.IsNullOrWhiteSpace(RegistrationSession.Draft?.Email))
             EmailEntry.Text = RegistrationSession.Draft.Email;
-        if (!string.IsNullOrWhiteSpace(RegistrationSession.Draft?.Telefon))
-            TelefonEntry.Text = RegistrationSession.Draft.Telefon;
             
         ValidateForm();
     }
@@ -29,16 +27,10 @@ public partial class RegisterContactPage : ContentPage
         ValidateForm();
     }
 
-    private void OnTelefonTextChanged(object sender, TextChangedEventArgs e)
-    {
-        TelefonFrame.BorderColor = Colors.Transparent;
-        ValidateForm();
-    }
-
     private void OnParolaTextChanged(object sender, TextChangedEventArgs e)
     {
         ParolaFrame.BorderColor = Colors.Transparent;
-        UpdatePasswordStrength();
+        UpdatePasswordStrength(); // Only for UI feedback, not validation
         ValidatePasswordMatch();
         ValidateForm();
     }
@@ -55,20 +47,20 @@ public partial class RegisterContactPage : ContentPage
         _isPasswordVisible = !_isPasswordVisible;
         ParolaEntry.IsPassword = !_isPasswordVisible;
         ConfirmParolaEntry.IsPassword = !_isPasswordVisible;
-        ShowPasswordButton.Text = _isPasswordVisible ? "??" : "??";
+        ShowPasswordButton.Text = _isPasswordVisible ? "🙈" : "👁️";
     }
 
     private void ValidateEmail()
     {
         var email = EmailEntry.Text?.Trim();
-        bool isValid = !string.IsNullOrEmpty(email) && IsValidEmail(email);
+        bool isValid = ValidationUtils.IsValidEmail(email);
         EmailValidIcon.IsVisible = isValid;
     }
 
     private void UpdatePasswordStrength()
     {
         var password = ParolaEntry.Text ?? "";
-        var strength = CalculatePasswordStrength(password);
+        var strength = ValidationUtils.CalculatePasswordStrength(password);
         
         // Reset all bars
         StrengthBar1.BackgroundColor = Color.FromArgb("#EEEEEE");
@@ -76,28 +68,27 @@ public partial class RegisterContactPage : ContentPage
         StrengthBar3.BackgroundColor = Color.FromArgb("#EEEEEE");
         StrengthBar4.BackgroundColor = Color.FromArgb("#EEEEEE");
         
+        var description = ValidationUtils.GetPasswordStrengthDescription(strength);
+        StrengthLabel.Text = description;
+        
         switch (strength)
         {
             case 0:
-                StrengthLabel.Text = "Introdu parola";
                 StrengthLabel.TextColor = Color.FromArgb("#999999");
                 break;
             case 1:
                 StrengthBar1.BackgroundColor = Color.FromArgb("#FF6B6B");
-                StrengthLabel.Text = "Slaba";
                 StrengthLabel.TextColor = Color.FromArgb("#FF6B6B");
                 break;
             case 2:
                 StrengthBar1.BackgroundColor = Color.FromArgb("#FFD93D");
                 StrengthBar2.BackgroundColor = Color.FromArgb("#FFD93D");
-                StrengthLabel.Text = "Mediocra";
                 StrengthLabel.TextColor = Color.FromArgb("#FFD93D");
                 break;
             case 3:
                 StrengthBar1.BackgroundColor = Color.FromArgb("#6BCF7F");
                 StrengthBar2.BackgroundColor = Color.FromArgb("#6BCF7F");
                 StrengthBar3.BackgroundColor = Color.FromArgb("#6BCF7F");
-                StrengthLabel.Text = "Buna";
                 StrengthLabel.TextColor = Color.FromArgb("#6BCF7F");
                 break;
             case 4:
@@ -105,7 +96,6 @@ public partial class RegisterContactPage : ContentPage
                 StrengthBar2.BackgroundColor = Color.FromArgb("#4CAF50");
                 StrengthBar3.BackgroundColor = Color.FromArgb("#4CAF50");
                 StrengthBar4.BackgroundColor = Color.FromArgb("#4CAF50");
-                StrengthLabel.Text = "Excelenta";
                 StrengthLabel.TextColor = Color.FromArgb("#4CAF50");
                 break;
         }
@@ -116,9 +106,8 @@ public partial class RegisterContactPage : ContentPage
         var password = ParolaEntry.Text ?? "";
         var confirmPassword = ConfirmParolaEntry.Text ?? "";
         
-        bool matches = !string.IsNullOrEmpty(password) && 
-                      !string.IsNullOrEmpty(confirmPassword) && 
-                      password == confirmPassword;
+        bool matches = ValidationUtils.DoPasswordsMatch(password, confirmPassword) && 
+                      !string.IsNullOrEmpty(password);
                       
         PasswordMatchIcon.IsVisible = matches;
     }
@@ -126,15 +115,11 @@ public partial class RegisterContactPage : ContentPage
     private void ValidateForm()
     {
         var email = EmailEntry.Text?.Trim();
-        var telefon = TelefonEntry.Text?.Trim();
         var parola = ParolaEntry.Text;
         var confirmParola = ConfirmParolaEntry.Text;
 
-        bool isValid = IsValidEmail(email) &&
-                      !string.IsNullOrWhiteSpace(telefon) &&
-                      !string.IsNullOrWhiteSpace(parola) &&
-                      parola.Length >= 6 &&
-                      parola == confirmParola;
+        // Only check for empty fields and email format, no other restrictions
+        bool isValid = ValidationUtils.IsValidContactForm(email, parola, confirmParola);
 
         ContinueButton.IsEnabled = isValid;
         ContinueButton.Opacity = isValid ? 1.0 : 0.6;
@@ -149,16 +134,18 @@ public partial class RegisterContactPage : ContentPage
     private async void OnNext(object sender, EventArgs e)
     {
         var email = EmailEntry.Text?.Trim();
-        var telefon = TelefonEntry.Text?.Trim();
         var parola = ParolaEntry.Text;
         var confirmParola = ConfirmParolaEntry.Text;
 
         ErrorLabel.IsVisible = false;
 
-        // Detailed validation with visual feedback
-        if (string.IsNullOrWhiteSpace(email) || !IsValidEmail(email))
+        // Simplified validation - only check for empty fields and basic format
+        if (!ValidationUtils.IsValidEmail(email))
         {
-            ShowError("Te rog introdu o adresa de email valida", EmailFrame);
+            var message = string.IsNullOrWhiteSpace(email) 
+                ? "Te rog introdu adresa de email" 
+                : ValidationUtils.GetEmailValidationMessage();
+            ShowError(message, EmailFrame);
             EmailEntry.Focus();
             return;
         }
@@ -166,42 +153,36 @@ public partial class RegisterContactPage : ContentPage
         // Check if email already exists
         if (_repo.EmailExists(email))
         {
-            ShowError("Aceasta adresa de email este deja folosita", EmailFrame);
+            ShowError("Această adresă de email este deja folosită", EmailFrame);
             EmailEntry.Focus();
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(telefon))
+        if (!ValidationUtils.IsValidPassword(parola))
         {
-            ShowError("Te rog introdu numarul de telefon", TelefonFrame);
-            TelefonEntry.Focus();
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(parola) || parola.Length < 6)
-        {
-            ShowError("Parola trebuie sa aiba cel putin 6 caractere", ParolaFrame);
+            ShowError(ValidationUtils.GetPasswordValidationMessage(), ParolaFrame);
             ParolaEntry.Focus();
             return;
         }
 
-        if (parola != confirmParola)
+        if (!ValidationUtils.DoPasswordsMatch(parola, confirmParola))
         {
-            ShowError("Parolele nu se potrivesc", ConfirmParolaFrame);
+            ShowError(ValidationUtils.GetPasswordMismatchMessage(), ConfirmParolaFrame);
             ConfirmParolaEntry.Focus();
             return;
         }
 
         // Show loading state
         ContinueButton.IsEnabled = false;
-        ContinueButton.Text = "Se verifica...";
+        ContinueButton.Text = "Se verifică...";
 
         try
         {
             // Small delay to show loading state
             await Task.Delay(500);
             
-            RegistrationSession.SetContact(email, telefon, parola);
+            // Remove telefon from session - set empty string as placeholder
+            RegistrationSession.SetContact(email, "", parola);
             await Shell.Current.GoToAsync(nameof(RegisterBirthPage));
         }
         catch (Exception ex)
@@ -211,7 +192,7 @@ public partial class RegisterContactPage : ContentPage
         finally
         {
             ContinueButton.IsEnabled = true;
-            ContinueButton.Text = "Continua";
+            ContinueButton.Text = "Continuă";
         }
     }
 
@@ -247,40 +228,5 @@ public partial class RegisterContactPage : ContentPage
         // Gentle shake animation
         this.ScaleTo(0.98, 100)
             .ContinueWith(t => this.ScaleTo(1.0, 100));
-    }
-
-    private bool IsValidEmail(string email)
-    {
-        if (string.IsNullOrWhiteSpace(email))
-            return false;
-
-        try
-        {
-            var regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-            return regex.IsMatch(email);
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private int CalculatePasswordStrength(string password)
-    {
-        if (string.IsNullOrEmpty(password))
-            return 0;
-
-        int score = 0;
-
-        // Length check
-        if (password.Length >= 6) score++;
-        if (password.Length >= 8) score++;
-
-        // Character variety checks
-        if (Regex.IsMatch(password, @"[a-z]") && Regex.IsMatch(password, @"[A-Z]")) score++;
-        if (Regex.IsMatch(password, @"[0-9]")) score++;
-        if (Regex.IsMatch(password, @"[^a-zA-Z0-9]")) score++;
-
-        return Math.Min(score, 4);
     }
 }

@@ -64,6 +64,12 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             return context.Utilizatori.Any(u => u.Email == email);
         }
 
+        public bool EmailExistsForOtherUser(string email, int excludeUserId)
+        {
+            using var context = new AppContext();
+            return context.Utilizatori.Any(u => u.Email == email && u.Id_Utilizator != excludeUserId);
+        }
+
         public void Insert(Utilizator entity)
         {
             using var context = new AppContext();

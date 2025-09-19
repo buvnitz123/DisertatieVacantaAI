@@ -1,4 +1,5 @@
 using MauiAppDisertatieVacantaAI.Classes.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -55,14 +56,14 @@ public partial class RegisterBirthPage : ContentPage
         var selectedDate = BirthDatePicker.Date;
         var age = CalculateAge(selectedDate);
         
-        AgeLabel.Text = $"Varsta: {age} ani";
+        AgeLabel.Text = $"Vârsta: {age} ani";
         
-        // Visual feedback based on age
-        if (age < 10)
+        // Visual feedback based on age - informative only, no restrictions
+        if (age < 0) // Future date
         {
             AgeLabel.TextColor = Color.FromArgb("#FF6B6B");
         }
-        else if (age > 100)
+        else if (age > 150) // Very old date
         {
             AgeLabel.TextColor = Color.FromArgb("#FFD93D");
         }
@@ -89,30 +90,17 @@ public partial class RegisterBirthPage : ContentPage
         ErrorLabel.IsVisible = false;
         
         var selectedDate = BirthDatePicker.Date;
-        var age = CalculateAge(selectedDate);
         
-        // Age validation with better messaging
-        if (age < 10)
+        // Only validate that date is not in future
+        if (!ValidationUtils.IsValidBirthDate(selectedDate))
         {
-            ShowError("Trebuie sa ai cel putin 10 ani pentru a te inregistra");
-            return;
-        }
-        
-        if (age > 120)
-        {
-            ShowError("Te rugam sa verifici data nasterii introdusa");
-            return;
-        }
-        
-        if (selectedDate > DateTime.Today)
-        {
-            ShowError("Data nasterii nu poate fi in viitor");
+            ShowError(ValidationUtils.GetFutureDateValidationMessage());
             return;
         }
 
         // Show loading state
         ContinueButton.IsEnabled = false;
-        ContinueButton.Text = "Se pregateste...";
+        ContinueButton.Text = "Se preg?te?te...";
         
         try
         {
@@ -129,7 +117,7 @@ public partial class RegisterBirthPage : ContentPage
         finally
         {
             ContinueButton.IsEnabled = true;
-            ContinueButton.Text = "Continua spre finalul inregistrarii";
+            ContinueButton.Text = "Continu? spre finalul înregistr?rii";
         }
     }
 

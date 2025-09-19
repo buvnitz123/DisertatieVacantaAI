@@ -7,7 +7,6 @@ public class RegistrationDraft
     public string Email { get; set; }
     public string Parola { get; set; }
     public DateTime? DataNastere { get; set; }
-    public string Telefon { get; set; }
 }
 
 public static class RegistrationSession
@@ -33,7 +32,6 @@ public static class RegistrationSession
     {
         EnsureDraft();
         Draft.Email = email;
-        Draft.Telefon = telefon;
         Draft.Parola = parola;
     }
 
