@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Interfaces;
+using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
@@ -24,8 +25,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public void Insert(Recenzie entity)
         {
             using var context = new AppContext();
+            
+            // Generate manual ID since it's not auto-increment
+            if (entity.Id_Recenzie == 0)
+            {
+                var maxId = context.Recenzii.Any() ? context.Recenzii.Max(r => r.Id_Recenzie) : 0;
+                entity.Id_Recenzie = maxId + 1;
+                Debug.WriteLine($"[RecenzieRepository] Generated new ID for review: {entity.Id_Recenzie}");
+            }
+            
             context.Recenzii.Add(entity);
             context.SaveChanges();
+            
+            Debug.WriteLine($"[RecenzieRepository] Successfully inserted review with ID: {entity.Id_Recenzie}");
         }
 
         public void Update(Recenzie entity)

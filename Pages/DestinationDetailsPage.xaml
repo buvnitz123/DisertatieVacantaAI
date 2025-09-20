@@ -32,6 +32,31 @@
                             </CarouselView.ItemTemplate>
                         </CarouselView>
                         
+                        <!-- Rating Overlay in top-right corner -->
+                        <Frame x:Name="RatingOverlay"
+                               BackgroundColor="{StaticResource PrimaryBlue}"
+                               CornerRadius="8"
+                               Padding="8,4"
+                               HasShadow="True"
+                               HorizontalOptions="End"
+                               VerticalOptions="Start"
+                               Margin="15,15,15,0"
+                               IsVisible="False"
+                               Grid.Row="0">
+                            <StackLayout Orientation="Horizontal" Spacing="4">
+                                <Label x:Name="AverageRatingLabel"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       VerticalOptions="Center" />
+                                <Label x:Name="ReviewCountLabel"
+                                       FontSize="12"
+                                       TextColor="White"
+                                       Opacity="0.9"
+                                       VerticalOptions="Center" />
+                            </StackLayout>
+                        </Frame>
+                        
                         <!-- Loading indicator for images -->
                         <ActivityIndicator x:Name="ImagesLoadingIndicator"
                                           Grid.Row="0"
@@ -305,6 +330,123 @@
                                     </Frame>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    
+                    <!-- Reviews Section -->
+                    <StackLayout x:Name="ReviewsSection" Spacing="15" IsVisible="False">
+                        <HorizontalStackLayout Spacing="15" VerticalOptions="Center">
+                            <Label Text="⭐ Recenzii" 
+                                   FontSize="20" 
+                                   FontAttributes="Bold" 
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                   HorizontalOptions="StartAndExpand" />
+                            
+                            <Button Text="✍️ Scrie recenzie"
+                                    BackgroundColor="{StaticResource PrimaryBlue}"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    Padding="12,6"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    Clicked="OnAddReviewClicked" />
+                        </HorizontalStackLayout>
+                        
+                        <!-- Reviews List (Last 5 reviews) -->
+                        <CollectionView x:Name="ReviewsCollectionView" 
+                                        SelectionMode="None"
+                                        BackgroundColor="Transparent">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                                           CornerRadius="12" 
+                                           Padding="15"
+                                           HasShadow="True"
+                                           Margin="0,2">
+                                        <StackLayout Spacing="10">
+                                            
+                                            <!-- Review Header -->
+                                            <HorizontalStackLayout Spacing="12" VerticalOptions="Start">
+                                                <!-- Profile Photo Circle -->
+                                                <Frame BackgroundColor="{StaticResource PrimaryBlue}"
+                                                       CornerRadius="20"
+                                                       Padding="2"
+                                                       HasShadow="False"
+                                                       WidthRequest="40"
+                                                       HeightRequest="40">
+                                                    <Grid>
+                                                        <!-- User Profile Photo (always shows, falls back to default) -->
+                                                        <Frame BackgroundColor="White"
+                                                               CornerRadius="18"
+                                                               Padding="0"
+                                                               HasShadow="False">
+                                                            <Image Source="{Binding UserProfilePhoto}" 
+                                                                   Aspect="AspectFill"
+                                                                   BackgroundColor="#F0F0F0" />
+                                                        </Frame>
+                                                        
+                                                    </Grid>
+                                                </Frame>
+                                                
+                                                <StackLayout HorizontalOptions="StartAndExpand" VerticalOptions="Center" Spacing="2">
+                                                    <Label Text="{Binding UserName}" 
+                                                           FontSize="16" 
+                                                           FontAttributes="Bold"
+                                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                                                    <Label Text="{Binding FormattedDate}" 
+                                                           FontSize="12" 
+                                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                                                </StackLayout>
+                                                
+                                                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}"
+                                                       CornerRadius="8"
+                                                       Padding="8,4"
+                                                       HasShadow="False">
+                                                    <Label Text="{Binding StarsDisplay}" 
+                                                           FontSize="14" 
+                                                           TextColor="{StaticResource PrimaryBlue}"
+                                                           FontAttributes="Bold" />
+                                                </Frame>
+                                            </HorizontalStackLayout>
+                                            
+                                            <!-- Review Comment -->
+                                            <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}"
+                                                   CornerRadius="8"
+                                                   Padding="12"
+                                                   HasShadow="False"
+                                                   IsVisible="{Binding HasComment}">
+                                                <Label Text="{Binding Comment}" 
+                                                       FontSize="14" 
+                                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                                       LineBreakMode="WordWrap" />
+                                            </Frame>
+                                            
+                                        </StackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <CollectionView.EmptyView>
+                                <StackLayout Spacing="15" Padding="20" HorizontalOptions="Center">
+                                    <Label Text="💭" 
+                                           FontSize="48" 
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                                    <Label Text="Nu există încă recenzii pentru această destinație" 
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                                    <Label Text="Fii primul care scrie o recenzie!" 
+                                           FontSize="14"
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                                </StackLayout>
+                            </CollectionView.EmptyView>
                         </CollectionView>
                     </StackLayout>
                     

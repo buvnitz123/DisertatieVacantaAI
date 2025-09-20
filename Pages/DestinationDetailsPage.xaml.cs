@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+using MauiAppDisertatieVacantaAI.Classes.Session;
 using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
@@ -34,6 +35,21 @@ public class PoiDisplayItem
     public bool HasTip => !string.IsNullOrWhiteSpace(Tip);
 }
 
+public class ReviewDisplayItem
+{
+    public int Id_Recenzie { get; set; }
+    public string UserName { get; set; }
+    public string UserProfilePhoto { get; set; }
+    public string UserInitials { get; set; }
+    public int Rating { get; set; }
+    public string Comment { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public string FormattedDate => CreatedDate.ToString("dd MMM yyyy");
+    public string StarsDisplay => new string('★', Rating) + new string('☆', 5 - Rating);
+    public bool HasComment => !string.IsNullOrWhiteSpace(Comment);
+    public bool HasProfilePhoto => !string.IsNullOrWhiteSpace(UserProfilePhoto);
+}
+
 [QueryProperty(nameof(DestinationId), "destinationId")]
 public partial class DestinationDetailsPage : ContentPage
 {
@@ -41,6 +57,7 @@ public partial class DestinationDetailsPage : ContentPage
     private readonly ObservableCollection<FacilityDisplayItem> _facilities = new();
     private readonly ObservableCollection<DestinationCategoryDisplayItem> _categories = new();
     private readonly ObservableCollection<PoiDisplayItem> _pointsOfInterest = new();
+    private readonly ObservableCollection<ReviewDisplayItem> _reviews = new();
     
     // Repositories
     private readonly DestinatieRepository _destinatieRepo = new();
@@ -51,6 +68,8 @@ public partial class DestinationDetailsPage : ContentPage
     private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
     private readonly CategorieVacanta_DestinatieRepository _catDestRepo = new();
     private readonly CategorieVacantaRepository _categorieRepo = new();
+    private readonly RecenzieRepository _recenzieRepo = new();
+    private readonly UtilizatorRepository _utilizatorRepo = new();
     
     // Cancellation support for cleanup
     private CancellationTokenSource _cancellationTokenSource = new();
@@ -78,11 +97,13 @@ public partial class DestinationDetailsPage : ContentPage
         FacilitiesCollectionView.ItemsSource = _facilities;
         CategoriesCollectionView.ItemsSource = _categories;
         PointsOfInterestCollectionView.ItemsSource = _pointsOfInterest;
+        ReviewsCollectionView.ItemsSource = _reviews;
         
         // Initially hide sections until data is loaded
         FacilitiesSection.IsVisible = false;
         CategoriesSection.IsVisible = false;
         PointsOfInterestSection.IsVisible = false;
+        ReviewsSection.IsVisible = false;
     }
 
     protected override async void OnAppearing()
@@ -134,7 +155,8 @@ public partial class DestinationDetailsPage : ContentPage
                 LoadDestinationImagesAsync(),
                 LoadCategoriesAsync(),
                 LoadFacilitiesAsync(),
-                LoadPointsOfInterestAsync()
+                LoadPointsOfInterestAsync(),
+                LoadReviewsAsync()
             );
             
             Debug.WriteLine($"[DestinationDetailsPage] Successfully loaded all destination details");
@@ -580,6 +602,143 @@ public partial class DestinationDetailsPage : ContentPage
         }
     }
 
+    private async Task LoadReviewsAsync()
+    {
+        try
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Starting to load reviews for destination ID: {_destinationId}");
+            
+            var reviews = await Task.Run(() => _recenzieRepo.GetByDestinationWithDetails(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
+            Debug.WriteLine($"[DestinationDetailsPage] Found {reviews?.Count() ?? 0} reviews");
+            
+            // ALWAYS show the reviews section with the "Add Review" button
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ReviewsSection.IsVisible = true; // Show section regardless of reviews
+                Debug.WriteLine($"[DestinationDetailsPage] Reviews section is now visible");
+            });
+            
+            if (!reviews?.Any() == true)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    _reviews.Clear();
+                    UpdateRatingDisplay(0, 0); // No rating available
+                    Debug.WriteLine($"[DestinationDetailsPage] No reviews found, but section remains visible");
+                });
+                return;
+            }
+            
+            // Take only last 5 reviews and calculate average rating
+            var recentReviews = reviews.OrderByDescending(r => r.Data_Creare).Take(5).ToList();
+            var averageRating = reviews.Average(r => r.Nota);
+            var totalReviews = reviews.Count();
+            
+            Debug.WriteLine($"[DestinationDetailsPage] Processing {recentReviews.Count} recent reviews, average: {averageRating:F1}");
+            
+            var reviewDisplayItems = new List<ReviewDisplayItem>();
+            
+            foreach (var review in recentReviews)
+            {
+                if (_cancellationTokenSource.Token.IsCancellationRequested)
+                    break;
+                
+                // Prepare profile photo URL
+                string profilePhotoUrl = PrepareProfileImageUrl(review.Utilizator?.PozaProfil);
+                
+                // Generate user initials as fallback
+                var userInitials = "";
+                if (review.Utilizator != null)
+                {
+                    var firstName = review.Utilizator.Nume ?? "";
+                    var lastName = review.Utilizator.Prenume ?? "";
+                    userInitials = $"{(firstName.Length > 0 ? firstName[0] : '?')}{(lastName.Length > 0 ? lastName[0] : "")}".ToUpper();
+                }
+                
+                var reviewItem = new ReviewDisplayItem
+                {
+                    Id_Recenzie = review.Id_Recenzie,
+                    UserName = $"{review.Utilizator?.Nume} {review.Utilizator?.Prenume}".Trim(),
+                    UserProfilePhoto = profilePhotoUrl,
+                    UserInitials = userInitials,
+                    Rating = review.Nota,
+                    Comment = review.Comentariu,
+                    CreatedDate = review.Data_Creare
+                };
+                
+                reviewDisplayItems.Add(reviewItem);
+                Debug.WriteLine($"[DestinationDetailsPage] Prepared review from {reviewItem.UserName} with rating {reviewItem.Rating}, photo: {reviewItem.HasProfilePhoto}");
+            }
+            
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                _reviews.Clear();
+                foreach (var review in reviewDisplayItems)
+                {
+                    _reviews.Add(review);
+                }
+                
+                UpdateRatingDisplay(averageRating, totalReviews);
+                Debug.WriteLine($"[DestinationDetailsPage] Reviews section visible with {_reviews.Count} items");
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Reviews loading cancelled");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading reviews: {ex.Message}");
+            Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                _reviews.Clear();
+                ReviewsSection.IsVisible = true; // Still show section with "Add Review" button
+                UpdateRatingDisplay(0, 0);
+                Debug.WriteLine($"[DestinationDetailsPage] Error occurred but reviews section remains visible");
+            });
+        }
+    }
+
+    private void UpdateRatingDisplay(double averageRating, int totalReviews)
+    {
+        if (totalReviews > 0)
+        {
+            AverageRatingLabel.Text = $"⭐ {averageRating:F1}";
+            ReviewCountLabel.Text = $"({totalReviews} recenzi{(totalReviews == 1 ? "e" : "i")})";
+            RatingOverlay.IsVisible = true;
+        }
+        else
+        {
+            RatingOverlay.IsVisible = false;
+        }
+    }
+
+    private async void OnAddReviewClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_currentDestination == null)
+            {
+                await DisplayAlert("Eroare", "Informațiile destinației nu sunt disponibile.", "OK");
+                return;
+            }
+
+            var destinationName = Uri.EscapeDataString(_currentDestination.Denumire);
+            var location = Uri.EscapeDataString($"{_currentDestination.Oras}, {_currentDestination.Tara}");
+            
+            Debug.WriteLine($"[DestinationDetailsPage] Navigating to add review for destination ID: {_destinationId}");
+            await Shell.Current.GoToAsync($"{nameof(AddReviewPage)}?destinationId={_destinationId}&destinationName={destinationName}&location={location}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error navigating to add review: {ex.Message}");
+            await DisplayAlert("Eroare", "Nu s-a putut deschide pagina de recenzie.", "OK");
+        }
+    }
+
     private string PrepareImageUrl(string imageUrl)
     {
         if (string.IsNullOrWhiteSpace(imageUrl))
@@ -597,4 +756,18 @@ public partial class DestinationDetailsPage : ContentPage
 
         return imageUrl;
     }
+
+    private string PrepareProfileImageUrl(string profileImagePath)
+    {
+        if (string.IsNullOrWhiteSpace(profileImagePath))
+            return "profile_default.png";
+
+        // If it's already a full URL, return as-is
+        if (profileImagePath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return profileImagePath;
+
+        // If it's a relative path, construct the full URL
+        return $"https://vacantaai.blob.core.windows.net/vacantaai/{profileImagePath}";
+    }
+
 }

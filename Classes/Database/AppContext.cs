@@ -34,6 +34,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
                 .Property(s => s.Id_Sugestie)
                 .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             
+            // Configure Recenzie to NOT use identity for primary key (manual assignment)
+            modelBuilder.Entity<Recenzie>()
+                .Property(r => r.Id_Recenzie)
+                .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+            
             base.OnModelCreating(modelBuilder);
         }
 

@@ -9,6 +9,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
     {
         [Key]
         [Column("Id_Recenzie")]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id_Recenzie { get; set; }
 
         [Required]

@@ -19,7 +19,6 @@ public partial class ProfilePage : ContentPage
         var tap = new TapGestureRecognizer();
         tap.Tapped += OnProfileImageTapped;
         ProfileImage.GestureRecognizers.Add(tap);
-        InitialsLabel.GestureRecognizers.Add(tap);
     }
 
     protected override async void OnAppearing()
@@ -52,7 +51,6 @@ public partial class ProfilePage : ContentPage
             EmailLabel.Text = user.Email;
             BirthValue.Text = user.Data_Nastere.ToString("dd MMM yyyy");
             StatusValue.Text = user.EsteActiv == 1 ? "Activ" : "Inactiv";
-            InitialsLabel.Text = $"{(string.IsNullOrWhiteSpace(user.Nume)?"?":user.Nume[0])}{(string.IsNullOrWhiteSpace(user.Prenume)?"":user.Prenume[0])}".ToUpper();
 
             if (!string.IsNullOrWhiteSpace(user.PozaProfil))
             {
@@ -68,7 +66,6 @@ public partial class ProfilePage : ContentPage
                     // Cache busting to ensure latest image is fetched after updates
                     var uri = new Uri(path + (path.Contains("?") ? "&" : "?") + "v=" + DateTime.UtcNow.Ticks);
                     ProfileImage.Source = new UriImageSource { Uri = uri, CachingEnabled = true, CacheValidity = TimeSpan.FromHours(12) };
-                    InitialsLabel.IsVisible = false;
                     _hasCustomPhoto = true;
                     _currentPhotoUrl = path;
                 }
@@ -93,7 +90,6 @@ public partial class ProfilePage : ContentPage
     private void SetDefaultImage()
     {
         ProfileImage.Source = "profile_default.png"; // default placeholder image
-        InitialsLabel.IsVisible = true;
         _hasCustomPhoto = false;
         _currentPhotoUrl = null;
     }
@@ -130,7 +126,6 @@ public partial class ProfilePage : ContentPage
             if (!string.IsNullOrEmpty(file.FullPath) && File.Exists(file.FullPath))
             {
                 ProfileImage.Source = ImageSource.FromFile(file.FullPath);
-                InitialsLabel.IsVisible = false;
                 await UploadProfilePhotoAsync(file);
                 return;
             }
@@ -141,7 +136,6 @@ public partial class ProfilePage : ContentPage
             await stream.CopyToAsync(ms);
             var bytes = ms.ToArray();
             ProfileImage.Source = ImageSource.FromStream(() => new MemoryStream(bytes));
-            InitialsLabel.IsVisible = false;
 
             await UploadProfilePhotoAsync(bytes);
         }

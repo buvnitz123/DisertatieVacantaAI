@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.AddReviewPage"
+             Title="Adaugă Recenzie"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
+    
+    <Grid>
+        <!-- Main Content -->
+        <ScrollView>
+            <StackLayout Padding="20" Spacing="30">
+                
+                <!-- Header Section -->
+                <StackLayout Spacing="15">
+                    <Label Text="📝 Scrie o recenzie" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                           HorizontalOptions="Center" />
+                    
+                    <!-- Destination Info -->
+                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                           CornerRadius="12" 
+                           Padding="15"
+                           HasShadow="False">
+                        <StackLayout Spacing="8">
+                            <Label x:Name="DestinationNameLabel" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                   HorizontalOptions="Center" />
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label Text="📍" FontSize="14" />
+                                <Label x:Name="LocationLabel" 
+                                       FontSize="14" 
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                            </HorizontalStackLayout>
+                        </StackLayout>
+                    </Frame>
+                </StackLayout>
+                
+                <!-- Rating Section -->
+                <StackLayout Spacing="20">
+                    <Label Text="⭐ Acordă o notă" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    
+                    <!-- Interactive Stars -->
+                    <HorizontalStackLayout x:Name="StarsContainer" 
+                                         Spacing="8" 
+                                         HorizontalOptions="Center">
+                        <!-- Stars will be added programmatically -->
+                    </HorizontalStackLayout>
+                    
+                    <Label x:Name="RatingLabel" 
+                           Text="Selectează o notă" 
+                           FontSize="16" 
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           HorizontalOptions="Center" />
+                </StackLayout>
+                
+                <!-- Comment Section -->
+                <StackLayout Spacing="15">
+                    <Label Text="💬 Comentariu (opțional)" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    
+                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                           CornerRadius="12" 
+                           Padding="5"
+                           HasShadow="True">
+                        <Editor x:Name="CommentEditor"
+                                Placeholder="Scrie-ți părerea despre această destinație..."
+                                FontSize="16"
+                                HeightRequest="120"
+                                MaxLength="250"
+                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                PlaceholderColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                BackgroundColor="Transparent"
+                                TextChanged="OnCommentTextChanged" />
+                    </Frame>
+                    
+                    <Label x:Name="CharacterCountLabel" 
+                           Text="0/250 caractere" 
+                           FontSize="12" 
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           HorizontalOptions="End" />
+                </StackLayout>
+                
+                <!-- Action Buttons -->
+                <StackLayout Spacing="15" Margin="0,20,0,0">
+                    <Button x:Name="SubmitButton"
+                            Text="✅ Publică Recenzia"
+                            BackgroundColor="{StaticResource PrimaryBlue}"
+                            TextColor="White"
+                            CornerRadius="12"
+                            Padding="0,15"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            IsEnabled="False"
+                            Clicked="OnSubmitClicked" />
+                    
+                    <Button Text="❌ Anulează"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                            CornerRadius="12"
+                            Padding="0,15"
+                            FontSize="16"
+                            Clicked="OnCancelClicked" />
+                </StackLayout>
+                
+                <!-- Bottom spacing -->
+                <BoxView HeightRequest="30" IsVisible="False" />
+                
+            </StackLayout>
+        </ScrollView>
+        
+        <!-- Loading Overlay -->
+        <Grid x:Name="LoadingOverlay" 
+              IsVisible="False"
+              BackgroundColor="{StaticResource LoadingOverlayBackground}"
+              ZIndex="1000">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
+                <ActivityIndicator IsRunning="True" 
+                                  Color="{StaticResource PrimaryBlue}" 
+                                  WidthRequest="50" 
+                                  HeightRequest="50" />
+                <Label Text="Se salvează recenzia..." 
+                       FontSize="16" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center" />
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>
