@@ -4,21 +4,20 @@
              x:Class="MauiAppDisertatieVacantaAI.Pages.SugestiiPage"
              Title="Sugestii"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
-    
-    <Grid RowDefinitions="Auto,*,Auto" Padding="10">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="15">
         <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Spacing="8" Margin="0,20,0,25">
+        <VerticalStackLayout Grid.Row="0" Spacing="6" Margin="0,10,0,15">
             <Label Text="✈️ Sugestiile Tale" 
-                   FontSize="26" 
+                   FontSize="24" 
                    FontAttributes="Bold" 
                    HorizontalOptions="Center"
                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
-            <Label Text="Planuri de vacanta personalizate pentru tine"
-                   FontSize="14"
+            <Label Text="Planuri de vacanta personalizate"
+                   FontSize="13"
                    HorizontalOptions="Center"
-                   HorizontalTextAlignment="Center"
                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
-                   Margin="20,0" />
+                   Opacity="0.8" />
         </VerticalStackLayout>
 
         <!-- Content Area -->
@@ -37,23 +36,23 @@
                              IsVisible="False"
                              VerticalOptions="Center" 
                              HorizontalOptions="Center"
-                             Spacing="15"
+                             Spacing="12"
                              Margin="40">
                     <Label Text="🌴"
-                           FontSize="60"
+                           FontSize="50"
                            HorizontalOptions="Center"
                            Opacity="0.3" />
                     <Label Text="Nu ai inca sugestii"
-                           FontSize="18"
+                           FontSize="16"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-                    <Label Text="Creaza prima ta sugestie de vacanta pentru a incepe sa planifici aventuri memorabile!"
-                           FontSize="14"
+                    <Label Text="Creaza prima ta sugestie de vacanta!"
+                           FontSize="13"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
-                           Margin="0,5,0,0" />
+                           Opacity="0.7" />
                 </StackLayout>
 
                 <!-- Suggestions Collection -->
@@ -63,57 +62,101 @@
                                 VerticalScrollBarVisibility="Never">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="0,5">
+                            <Grid Padding="0,4">
                                 <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
                                        BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
-                                       CornerRadius="16"
-                                       Padding="20,15"
+                                       CornerRadius="12"
+                                       Padding="12"
                                        HasShadow="True"
-                                       Margin="2">
+                                       Margin="0,2">
                                     <Frame.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnSugestieSelected" />
                                     </Frame.GestureRecognizers>
-                                    
-                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
-                                        <!-- Title -->
-                                        <Label Grid.Row="0" Grid.ColumnSpan="2"
-                                               Text="{Binding Titlu}" 
-                                               FontSize="16" 
-                                               FontAttributes="Bold"
-                                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
-                                               LineBreakMode="TailTruncation"
-                                               MaxLines="2" />
-                                        
-                                        <!-- Destination -->
-                                        <Label Grid.Row="1" Grid.Column="0"
-                                               Text="{Binding Destinatie.Denumire}" 
-                                               FontSize="14" 
-                                               TextColor="{StaticResource PrimaryBlue}" 
-                                               FontAttributes="Italic" />
-                                        
-                                        <!-- Date -->
-                                        <Label Grid.Row="1" Grid.Column="1"
-                                               Text="{Binding Data_Inregistrare, StringFormat='{0:dd/MM/yyyy}'}" 
-                                               FontSize="12" 
+
+                                    <!-- Main Content Grid with overlay for status indicators -->
+                                    <Grid>
+                                        <!-- Base content in a horizontal layout -->
+                                        <Grid ColumnDefinitions="80,*" ColumnSpacing="12">
+
+                                            <!-- Left: Destination Image -->
+                                            <Border Grid.Column="0" 
+                                                    StrokeShape="RoundRectangle 8"
+                                                    Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
+                                                    StrokeThickness="1"
+                                                    BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}">
+                                                <Image Source="{Binding ImageUrl}"
+                                                       Aspect="AspectFill"
+                                                       WidthRequest="80"
+                                                       HeightRequest="60" />
+                                            </Border>
+
+                                            <!-- Right: Content -->
+                                            <StackLayout Grid.Column="1" 
+                                                         Spacing="4"
+                                                         VerticalOptions="Center">
+
+                                                <!-- Title -->
+                                                <Label Text="{Binding Titlu}" 
+                                                       FontSize="15" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1"
+                                                       Margin="0,0,50,0" />
+
+                                                <!-- Destination -->
+                                                <Label Text="{Binding Destinatie.Denumire}" 
+                                                       FontSize="13" 
+                                                       TextColor="{StaticResource PrimaryBlue}" 
+                                                       FontAttributes="Italic"
+                                                       LineBreakMode="TailTruncation" />
+
+                                                <!-- Budget -->
+                                                <Label Text="{Binding Buget_Estimat, StringFormat='💰 {0:N0} €'}" 
+                                                       FontSize="12" 
+                                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Start" />
+                                            </StackLayout>
+                                        </Grid>
+
+                                        <!-- Overlaid Status Indicators - Top Right -->
+                                        <StackLayout Orientation="Horizontal"
+                                                     Spacing="4"
+                                                     VerticalOptions="Start"
+                                                     HorizontalOptions="End"
+                                                     Margin="0,0,0,0">
+
+                                            <!-- AI Generated Indicator -->
+                                            <Label Text="🤖"
+                                                   FontSize="15"
+                                                   IsVisible="{Binding ShowAIIndicator}"
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Center" />
+
+                                            <!-- Manual Generated Indicator -->
+                                            <Label Text="👤"
+                                                   FontSize="15"
+                                                   IsVisible="{Binding ShowManualIndicator}"
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Center" />
+
+                                            <!-- New Indicator -->
+                                            <Label Text="🆕"
+                                                   FontSize="15"
+                                                   IsVisible="{Binding ShowNewIndicator}"
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Center" />
+                                        </StackLayout>
+
+                                        <!-- Date - Bottom Right Corner -->
+                                        <Label Text="{Binding Data_Inregistrare, StringFormat='{0:dd/MM/yyyy}'}" 
+                                               FontSize="10" 
                                                TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
-                                               Opacity="0.7"
-                                               VerticalOptions="Center" />
-                                        
-                                        <!-- Budget -->
-                                        <Label Grid.Row="2" Grid.ColumnSpan="2"
-                                               Text="{Binding Buget_Estimat, StringFormat='💰 Buget: {0:N0} €'}" 
-                                               FontSize="13" 
-                                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
-                                               FontAttributes="Bold" />
-                                        
-                                        <!-- Description Preview -->
-                                        <Label Grid.Row="3" Grid.ColumnSpan="2"
-                                               Text="{Binding Descriere}" 
-                                               FontSize="12" 
-                                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
-                                               LineBreakMode="TailTruncation" 
-                                               MaxLines="2"
-                                               Opacity="0.8" />
+                                               Opacity="0.6"
+                                               VerticalOptions="End"
+                                               HorizontalOptions="End"
+                                               Margin="0,0,0,0" />
                                     </Grid>
                                 </Frame>
                             </Grid>
@@ -129,12 +172,11 @@
                 Text="✨ Sugestie Noua"
                 BackgroundColor="{StaticResource PrimaryBlue}"
                 TextColor="White"
-                FontSize="16"
+                FontSize="15"
                 FontAttributes="Bold"
-                CornerRadius="16"
-                Padding="20,15"
-                Margin="0,25,0,15"
-                Clicked="OnAddSugestie"
-                Shadow="{OnPlatform Default={x:Null}, iOS={Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}}" />
+                CornerRadius="12"
+                Padding="0,12"
+                Margin="0,15,0,10"
+                Clicked="OnAddSugestie" />
     </Grid>
 </ContentPage>

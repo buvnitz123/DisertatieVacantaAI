@@ -1,0 +1,377 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDisertatieVacantaAI.Pages.SuggestionDetailsPage"
+             Title="Detalii Sugestie"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
+    
+    <Grid>
+        <!-- Main Content -->
+        <ScrollView>
+            <StackLayout Padding="0" Spacing="0">
+                
+                <!-- Hero Section with Destination Images Carousel -->
+                <Frame Padding="0" CornerRadius="0" HasShadow="False" BackgroundColor="Transparent">
+                    <Grid RowDefinitions="250,Auto" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}">
+                        
+                        <!-- Images Carousel -->
+                        <CarouselView x:Name="ImagesCarousel" 
+                                      Grid.Row="0"
+                                      IndicatorView="IndicatorView"
+                                      BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                                      HeightRequest="250">
+                            <CarouselView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Image Source="{Binding ImagineUrl}" 
+                                               Aspect="AspectFill"
+                                               BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+                                        <BoxView BackgroundColor="Transparent" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CarouselView.ItemTemplate>
+                        </CarouselView>
+                        
+                        <!-- Loading indicator for images -->
+                        <ActivityIndicator x:Name="ImagesLoadingIndicator"
+                                          Grid.Row="0"
+                                          IsRunning="False"
+                                          IsVisible="False"
+                                          Color="{StaticResource PrimaryBlue}"
+                                          VerticalOptions="Center"
+                                          HorizontalOptions="Center" />
+                        
+                        <!-- No Images Message -->
+                        <StackLayout x:Name="NoImagesLayout" 
+                                    Grid.Row="0"
+                                    IsVisible="False"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"
+                                    Spacing="10">
+                            <Label Text="📷" FontSize="48" HorizontalOptions="Center" 
+                                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                            <Label Text="Nu sunt disponibile imagini" 
+                                   FontSize="16" 
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                        </StackLayout>
+                        
+                        <!-- Indicator View -->
+                        <IndicatorView x:Name="IndicatorView" 
+                                       Grid.Row="1"
+                                       IndicatorColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
+                                       SelectedIndicatorColor="{StaticResource PrimaryBlue}"
+                                       HorizontalOptions="Center"
+                                       Margin="0,10,0,10" />
+                        
+                        <!-- Status Indicators Overlay - Top Right -->
+                        <StackLayout Orientation="Horizontal"
+                                     Spacing="8"
+                                     VerticalOptions="Start"
+                                     HorizontalOptions="End"
+                                     Margin="15,15,15,0">
+                            
+                            <!-- AI Generated Indicator -->
+                            <Frame x:Name="AIIndicatorFrame"
+                                   BackgroundColor="{StaticResource PrimaryBlue}"
+                                   CornerRadius="15"
+                                   Padding="8,4"
+                                   HasShadow="False"
+                                   IsVisible="False">
+                                <HorizontalStackLayout Spacing="4">
+                                    <Label Text="🤖" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="AI" 
+                                           FontSize="12" 
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Frame>
+                            
+                            <!-- Manual Generated Indicator -->
+                            <Frame x:Name="ManualIndicatorFrame"
+                                   BackgroundColor="{StaticResource PrimaryBlue}"
+                                   CornerRadius="15"
+                                   Padding="8,4"
+                                   HasShadow="False"
+                                   IsVisible="False">
+                                <HorizontalStackLayout Spacing="4">
+                                    <Label Text="👤" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Manual" 
+                                           FontSize="12" 
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Frame>
+                            
+                            <!-- New Indicator -->
+                            <Frame x:Name="NewIndicatorFrame"
+                                   BackgroundColor="Orange"
+                                   CornerRadius="15"
+                                   Padding="8,4"
+                                   HasShadow="False"
+                                   IsVisible="False">
+                                <HorizontalStackLayout Spacing="4">
+                                    <Label Text="🆕" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Nou" 
+                                           FontSize="12" 
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Frame>
+                        </StackLayout>
+                        
+                        <!-- Title Overlay - Bottom Left -->
+                        <StackLayout VerticalOptions="End"
+                                     HorizontalOptions="Start"
+                                     Margin="20,0,20,20"
+                                     Spacing="4">
+                            <Label x:Name="SuggestionTitleLabel" 
+                                   FontSize="24" 
+                                   FontAttributes="Bold" 
+                                   TextColor="White"
+                                   LineBreakMode="WordWrap" />
+                            <Label x:Name="DestinationNameLabel" 
+                                   FontSize="16" 
+                                   TextColor="White"
+                                   Opacity="0.9" />
+                        </StackLayout>
+                    </Grid>
+                </Frame>
+                
+                <!-- Main Content -->
+                <StackLayout Padding="20" Spacing="20" BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
+                    
+                    <!-- Quick Info Cards -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                        <!-- Budget Card -->
+                        <Frame Grid.Column="0"
+                               BackgroundColor="{StaticResource PrimaryBlue}" 
+                               CornerRadius="12" 
+                               Padding="15"
+                               HasShadow="False">
+                            <StackLayout Spacing="4">
+                                <Label Text="💰 Buget Estimat" 
+                                       FontSize="13" 
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label x:Name="BudgetLabel" 
+                                       FontSize="18" 
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                            </StackLayout>
+                        </Frame>
+                        
+                        <!-- Clickable Visibility Status Card -->
+                        <Frame Grid.Column="1"
+                               x:Name="VisibilityStatusFrame"
+                               BackgroundColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                               CornerRadius="12" 
+                               Padding="15"
+                               HasShadow="False">
+                            <StackLayout Spacing="4">
+                                <Label Text="🔒 Vizibilitate" 
+                                       FontSize="13" 
+                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}"
+                                       FontAttributes="Bold" />
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label x:Name="StatusLabel" 
+                                           FontSize="18" 
+                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource DarkGray}}"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center" />
+                                    <Label Text="👆 Apasă" 
+                                           FontSize="11" 
+                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource DarkGray}}"
+                                           Opacity="0.7"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </StackLayout>
+                            
+                            <!-- Tap gesture to toggle visibility -->
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnToggleVisibility" />
+                            </Frame.GestureRecognizers>
+                        </Frame>
+                    </Grid>
+                    
+                    <!-- Creation Info -->
+                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                           CornerRadius="12" 
+                           Padding="15"
+                           HasShadow="False">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <StackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="📅 Data Crearii" 
+                                       FontSize="13" 
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                       FontAttributes="Bold" />
+                                <Label x:Name="CreationDateLabel" 
+                                       FontSize="16" 
+                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                       FontAttributes="Bold" />
+                            </StackLayout>
+                            
+                            <StackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End">
+                                <Label Text="⚡ Tip Generare" 
+                                       FontSize="13" 
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                       FontAttributes="Bold" />
+                                <Label x:Name="GenerationTypeLabel" 
+                                       FontSize="16" 
+                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                       FontAttributes="Bold" />
+                            </StackLayout>
+                        </Grid>
+                    </Frame>
+                    
+                    <!-- Description Section -->
+                    <StackLayout Spacing="12">
+                        <Label Text="📝 Descrierea Sugestiei" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                               CornerRadius="12" 
+                               Padding="20"
+                               HasShadow="False">
+                            <Label x:Name="DescriptionLabel" 
+                                   FontSize="16" 
+                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                   LineBreakMode="WordWrap" />
+                        </Frame>
+                    </StackLayout>
+                    
+                    <!-- Categories Section -->
+                    <StackLayout x:Name="CategoriesSection" Spacing="12" IsVisible="False">
+                        <Label Text="🏷️ Categorii" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        
+                        <CollectionView x:Name="CategoriesCollectionView" 
+                                        SelectionMode="None"
+                                        BackgroundColor="Transparent"
+                                        HeightRequest="100">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                                           CornerRadius="8" 
+                                           Padding="0"
+                                           HasShadow="True"
+                                           WidthRequest="80"
+                                           HeightRequest="80"
+                                           Margin="0,5">
+                                        <Grid>
+                                            <Image Source="{Binding ImagineUrl}" 
+                                                   Aspect="AspectFill"
+                                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" />
+                                            
+                                            <!-- Dark overlay for text readability -->
+                                            <BoxView BackgroundColor="Black" 
+                                                     Opacity="0.4" 
+                                                     VerticalOptions="End" 
+                                                     HeightRequest="25" />
+                                            
+                                            <!-- Category name -->
+                                            <Label Text="{Binding Denumire}" 
+                                                   FontSize="11" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="End"
+                                                   Margin="2,0,2,3"
+                                                   LineBreakMode="TailTruncation"
+                                                   MaxLines="1" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    
+                    <!-- Sharing Section (if public) -->
+                    <StackLayout x:Name="SharingSection" Spacing="12" IsVisible="False">
+                        <Label Text="🔗 Partajare" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        
+                        <Frame BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
+                               CornerRadius="12" 
+                               Padding="15"
+                               HasShadow="False">
+                            <StackLayout Spacing="10">
+                                <Label Text="Cod de partajare:" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label x:Name="SharingCodeLabel" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource PrimaryBlue}"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="StartAndExpand" />
+                                    <Button Text="📋 Copiaza" 
+                                            FontSize="12"
+                                            Padding="8,4"
+                                            CornerRadius="6"
+                                            BackgroundColor="{StaticResource PrimaryBlue}"
+                                            TextColor="White"
+                                            Clicked="OnCopySharingCode" />
+                                </HorizontalStackLayout>
+                            </StackLayout>
+                        </Frame>
+                    </StackLayout>
+                    
+                    <!-- Action Buttons -->
+                    <StackLayout Spacing="12" Margin="0,10,0,0">
+                        <Button Text="✏️ Editeaza Sugestia" 
+                                BackgroundColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+                                CornerRadius="12"
+                                Padding="0,12"
+                                FontAttributes="Bold"
+                                Clicked="OnEditSuggestion" />
+                        
+                        <Button Text="🗑️ Sterge Sugestia" 
+                                BackgroundColor="Red"
+                                TextColor="White"
+                                CornerRadius="12"
+                                Padding="0,12"
+                                FontAttributes="Bold"
+                                Clicked="OnDeleteSuggestion" />
+                    </StackLayout>
+                    
+                    <!-- Bottom spacing -->
+                    <BoxView HeightRequest="20" IsVisible="False" />
+                    
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+        
+        <!-- Loading Overlay -->
+        <Grid x:Name="LoadingOverlay" 
+              IsVisible="False"
+              BackgroundColor="{StaticResource LoadingOverlayBackground}"
+              ZIndex="1000">
+            <StackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
+                <ActivityIndicator IsRunning="True" 
+                                  Color="{StaticResource PrimaryBlue}" 
+                                  WidthRequest="50" 
+                                  HeightRequest="50" />
+                <Label Text="Se incarca detaliile sugestiei..." 
+                       FontSize="16" 
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                       HorizontalOptions="Center" />
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

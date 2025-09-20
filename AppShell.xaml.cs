@@ -18,6 +18,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(ChatConversationPage), typeof(ChatConversationPage));
         Routing.RegisterRoute(nameof(EditProfilePage), typeof(EditProfilePage));
         Routing.RegisterRoute(nameof(DestinationDetailsPage), typeof(DestinationDetailsPage));
+        Routing.RegisterRoute(nameof(SuggestionDetailsPage), typeof(SuggestionDetailsPage));
 
         SetFooterMeta();
     }

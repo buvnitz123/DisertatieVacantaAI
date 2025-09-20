@@ -2,15 +2,81 @@
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using System.Collections.ObjectModel;
 using MauiAppDisertatieVacantaAI.Classes.Session;
+using System.ComponentModel;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
+
+public class SugestieDisplayItem : INotifyPropertyChanged
+{
+    public int Id_Sugestie { get; set; }
+    public string Titlu { get; set; }
+    public string Descriere { get; set; }
+    public decimal Buget_Estimat { get; set; }
+    public DateTime Data_Inregistrare { get; set; }
+    public int? EsteGenerataDeAI { get; set; }
+    public int? EstePublic { get; set; }
+    public string CodPartajare { get; set; }
+    public Destinatie Destinatie { get; set; }
+    
+    private string _imageUrl = "https://via.placeholder.com/150x100/E0E0E0/999999?text=No+Image";
+    public string ImageUrl 
+    { 
+        get => _imageUrl; 
+        set 
+        { 
+            // Handle both URLs and local filenames
+            if (string.IsNullOrEmpty(value))
+            {
+                _imageUrl = "https://via.placeholder.com/150x100/E0E0E0/999999?text=No+Image";
+            }
+            else if (value.StartsWith("http"))
+            {
+                _imageUrl = value;
+            }
+            else if (value == "placeholder_image.png" || !value.Contains("."))
+            {
+                _imageUrl = "https://via.placeholder.com/150x100/E0E0E0/999999?text=No+Image";
+            }
+            else
+            {
+                // Assume it's a valid URL or file
+                _imageUrl = value;
+            }
+            OnPropertyChanged();
+        } 
+    }
+    
+    public bool IsAIGenerated => EsteGenerataDeAI == 1;
+    public bool IsManualGenerated => EsteGenerataDeAI == 0;
+    public bool IsNew => (DateTime.Now - Data_Inregistrare).TotalDays <= 1;
+    
+    // Always show AI or Manual indicator
+    public bool ShowAIIndicator => EsteGenerataDeAI == 1;
+    public bool ShowManualIndicator => EsteGenerataDeAI == 0;
+    public bool ShowNewIndicator => (DateTime.Now - Data_Inregistrare).TotalDays <= 1;
+    
+    // Additional helper properties for better UX
+    public string FormattedBudget => $"{Buget_Estimat:N0} €";
+    public string FormattedDate => Data_Inregistrare.ToString("dd/MM/yyyy");
+    public string FormattedDateShort => Data_Inregistrare.ToString("dd/MM");
+    public string StatusText => EstePublic == 1 ? "Publică" : "Privată";
+    public string AIStatusText => IsAIGenerated ? "🤖 AI" : "👤 Manual";
+
+    public event PropertyChangedEventHandler PropertyChanged;
+    
+    protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
 
 public partial class SugestiiPage : ContentPage
 {
     private readonly SugestieRepository _sugestieRepo = new SugestieRepository();
     private readonly UtilizatorRepository _utilizatorRepo = new UtilizatorRepository();
+    private readonly ImaginiDestinatieRepository _imaginiDestRepo = new ImaginiDestinatieRepository();
     private int _userId;
-    private ObservableCollection<Sugestie> _items = new ObservableCollection<Sugestie>();
+    private ObservableCollection<SugestieDisplayItem> _items = new ObservableCollection<SugestieDisplayItem>();
 
     public SugestiiPage()
     {
@@ -38,12 +104,35 @@ public partial class SugestiiPage : ContentPage
             }
 
             var suggestions = _sugestieRepo.GetByUser(_userId);
+            
             foreach (var s in suggestions)
             {
-                _items.Add(s);
+                var displayItem = new SugestieDisplayItem
+                {
+                    Id_Sugestie = s.Id_Sugestie,
+                    Titlu = s.Titlu,
+                    Descriere = s.Descriere,
+                    Buget_Estimat = s.Buget_Estimat,
+                    Data_Inregistrare = s.Data_Inregistrare,
+                    EsteGenerataDeAI = s.EsteGenerataDeAI ?? 0, // Default to manual if null
+                    EstePublic = s.EstePublic,
+                    CodPartajare = s.CodPartajare,
+                    Destinatie = s.Destinatie,
+                    ImageUrl = null // Will trigger placeholder, then be updated async
+                };
+                
+                _items.Add(displayItem);
+                
+                // Load image asynchronously and update the item
+                _ = LoadImageForSuggestionAsync(displayItem, s.Id_Destinatie);
+                
+                // Debug info for indicators
+                System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Suggestion '{displayItem.Titlu}' - AI: {displayItem.ShowAIIndicator}, Manual: {displayItem.ShowManualIndicator}, New: {displayItem.ShowNewIndicator}, EsteGenerataDeAI: {displayItem.EsteGenerataDeAI}");
             }
 
             UpdateEmptyState();
+            
+            System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Loaded {_items.Count} suggestions");
         }
         catch (Exception ex)
         {
@@ -52,6 +141,78 @@ public partial class SugestiiPage : ContentPage
         finally
         {
             SetLoadingState(false);
+        }
+    }
+
+    private async Task LoadImageForSuggestionAsync(SugestieDisplayItem displayItem, int destinationId)
+    {
+        try
+        {
+            // Run on background thread
+            var imageUrl = await Task.Run(() => GetFirstDestinationImageSync(destinationId));
+            
+            // Update on main thread
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    // Validate and prepare the image URL
+                    var finalUrl = PrepareImageUrl(imageUrl);
+                    displayItem.ImageUrl = finalUrl;
+                    System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Updated image for suggestion '{displayItem.Titlu}': {finalUrl}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SugestiiPage] No image found for suggestion '{displayItem.Titlu}', using placeholder");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error loading image for suggestion: {ex.Message}");
+        }
+    }
+
+    private string PrepareImageUrl(string imageUrl)
+    {
+        if (string.IsNullOrEmpty(imageUrl))
+            return null;
+
+        // If it's already a full URL, return as-is
+        if (imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return imageUrl;
+
+        // If it's a blob storage filename, construct the full URL
+        if (imageUrl.Contains(".jpg") || imageUrl.Contains(".png") || imageUrl.Contains(".jpeg"))
+        {
+            // Assuming Azure Blob Storage pattern (adjust as needed)
+            return $"https://vacantaai.blob.core.windows.net/vacantaai/{imageUrl}";
+        }
+
+        // Default case
+        return imageUrl;
+    }
+
+    private string GetFirstDestinationImageSync(int destinationId)
+    {
+        try
+        {
+            var images = _imaginiDestRepo.GetByDestinationId(destinationId);
+            var imagesList = images?.ToList();
+            var firstImage = imagesList?.FirstOrDefault()?.ImagineUrl;
+            
+            System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Found {imagesList?.Count ?? 0} images for destination {destinationId}");
+            if (firstImage != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SugestiiPage] First image URL: {firstImage}");
+            }
+            
+            return firstImage;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error getting destination image: {ex.Message}");
+            return null;
         }
     }
 
@@ -84,7 +245,7 @@ public partial class SugestiiPage : ContentPage
         try
         {
             var frame = sender as Frame;
-            var sugestie = frame?.BindingContext as Sugestie;
+            var sugestie = frame?.BindingContext as SugestieDisplayItem;
             
             if (sugestie != null)
             {
@@ -92,18 +253,8 @@ public partial class SugestiiPage : ContentPage
                 await frame.ScaleTo(0.95, 100);
                 await frame.ScaleTo(1.0, 100);
                 
-                // Show suggestion details in alert
-                var message = $"📍 Destinație: {sugestie.Destinatie?.Denumire ?? "Necunoscută"}\n" +
-                             $"💰 Buget: {sugestie.Buget_Estimat:N0} €\n" +
-                             $"📅 Creată: {sugestie.Data_Inregistrare:dd/MM/yyyy}\n" +
-                             $"🔒 Status: {(sugestie.EstePublic == 1 ? "Publică" : "Privată")}\n\n" +
-                             $"📝 Descriere:\n{sugestie.Descriere}";
-
-                await DisplayAlert(
-                    $"✈️ {sugestie.Titlu}", 
-                    message, 
-                    "OK"
-                );
+                // Navigate to suggestion details page
+                await Shell.Current.GoToAsync($"{nameof(SuggestionDetailsPage)}?suggestionId={sugestie.Id_Sugestie}");
             }
         }
         catch (Exception ex)

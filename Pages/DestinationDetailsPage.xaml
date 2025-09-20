@@ -131,6 +131,57 @@
                         </Frame>
                     </StackLayout>
                     
+                    <!-- Categories Section -->
+                    <StackLayout x:Name="CategoriesSection" Spacing="15" IsVisible="False">
+                        <Label Text="🏷️ Categorii" 
+                               FontSize="20" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        
+                        <CollectionView x:Name="CategoriesCollectionView" 
+                                        SelectionMode="None"
+                                        BackgroundColor="Transparent"
+                                        HeightRequest="100">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
+                                           CornerRadius="8" 
+                                           Padding="0"
+                                           HasShadow="True"
+                                           WidthRequest="80"
+                                           HeightRequest="80"
+                                           Margin="0,5">
+                                        <Grid>
+                                            <Image Source="{Binding ImagineUrl}" 
+                                                   Aspect="AspectFill"
+                                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" />
+                                            
+                                            <!-- Dark overlay for text readability -->
+                                            <BoxView BackgroundColor="Black" 
+                                                     Opacity="0.4" 
+                                                     VerticalOptions="End" 
+                                                     HeightRequest="25" />
+                                            
+                                            <!-- Category name -->
+                                            <Label Text="{Binding Denumire}" 
+                                                   FontSize="11" 
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="End"
+                                                   Margin="2,0,2,3"
+                                                   LineBreakMode="TailTruncation"
+                                                   MaxLines="1" />
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </StackLayout>
+                    
                     <!-- Facilities Section -->
                     <StackLayout x:Name="FacilitiesSection" Spacing="15">
                         <Label Text="🏨 Facilitati" 

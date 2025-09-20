@@ -17,6 +17,13 @@ public class FacilityDisplayItem
     public bool HasDescription => !string.IsNullOrWhiteSpace(Descriere);
 }
 
+public class DestinationCategoryDisplayItem
+{
+    public int Id_CategorieVacanta { get; set; }
+    public string Denumire { get; set; }
+    public string ImagineUrl { get; set; }
+}
+
 public class PoiDisplayItem
 {
     public string Denumire { get; set; }
@@ -32,6 +39,7 @@ public partial class DestinationDetailsPage : ContentPage
 {
     private readonly ObservableCollection<DestinationImageItem> _destinationImages = new();
     private readonly ObservableCollection<FacilityDisplayItem> _facilities = new();
+    private readonly ObservableCollection<DestinationCategoryDisplayItem> _categories = new();
     private readonly ObservableCollection<PoiDisplayItem> _pointsOfInterest = new();
     
     // Repositories
@@ -41,6 +49,8 @@ public partial class DestinationDetailsPage : ContentPage
     private readonly DestinatieFacilitateRepository _destFacilitateRepo = new();
     private readonly PunctDeInteresRepository _poiRepo = new();
     private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
+    private readonly CategorieVacanta_DestinatieRepository _catDestRepo = new();
+    private readonly CategorieVacantaRepository _categorieRepo = new();
     
     // Cancellation support for cleanup
     private CancellationTokenSource _cancellationTokenSource = new();
@@ -66,10 +76,12 @@ public partial class DestinationDetailsPage : ContentPage
         // Set up data sources
         ImagesCarousel.ItemsSource = _destinationImages;
         FacilitiesCollectionView.ItemsSource = _facilities;
+        CategoriesCollectionView.ItemsSource = _categories;
         PointsOfInterestCollectionView.ItemsSource = _pointsOfInterest;
         
         // Initially hide sections until data is loaded
         FacilitiesSection.IsVisible = false;
+        CategoriesSection.IsVisible = false;
         PointsOfInterestSection.IsVisible = false;
     }
 
@@ -120,6 +132,7 @@ public partial class DestinationDetailsPage : ContentPage
             // Load all related data in parallel with cancellation support
             await Task.WhenAll(
                 LoadDestinationImagesAsync(),
+                LoadCategoriesAsync(),
                 LoadFacilitiesAsync(),
                 LoadPointsOfInterestAsync()
             );
@@ -237,7 +250,7 @@ public partial class DestinationDetailsPage : ContentPage
                     {
                         _destinationImages.Add(new DestinationImageItem
                         {
-                            ImagineUrl = image.ImagineUrl ?? "placeholder_image.png"
+                            ImagineUrl = PrepareImageUrl(image.ImagineUrl)
                         });
                     }
                     
@@ -251,7 +264,7 @@ public partial class DestinationDetailsPage : ContentPage
                     // Add placeholder image if no images found
                     _destinationImages.Add(new DestinationImageItem
                     {
-                        ImagineUrl = "placeholder_image.png"
+                        ImagineUrl = "https://via.placeholder.com/400x250/E0E0E0/999999?text=No+Image"
                     });
                     
                     NoImagesLayout.IsVisible = true;
@@ -276,7 +289,7 @@ public partial class DestinationDetailsPage : ContentPage
                 _destinationImages.Clear();
                 _destinationImages.Add(new DestinationImageItem
                 {
-                    ImagineUrl = "placeholder_image.png"
+                    ImagineUrl = "https://via.placeholder.com/400x250/E0E0E0/999999?text=No+Image"
                 });
                 
                 NoImagesLayout.IsVisible = true;
@@ -291,6 +304,82 @@ public partial class DestinationDetailsPage : ContentPage
                 ImagesLoadingIndicator.IsVisible = false;
                 ImagesLoadingIndicator.IsRunning = false;
                 Debug.WriteLine($"[DestinationDetailsPage] Images loading completed");
+            });
+        }
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        try
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Starting to load categories for destination ID: {_destinationId}");
+            
+            var categoryRelations = await Task.Run(() => _catDestRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
+            Debug.WriteLine($"[DestinationDetailsPage] Found {categoryRelations?.Count() ?? 0} category relations");
+            
+            if (!categoryRelations?.Any() == true)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    _categories.Clear();
+                    CategoriesSection.IsVisible = false; // Hide section completely when no categories
+                    Debug.WriteLine($"[DestinationDetailsPage] No categories found, hiding section");
+                });
+                return;
+            }
+            
+            var categoryIds = categoryRelations.Select(cr => cr.Id_CategorieVacanta).Take(5).ToList();
+            
+            var categories = await Task.Run(() =>
+            {
+                return categoryIds.Select(id => _categorieRepo.GetById(id))
+                                 .Where(c => c != null)
+                                 .ToList();
+            }, _cancellationTokenSource.Token).ConfigureAwait(false);
+            
+            Debug.WriteLine($"[DestinationDetailsPage] Loaded {categories.Count} categories");
+            
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                _categories.Clear();
+                
+                if (categories.Any())
+                {
+                    foreach (var category in categories)
+                    {
+                        var categoryItem = new DestinationCategoryDisplayItem
+                        {
+                            Id_CategorieVacanta = category.Id_CategorieVacanta,
+                            Denumire = category.Denumire,
+                            ImagineUrl = PrepareImageUrl(category.ImagineUrl)
+                        };
+                        
+                        _categories.Add(categoryItem);
+                    }
+                    
+                    CategoriesSection.IsVisible = true;
+                    Debug.WriteLine($"[DestinationDetailsPage] Added {_categories.Count} categories to UI");
+                }
+                else
+                {
+                    CategoriesSection.IsVisible = false;
+                    Debug.WriteLine($"[DestinationDetailsPage] No valid categories, hiding section");
+                }
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Categories loading cancelled");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading categories: {ex.Message}");
+            
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                _categories.Clear();
+                CategoriesSection.IsVisible = false; // Hide on error
             });
         }
     }
@@ -416,7 +505,7 @@ public partial class DestinationDetailsPage : ContentPage
                         {
                             poiDisplayItem.Images.Add(new DestinationImageItem
                             {
-                                ImagineUrl = image.ImagineUrl ?? "placeholder_image.png"
+                                ImagineUrl = PrepareImageUrl(image.ImagineUrl)
                             });
                         }
                     }
@@ -425,7 +514,7 @@ public partial class DestinationDetailsPage : ContentPage
                         // Add placeholder if no images
                         poiDisplayItem.Images.Add(new DestinationImageItem
                         {
-                            ImagineUrl = "placeholder_image.png"
+                            ImagineUrl = "https://via.placeholder.com/100x100/E0E0E0/999999?text=No+Image"
                         });
                     }
                     
@@ -446,7 +535,7 @@ public partial class DestinationDetailsPage : ContentPage
                     
                     poiDisplayItem.Images.Add(new DestinationImageItem
                     {
-                        ImagineUrl = "placeholder_image.png"
+                        ImagineUrl = "https://via.placeholder.com/100x100/E0E0E0/999999?text=No+Image"
                     });
                     
                     poiDisplayItems.Add(poiDisplayItem);
@@ -489,5 +578,23 @@ public partial class DestinationDetailsPage : ContentPage
                 PointsOfInterestSection.IsVisible = false; // Hide on error
             });
         }
+    }
+
+    private string PrepareImageUrl(string imageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl))
+            return "https://via.placeholder.com/80x80/E0E0E0/999999?text=No+Image";
+
+        // If it's already a full URL, return as-is
+        if (imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return imageUrl;
+
+        // If it's a blob storage filename, construct the full URL
+        if (imageUrl.Contains(".jpg") || imageUrl.Contains(".png") || imageUrl.Contains(".jpeg") || imageUrl.Contains(".webp"))
+        {
+            return $"https://vacantaai.blob.core.windows.net/vacantaai/{imageUrl}";
+        }
+
+        return imageUrl;
     }
 }
