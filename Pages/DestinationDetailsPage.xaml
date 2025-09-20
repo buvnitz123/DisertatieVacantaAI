@@ -183,8 +183,8 @@
                     </StackLayout>
                     
                     <!-- Facilities Section -->
-                    <StackLayout x:Name="FacilitiesSection" Spacing="15">
-                        <Label Text="🏨 Facilitati" 
+                    <StackLayout x:Name="FacilitiesSection" Spacing="15" IsVisible="False">
+                        <Label Text="🏨 Facilități" 
                                FontSize="20" 
                                FontAttributes="Bold" 
                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -203,15 +203,23 @@
                                            HasShadow="True"
                                            Margin="0,2">
                                         <StackLayout Spacing="8">
-                                            <Label Text="{Binding Denumire}" 
-                                                   FontSize="16" 
-                                                   FontAttributes="Bold"
-                                                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Label Text="🏨" 
+                                                       FontSize="16" 
+                                                       VerticalOptions="Center" />
+                                                <Label Text="{Binding Denumire}" 
+                                                       FontSize="16" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                                       VerticalOptions="Center"
+                                                       HorizontalOptions="StartAndExpand" />
+                                            </HorizontalStackLayout>
                                             <Label Text="{Binding Descriere}" 
                                                    FontSize="14" 
                                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                                    LineBreakMode="WordWrap"
-                                                   IsVisible="{Binding HasDescription}" />
+                                                   IsVisible="{Binding HasDescription}"
+                                                   Margin="24,0,0,0" />
                                         </StackLayout>
                                     </Frame>
                                 </DataTemplate>

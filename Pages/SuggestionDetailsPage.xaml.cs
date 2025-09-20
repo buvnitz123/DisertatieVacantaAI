@@ -11,6 +11,14 @@ public class SuggestionImageItem
     public string ImagineUrl { get; set; }
 }
 
+public class SuggestionFacilityDisplayItem
+{
+    public int Id_Facilitate { get; set; }
+    public string Denumire { get; set; }
+    public string Descriere { get; set; }
+    public bool HasDescription => !string.IsNullOrWhiteSpace(Descriere);
+}
+
 public class SuggestionCategoryDisplayItem
 {
     public int Id_CategorieVacanta { get; set; }
@@ -25,12 +33,15 @@ public partial class SuggestionDetailsPage : ContentPage
     private readonly ImaginiDestinatieRepository _imaginiDestRepo = new ImaginiDestinatieRepository();
     private readonly CategorieVacanta_DestinatieRepository _catDestRepo = new CategorieVacanta_DestinatieRepository();
     private readonly CategorieVacantaRepository _categorieRepo = new CategorieVacantaRepository();
+    private readonly DestinatieFacilitateRepository _destFacilitateRepo = new DestinatieFacilitateRepository();
+    private readonly FacilitateRepository _facilitateRepo = new FacilitateRepository();
     private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
     
     private int _suggestionId;
     private Sugestie _currentSuggestion;
     private ObservableCollection<SuggestionImageItem> _destinationImages = new ObservableCollection<SuggestionImageItem>();
     private ObservableCollection<SuggestionCategoryDisplayItem> _categories = new ObservableCollection<SuggestionCategoryDisplayItem>();
+    private ObservableCollection<SuggestionFacilityDisplayItem> _facilities = new ObservableCollection<SuggestionFacilityDisplayItem>();
     
     public string SuggestionId 
     { 
@@ -48,6 +59,7 @@ public partial class SuggestionDetailsPage : ContentPage
         InitializeComponent();
         ImagesCarousel.ItemsSource = _destinationImages;
         CategoriesCollectionView.ItemsSource = _categories;
+        FacilitiesCollectionView.ItemsSource = _facilities;
     }
 
     protected override async void OnAppearing()
@@ -102,6 +114,9 @@ public partial class SuggestionDetailsPage : ContentPage
             
             // Load destination categories asynchronously
             _ = LoadDestinationCategoriesAsync();
+            
+            // Load destination facilities asynchronously
+            _ = LoadDestinationFacilitiesAsync();
             
         }
         catch (OperationCanceledException)
@@ -359,6 +374,88 @@ public partial class SuggestionDetailsPage : ContentPage
         // Default case - assume it's a valid URL or filename
         Debug.WriteLine($"[SuggestionDetailsPage] Using image URL as-is: {imageUrl}");
         return imageUrl;
+    }
+
+    private async Task LoadDestinationFacilitiesAsync()
+    {
+        try
+        {
+            if (_currentSuggestion?.Id_Destinatie == null || _currentSuggestion.Id_Destinatie <= 0)
+            {
+                Debug.WriteLine($"[SuggestionDetailsPage] Invalid destination ID for facilities: {_currentSuggestion?.Id_Destinatie}");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    FacilitiesSection.IsVisible = false;
+                });
+                return;
+            }
+            
+            Debug.WriteLine($"[SuggestionDetailsPage] Loading facilities for destination ID: {_currentSuggestion.Id_Destinatie}");
+            
+            var facilityRelations = await Task.Run(() => _destFacilitateRepo.GetByDestinationId(_currentSuggestion.Id_Destinatie), _cancellationTokenSource.Token);
+            
+            if (!facilityRelations?.Any() == true)
+            {
+                Debug.WriteLine($"[SuggestionDetailsPage] No facility relations found for destination {_currentSuggestion.Id_Destinatie}");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    FacilitiesSection.IsVisible = false;
+                });
+                return;
+            }
+            
+            var facilityIds = facilityRelations.Select(fr => fr.Id_Facilitate).Take(5).ToList();
+            Debug.WriteLine($"[SuggestionDetailsPage] Found {facilityIds.Count} facilities for destination");
+            
+            var facilities = await Task.Run(() => 
+            {
+                return facilityIds.Select(id => _facilitateRepo.GetById(id))
+                                 .Where(f => f != null)
+                                 .ToList();
+            }, _cancellationTokenSource.Token);
+            
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                _facilities.Clear();
+                
+                if (facilities?.Any() == true)
+                {
+                    foreach (var facility in facilities)
+                    {
+                        var facilityItem = new SuggestionFacilityDisplayItem
+                        {
+                            Id_Facilitate = facility.Id_Facilitate,
+                            Denumire = facility.Denumire,
+                            Descriere = facility.Descriere
+                        };
+                        
+                        _facilities.Add(facilityItem);
+                        Debug.WriteLine($"[SuggestionDetailsPage] Added facility: {facility.Denumire}");
+                    }
+                    
+                    FacilitiesSection.IsVisible = true;
+                    Debug.WriteLine($"[SuggestionDetailsPage] Successfully loaded {_facilities.Count} facilities");
+                }
+                else
+                {
+                    FacilitiesSection.IsVisible = false;
+                    Debug.WriteLine($"[SuggestionDetailsPage] No valid facilities found, hiding section");
+                }
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[SuggestionDetailsPage] Facilities loading cancelled");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SuggestionDetailsPage] Error loading destination facilities: {ex.Message}");
+            Debug.WriteLine($"[SuggestionDetailsPage] Stack trace: {ex.StackTrace}");
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                FacilitiesSection.IsVisible = false;
+            });
+        }
     }
 
     private async Task LoadDestinationCategoriesAsync()
