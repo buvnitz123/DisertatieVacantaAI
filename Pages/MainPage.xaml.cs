@@ -28,6 +28,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         public string Denumire { get; set; }
         public string Tip { get; set; }
         public string ImageUrl { get; set; }
+        public int Id_Destinatie { get; set; } // Add destination ID for direct navigation
     }
 
     public partial class MainPage : ContentPage
@@ -252,7 +253,8 @@ namespace MauiAppDisertatieVacantaAI.Pages
                             Id = poi.Id_PunctDeInteres,
                             Denumire = poi.Denumire,
                             Tip = poi.Tip ?? "Atractie",
-                            ImageUrl = imageUrl ?? "placeholder_image.png"
+                            ImageUrl = imageUrl ?? "placeholder_image.png",
+                            Id_Destinatie = poi.Id_Destinatie // Store destination ID directly
                         };
                         _pointsOfInterest.Add(displayItem);
                     }
@@ -401,7 +403,33 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             if (sender is Element element && element.BindingContext is PointOfInterestDisplayItem poi)
             {
-                await DisplayAlert("Punct de Interes", $"Ai selectat: {poi.Denumire}", "OK");
+                try
+                {
+                    // Use the pre-loaded destination ID for direct navigation
+                    if (poi.Id_Destinatie > 0)
+                    {
+                        Debug.WriteLine($"[MainPage] Navigating from POI '{poi.Denumire}' to destination details with ID: {poi.Id_Destinatie}");
+                        await Shell.Current.GoToAsync($"{nameof(DestinationDetailsPage)}?destinationId={poi.Id_Destinatie}");
+                        Debug.WriteLine($"[MainPage] POI to destination navigation completed successfully");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"[MainPage] POI '{poi.Denumire}' has invalid destination ID: {poi.Id_Destinatie}");
+                        await DisplayAlert("Eroare", "Nu se poate găsi destinația asociată acestui punct de interes.", "OK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error navigating from POI to destination: {ex.Message}");
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                    await DisplayAlert("Eroare", "Nu s-a putut deschide pagina destinației.", "OK");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"[MainPage] OnPointOfInterestTapped called but sender or BindingContext is null");
+                Debug.WriteLine($"[MainPage] Sender type: {sender?.GetType()?.Name}");
+                Debug.WriteLine($"[MainPage] BindingContext type: {(sender as Element)?.BindingContext?.GetType()?.Name}");
             }
         }
     }
