@@ -58,7 +58,7 @@ public partial class SearchPage : ContentPage
 
     // Debouncing & Caching
     private Timer _searchTimer;
-    private CancellationTokenSource _searchCancellationTokenSource;
+    private CancellationTokenSource _searchCancellationTokenSource = new();
     private static readonly ConcurrentDictionary<string, SearchCacheItem> _searchCache = new();
     private static readonly TimeSpan _cacheExpiration = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan _debounceDelay = TimeSpan.FromMilliseconds(500);
@@ -131,9 +131,13 @@ public partial class SearchPage : ContentPage
     {
         base.OnDisappearing();
         
-        // Cancel any pending search operations
+        // Cancel any pending search operations with proper cleanup
         _searchTimer?.Dispose();
         _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+        _searchCancellationTokenSource = new CancellationTokenSource();
+        
+        Debug.WriteLine($"[SearchPage] OnDisappearing - operations cancelled and cleaned up");
     }
 
     private async void OnSearchTextChanged(object sender, TextChangedEventArgs e)
@@ -143,9 +147,11 @@ public partial class SearchPage : ContentPage
         // Show/hide clear button
         ClearButton.IsVisible = !string.IsNullOrEmpty(searchTerm);
         
-        // Cancel previous search timer
+        // Cancel previous search timer and operations
         _searchTimer?.Dispose();
         _searchCancellationTokenSource?.Cancel();
+        _searchCancellationTokenSource?.Dispose();
+        _searchCancellationTokenSource = new CancellationTokenSource();
         
         // Update current search term
         _currentSearchTerm = searchTerm;
@@ -288,8 +294,7 @@ public partial class SearchPage : ContentPage
             LoadingIndicator.IsVisible = true;
             LoadingIndicator.IsRunning = true;
 
-            // Create cancellation token for this search
-            _searchCancellationTokenSource = new CancellationTokenSource();
+            // Use existing cancellation token
             var cancellationToken = _searchCancellationTokenSource.Token;
 
             var searchResults = await SearchDestinationsAsync(_currentSearchTerm, _activeFilter, _currentPage, _pageSize, cancellationToken);
@@ -339,7 +344,7 @@ public partial class SearchPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error performing search: {ex.Message}");
-            if (_currentPage == 0)
+            if (!_searchCancellationTokenSource.Token.IsCancellationRequested && _currentPage == 0)
             {
                 EmptyStateLabel.Text = "A apărut o eroare la căutare. Te rog incearcă din nou.";
             }
@@ -458,7 +463,7 @@ public partial class SearchPage : ContentPage
                     // Check for cancellation
                     cancellationToken.ThrowIfCancellationRequested();
                     
-                    var imageUrl = await GetFirstDestinationImageAsync(dest.Id_Destinatie);
+                    var imageUrl = await GetFirstDestinationImageAsync(dest.Id_Destinatie).ConfigureAwait(false);
                     
                     results.Add(new DestinationSearchResult
                     {
@@ -485,14 +490,14 @@ public partial class SearchPage : ContentPage
                 Debug.WriteLine($"Error in SearchDestinationsAsync: {ex.Message}");
                 return new List<DestinationSearchResult>();
             }
-        }, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<string> GetFirstDestinationImageAsync(int destinationId)
     {
         try
         {
-            var images = await Task.Run(() => _imaginiRepo.GetByDestinationId(destinationId));
+            var images = await Task.Run(() => _imaginiRepo.GetByDestinationId(destinationId)).ConfigureAwait(false);
             return images?.FirstOrDefault()?.ImagineUrl;
         }
         catch (Exception ex)

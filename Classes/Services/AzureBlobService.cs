@@ -1,23 +1,16 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-using Azure;
+﻿using System.Diagnostics;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 
-namespace MauiAppDisertatieVacantaAI.Classes.Library
+namespace MauiAppDisertatieVacantaAI.Classes.Services
 {
-    // Kept the original class name (S3Utils) to avoid touching other code paths.
-    // Internally now uses Azure Blob Storage.
     public static class AzureBlobService
     {
         private static readonly string ContainerName = "vacantaai";
 
-        // Retrieves the Azure Storage connection string (encrypted in appsettings)
         private static string GetConnectionString()
         {
-            // Expect a new encrypted key: Azure.Blob.ConnectionString
             var conn = EncryptionUtils.GetDecryptedAppSetting("Azure.Blob.ConnectionString");
             if (string.IsNullOrWhiteSpace(conn))
                 throw new InvalidOperationException("Azure Blob connection string not configured (Azure.Blob.ConnectionString).");
@@ -28,8 +21,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
         {
             var connectionString = GetConnectionString();
             var container = new BlobContainerClient(connectionString, ContainerName);
-            // We do not auto-create in production unless needed; can uncomment if required
-            // container.CreateIfNotExists(PublicAccessType.None);
             return container;
         }
 
@@ -59,7 +50,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
                     HttpHeaders = headers
                 });
 
-                // Access: if container is private, generate a SAS URL instead. For now we return blob uri.
                 return blobClient.Uri.ToString();
             }
             catch (Exception ex)
@@ -69,7 +59,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
             }
         }
 
-        // Uploads to an exact blob name (overwrites existing) and sets content type
         public static async Task<string> UploadImageWithFixedNameAsync(byte[] imageBytes, string blobName, string contentType)
         {
             if (imageBytes == null || imageBytes.Length == 0)
@@ -83,7 +72,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
                 var blobClient = container.GetBlobClient(blobName);
 
                 using var ms = new MemoryStream(imageBytes);
-                // Overwrite existing if any
                 await blobClient.UploadAsync(ms, overwrite: true);
 
                 // Set content type
@@ -99,7 +87,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
             }
         }
 
-        // Synchronous wrapper maintained for compatibility (executes async method synchronously).
         public static string UploadImage(byte[] imageBytes, string fileName, string contentType)
         {
             try
@@ -193,12 +180,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library
             try
             {
                 var uri = new Uri(url);
-                // For formats like https://account.blob.core.windows.net/container/path/file.ext
-                // AbsolutePath = /container/path/file.ext
                 var path = uri.AbsolutePath.TrimStart('/');
                 if (path.StartsWith($"{ContainerName}/", StringComparison.OrdinalIgnoreCase))
                     return path.Substring(ContainerName.Length + 1);
-                // If path already is relative to container (when using custom domains)
                 return path;
             }
             catch

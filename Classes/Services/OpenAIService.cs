@@ -70,26 +70,24 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
                         - Sfaturi practice")
                 };
 
-                // Add conversation history if provided
                 if (conversationHistory != null && conversationHistory.Any())
                 {
-                    foreach (var message in conversationHistory.TakeLast(3)) // Keep last 3 messages for context (cost optimization)
+                    foreach (var message in conversationHistory.TakeLast(3))
                     {
                         messages.Add(new UserChatMessage(message));
                     }
                 }
 
-                // Add current user message
                 messages.Add(new UserChatMessage(userMessage));
 
                 Debug.WriteLine($"Sending request to OpenAI: {userMessage}");
 
                 var chatCompletionOptions = new ChatCompletionOptions()
                 {
-                    MaxOutputTokenCount = 250, // Optimized for travel recommendations and cost
-                    Temperature = 0.6f, // Slightly reduced for more consistent travel advice  
-                    FrequencyPenalty = 0.1f, // Reduce repetition in recommendations
-                    PresencePenalty = 0.1f // Encourage diverse travel topics
+                    MaxOutputTokenCount = 250,
+                    Temperature = 0.6f, 
+                    FrequencyPenalty = 0.1f,
+                    PresencePenalty = 0.1f
                 };
 
                 var completion = await _openAIClient.GetChatClient("gpt-4o-mini").CompleteChatAsync(messages, chatCompletionOptions);
@@ -110,7 +108,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
             {
                 Debug.WriteLine($"Error getting chat response: {ex.Message}");
                 
-                // Handle specific OpenAI exceptions for better user experience
                 if (ex.Message.Contains("unauthorized") || ex.Message.Contains("401"))
                 {
                     return "Ne pare rău, cheia API nu este validă. Te rog contactează administratorul.";
@@ -140,7 +137,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
 
         public void Dispose()
         {
-            // OpenAI SDK handles disposal internally
             _openAIClient = null;
         }
     }

@@ -1,7 +1,8 @@
-using System.Diagnostics;
+ï»¿using System.Diagnostics;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Services;
 using MauiAppDisertatieVacantaAI.Classes.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
@@ -30,7 +31,7 @@ public partial class ProfilePhotoPage : ContentPage
         
         if (RegistrationSession.Draft == null)
         {
-            ShowError("Sesiunea de înregistrare a expirat.");
+            ShowError("Sesiunea de Ã®nregistrare a expirat.");
             return;
         }
         
@@ -54,7 +55,7 @@ public partial class ProfilePhotoPage : ContentPage
         _hasSelectedPhoto = false;
         
         // Update button text
-        FinishButton.Text = "?? Finalizeaz? înregistrarea";
+        FinishButton.Text = "?? Finalizeaz? Ã®nregistrarea";
         SkipButton.Text = "Sari acest pas ?i finalizeaz?";
     }
 
@@ -251,7 +252,7 @@ public partial class ProfilePhotoPage : ContentPage
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Înc?rcarea imaginii a e?uat", ex);
+            throw new InvalidOperationException("ÃŽnc?rcarea imaginii a e?uat", ex);
         }
     }
 

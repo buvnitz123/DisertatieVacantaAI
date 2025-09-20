@@ -42,6 +42,9 @@ public partial class DestinationDetailsPage : ContentPage
     private readonly PunctDeInteresRepository _poiRepo = new();
     private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
     
+    // Cancellation support for cleanup
+    private CancellationTokenSource _cancellationTokenSource = new();
+    
     private int _destinationId;
     private Destinatie _currentDestination;
 
@@ -76,25 +79,6 @@ public partial class DestinationDetailsPage : ContentPage
         
         Debug.WriteLine($"[DestinationDetailsPage] OnAppearing called with destinationId: {_destinationId}");
         
-        // TEMP: For testing - use first destination ID if none provided
-        if (_destinationId <= 0)
-        {
-            Debug.WriteLine($"[DestinationDetailsPage] No valid destination ID provided, trying to get first destination for testing");
-            try
-            {
-                var firstDestination = _destinatieRepo.GetAll().FirstOrDefault();
-                if (firstDestination != null)
-                {
-                    _destinationId = firstDestination.Id_Destinatie;
-                    Debug.WriteLine($"[DestinationDetailsPage] Using first destination ID for testing: {_destinationId}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[DestinationDetailsPage] Error getting first destination: {ex.Message}");
-            }
-        }
-        
         if (_destinationId > 0)
         {
             await LoadDestinationDetailsAsync();
@@ -107,6 +91,18 @@ public partial class DestinationDetailsPage : ContentPage
         }
     }
 
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        
+        // Cancel any ongoing operations
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = new CancellationTokenSource();
+        
+        Debug.WriteLine($"[DestinationDetailsPage] OnDisappearing - operations cancelled");
+    }
+
     private async Task LoadDestinationDetailsAsync()
     {
         try
@@ -116,12 +112,12 @@ public partial class DestinationDetailsPage : ContentPage
             Debug.WriteLine($"[DestinationDetailsPage] LoadingOverlay set to visible");
             
             // Add a short delay to ensure UI has updated
-            await Task.Delay(100);
+            await Task.Delay(100, _cancellationTokenSource.Token);
             
             // Load destination basic info
             await LoadDestinationInfoAsync();
             
-            // Load all related data in parallel
+            // Load all related data in parallel with cancellation support
             await Task.WhenAll(
                 LoadDestinationImagesAsync(),
                 LoadFacilitiesAsync(),
@@ -136,10 +132,17 @@ public partial class DestinationDetailsPage : ContentPage
                 Debug.WriteLine($"[DestinationDetailsPage] Forcing UI refresh");
             });
         }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Loading cancelled");
+        }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading destination details: {ex.Message}");
-            await DisplayAlert("Eroare", "Nu s-au putut incarca detaliile destinatiei.", "OK");
+            if (!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                await DisplayAlert("Eroare", "Nu s-au putut incarca detaliile destinatiei.", "OK");
+            }
         }
         finally
         {
@@ -157,13 +160,16 @@ public partial class DestinationDetailsPage : ContentPage
         try
         {
             Debug.WriteLine($"[DestinationDetailsPage] Loading destination info for ID: {_destinationId}");
-            _currentDestination = await Task.Run(() => _destinatieRepo.GetById(_destinationId));
+            _currentDestination = await Task.Run(() => _destinatieRepo.GetById(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             
             if (_currentDestination == null)
             {
                 Debug.WriteLine($"[DestinationDetailsPage] Destination with ID {_destinationId} not found in database");
-                await DisplayAlert("Eroare", "Destinatia nu a fost gasita.", "OK");
-                await Shell.Current.GoToAsync("..");
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await DisplayAlert("Eroare", "Destinatia nu a fost gasita.", "OK");
+                    await Shell.Current.GoToAsync("..");
+                });
                 return;
             }
 
@@ -194,6 +200,11 @@ public partial class DestinationDetailsPage : ContentPage
                 Debug.WriteLine($"[DestinationDetailsPage] Updated UI with destination info");
             });
         }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Destination info loading cancelled");
+            throw;
+        }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading destination info: {ex.Message}");
@@ -207,10 +218,13 @@ public partial class DestinationDetailsPage : ContentPage
         try
         {
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load images for destination ID: {_destinationId}");
-            ImagesLoadingIndicator.IsVisible = true;
-            ImagesLoadingIndicator.IsRunning = true;
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                ImagesLoadingIndicator.IsVisible = true;
+                ImagesLoadingIndicator.IsRunning = true;
+            });
             
-            var images = await Task.Run(() => _imaginiDestRepo.GetByDestinationId(_destinationId));
+            var images = await Task.Run(() => _imaginiDestRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             Debug.WriteLine($"[DestinationDetailsPage] Found {images?.Count() ?? 0} images");
             
             await MainThread.InvokeOnMainThreadAsync(() =>
@@ -247,6 +261,11 @@ public partial class DestinationDetailsPage : ContentPage
                 }
             });
         }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Images loading cancelled");
+            throw;
+        }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading destination images: {ex.Message}");
@@ -282,7 +301,7 @@ public partial class DestinationDetailsPage : ContentPage
         {
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load facilities for destination ID: {_destinationId}");
             // Get destination facilities through the junction table
-            var destFacilities = await Task.Run(() => _destFacilitateRepo.GetByDestinationId(_destinationId));
+            var destFacilities = await Task.Run(() => _destFacilitateRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             var facilityIds = destFacilities.Select(df => df.Id_Facilitate).ToList();
             Debug.WriteLine($"[DestinationDetailsPage] Found {facilityIds.Count} facility associations");
             
@@ -302,7 +321,7 @@ public partial class DestinationDetailsPage : ContentPage
                 return facilityIds.Select(id => _facilitateRepo.GetById(id))
                                  .Where(f => f != null)
                                  .ToList();
-            });
+            }, _cancellationTokenSource.Token).ConfigureAwait(false);
             
             Debug.WriteLine($"[DestinationDetailsPage] Loaded {facilities.Count} facilities");
             
@@ -331,6 +350,11 @@ public partial class DestinationDetailsPage : ContentPage
                 }
             });
         }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] Facilities loading cancelled");
+            throw;
+        }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading facilities: {ex.Message}");
@@ -348,7 +372,7 @@ public partial class DestinationDetailsPage : ContentPage
         try
         {
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load POIs for destination ID: {_destinationId}");
-            var pois = await Task.Run(() => _poiRepo.GetByDestinationId(_destinationId));
+            var pois = await Task.Run(() => _poiRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             Debug.WriteLine($"[DestinationDetailsPage] Found {pois?.Count() ?? 0} POIs");
             
             if (!pois?.Any() == true)
@@ -362,17 +386,18 @@ public partial class DestinationDetailsPage : ContentPage
                 return;
             }
             
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                _pointsOfInterest.Clear();
-            });
+            // Batch collect POIs to reduce UI thread calls
+            var poiDisplayItems = new List<PoiDisplayItem>();
             
             // Load POIs with their images
             foreach (var poi in pois)
             {
+                if (_cancellationTokenSource.Token.IsCancellationRequested)
+                    break;
+                    
                 try
                 {
-                    var poiImages = await Task.Run(() => _imaginiPoiRepo.GetByPointOfInterestId(poi.Id_PunctDeInteres));
+                    var poiImages = await Task.Run(() => _imaginiPoiRepo.GetByPointOfInterestId(poi.Id_PunctDeInteres), _cancellationTokenSource.Token).ConfigureAwait(false);
                     Debug.WriteLine($"[DestinationDetailsPage] POI '{poi.Denumire}' has {poiImages?.Count() ?? 0} images");
                     
                     var poiDisplayItem = new PoiDisplayItem
@@ -404,11 +429,8 @@ public partial class DestinationDetailsPage : ContentPage
                         });
                     }
                     
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        _pointsOfInterest.Add(poiDisplayItem);
-                        Debug.WriteLine($"[DestinationDetailsPage] Added POI '{poiDisplayItem.Denumire}' to UI");
-                    });
+                    poiDisplayItems.Add(poiDisplayItem);
+                    Debug.WriteLine($"[DestinationDetailsPage] Prepared POI '{poiDisplayItem.Denumire}' for UI");
                 }
                 catch (Exception ex)
                 {
@@ -427,15 +449,19 @@ public partial class DestinationDetailsPage : ContentPage
                         ImagineUrl = "placeholder_image.png"
                     });
                     
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        _pointsOfInterest.Add(poiDisplayItem);
-                    });
+                    poiDisplayItems.Add(poiDisplayItem);
                 }
             }
             
+            // Batch update UI
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
+                _pointsOfInterest.Clear();
+                foreach (var poi in poiDisplayItems)
+                {
+                    _pointsOfInterest.Add(poi);
+                }
+                
                 if (_pointsOfInterest.Any())
                 {
                     PointsOfInterestSection.IsVisible = true;
@@ -447,6 +473,11 @@ public partial class DestinationDetailsPage : ContentPage
                     Debug.WriteLine($"[DestinationDetailsPage] No valid POIs, hiding section");
                 }
             });
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[DestinationDetailsPage] POIs loading cancelled");
+            throw;
         }
         catch (Exception ex)
         {

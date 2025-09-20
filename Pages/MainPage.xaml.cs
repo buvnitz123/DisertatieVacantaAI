@@ -38,6 +38,9 @@ namespace MauiAppDisertatieVacantaAI.Pages
         private readonly ImaginiDestinatieRepository _imaginiDestRepo = new();
         private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
 
+        // Cancellation support for cleanup
+        private CancellationTokenSource _cancellationTokenSource = new();
+
         private ObservableCollection<DestinationDisplayItem> _destinations = new();
         private ObservableCollection<PointOfInterestDisplayItem> _pointsOfInterest = new();
 
@@ -51,6 +54,18 @@ namespace MauiAppDisertatieVacantaAI.Pages
             base.OnAppearing();
             await LoadUserInfoAsync();
             await LoadHomeContentAsync();
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            
+            // Cancel any ongoing operations
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = new CancellationTokenSource();
+            
+            Debug.WriteLine($"[MainPage] OnDisappearing - operations cancelled");
         }
 
         private async Task LoadUserInfoAsync()
@@ -111,7 +126,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var categories = await Task.Run(() => _categorieRepo.GetAll().Take(4).ToList());
+                var categories = await Task.Run(() => _categorieRepo.GetAll().Take(4).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
@@ -138,6 +153,10 @@ namespace MauiAppDisertatieVacantaAI.Pages
                     }
                 });
             }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine($"[MainPage] Categories loading cancelled");
+            }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error loading categories: {ex.Message}");
@@ -152,7 +171,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var destinations = await Task.Run(() => _destinatieRepo.GetAll().Take(5).ToList());
+                var destinations = await Task.Run(() => _destinatieRepo.GetAll().Take(5).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
@@ -170,6 +189,9 @@ namespace MauiAppDisertatieVacantaAI.Pages
 
                     foreach (var dest in destinations)
                     {
+                        if (_cancellationTokenSource.Token.IsCancellationRequested)
+                            break;
+                            
                         var imageUrl = await GetFirstDestinationImageAsync(dest.Id_Destinatie);
                         var displayItem = new DestinationDisplayItem
                         {
@@ -183,6 +205,10 @@ namespace MauiAppDisertatieVacantaAI.Pages
 
                     DestinationsCarousel.ItemsSource = _destinations;
                 });
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine($"[MainPage] Destinations loading cancelled");
             }
             catch (Exception ex)
             {
@@ -199,7 +225,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var pois = await Task.Run(() => _poiRepo.GetAll().Take(5).ToList());
+                var pois = await Task.Run(() => _poiRepo.GetAll().Take(5).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
@@ -217,6 +243,9 @@ namespace MauiAppDisertatieVacantaAI.Pages
 
                     foreach (var poi in pois)
                     {
+                        if (_cancellationTokenSource.Token.IsCancellationRequested)
+                            break;
+                            
                         var imageUrl = await GetFirstPoiImageAsync(poi.Id_PunctDeInteres);
                         var displayItem = new PointOfInterestDisplayItem
                         {
@@ -230,6 +259,10 @@ namespace MauiAppDisertatieVacantaAI.Pages
 
                     PointsOfInterestCarousel.ItemsSource = _pointsOfInterest;
                 });
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine($"[MainPage] POIs loading cancelled");
             }
             catch (Exception ex)
             {
@@ -298,7 +331,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var images = await Task.Run(() => _imaginiDestRepo.GetByDestinationId(destinationId));
+                var images = await Task.Run(() => _imaginiDestRepo.GetByDestinationId(destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
                 return images?.FirstOrDefault()?.ImagineUrl;
             }
             catch (Exception ex)
@@ -312,7 +345,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var images = await Task.Run(() => _imaginiPoiRepo.GetByPointOfInterestId(poiId));
+                var images = await Task.Run(() => _imaginiPoiRepo.GetByPointOfInterestId(poiId), _cancellationTokenSource.Token).ConfigureAwait(false);
                 return images?.FirstOrDefault()?.ImagineUrl;
             }
             catch (Exception ex)
