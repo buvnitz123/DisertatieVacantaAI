@@ -1,4 +1,4 @@
-using MauiAppDisertatieVacantaAI.Classes.Database;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -46,26 +46,44 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             }
         }
 
-        // ? OPTIMIZED: Get reviews with related entities to avoid N+1
+        // ✅ OPTIMIZED: Get reviews with related entities to avoid N+1
         public IEnumerable<Recenzie> GetByDestinationWithDetails(int destinationId)
         {
             using var context = new AppContext();
             return context.Recenzii
                 .Include(r => r.Utilizator)
-                .Include(r => r.PunctDeInteres)
                 .Include(r => r.Destinatie)
                 .Where(r => r.Id_Destinatie == destinationId)
                 .OrderByDescending(r => r.Data_Creare)
                 .ToList();
         }
 
-        // ? OPTIMIZED: Get reviews by user with details
+        // ✅ OPTIMIZED: Get reviews by user with details
         public IEnumerable<Recenzie> GetByUserWithDetails(int userId)
         {
             using var context = new AppContext();
             return context.Recenzii
                 .Include(r => r.Destinatie)
-                .Include(r => r.PunctDeInteres)
+                .Where(r => r.Id_Utilizator == userId)
+                .OrderByDescending(r => r.Data_Creare)
+                .ToList();
+        }
+
+        // ✅ NEW: Get reviews by destination ID (simple)
+        public IEnumerable<Recenzie> GetByDestinationId(int destinationId)
+        {
+            using var context = new AppContext();
+            return context.Recenzii
+                .Where(r => r.Id_Destinatie == destinationId)
+                .OrderByDescending(r => r.Data_Creare)
+                .ToList();
+        }
+
+        // ✅ NEW: Get reviews by user ID (simple)
+        public IEnumerable<Recenzie> GetByUserId(int userId)
+        {
+            using var context = new AppContext();
+            return context.Recenzii
                 .Where(r => r.Id_Utilizator == userId)
                 .OrderByDescending(r => r.Data_Creare)
                 .ToList();

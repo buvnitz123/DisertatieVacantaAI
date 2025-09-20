@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,19 +24,12 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
         public DateTime Data_Creare { get; set; }
 
         [Required]
-        [Column("Id_PunctDeInteres")]
-        public int Id_PunctDeInteres { get; set; }
-
-        [Required]
         [Column("Id_Destinatie")]
         public int Id_Destinatie { get; set; }
 
         [Required]
         [Column("Id_Utilizator")]
         public int Id_Utilizator { get; set; }
-
-        [ForeignKey("Id_PunctDeInteres")]
-        public virtual PunctDeInteres PunctDeInteres { get; set; }
 
         [ForeignKey("Id_Destinatie")]
         public virtual Destinatie Destinatie { get; set; }
