@@ -358,7 +358,18 @@ namespace MauiAppDisertatieVacantaAI.Pages
         // Event handlers
         private async void OnCategoryTapped(CategorieVacanta category)
         {
-            await DisplayAlert("Categorie", $"Ai selectat categoria: {category.Denumire}", "OK");
+            try
+            {
+                Debug.WriteLine($"[MainPage] Navigating to category details with ID: {category.Id_CategorieVacanta}");
+                await Shell.Current.GoToAsync($"{nameof(CategoryDetailsPage)}?categoryId={category.Id_CategorieVacanta}");
+                Debug.WriteLine($"[MainPage] Category navigation completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error navigating to category details: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                await DisplayAlert("Eroare", "Nu s-a putut deschide pagina categoriei.", "OK");
+            }
         }
 
         private async void OnDestinationTapped(object sender, TappedEventArgs e)
