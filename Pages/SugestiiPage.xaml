@@ -1,46 +1,140 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SugestiiPage"
              Title="Sugestii"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
-    <Grid RowDefinitions="Auto,*">
+    
+    <Grid RowDefinitions="Auto,*,Auto" Padding="10">
         <!-- Header -->
-        <VerticalStackLayout Padding="30,20,30,10" Spacing="6">
-            <Label Text="Sugestiile Tale" FontSize="28" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" HorizontalOptions="Center" />
-            <Label Text="Planuri de vacanta personalizate" FontSize="16" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.8" HorizontalOptions="Center" />
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Margin="0,20,0,25">
+            <Label Text="✈️ Sugestiile Tale" 
+                   FontSize="26" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
+            <Label Text="Planuri de vacanta personalizate pentru tine"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                   Margin="20,0" />
         </VerticalStackLayout>
 
-        <Grid Grid.Row="1">
-            <CollectionView x:Name="SugestiiCollection" ItemsSource="{Binding}" SelectionMode="None">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="40" Spacing="16" HorizontalOptions="Center" VerticalOptions="Center">
-                        <Label Text="Nu exista sugestii inca." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" FontSize="18" HorizontalOptions="Center" />
-                        <Label Text="Cere aplicatiei sa genereze o sugestie sau adauga una manual." TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" FontSize="14" Opacity="0.7" HorizontalOptions="Center" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" Stroke="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" StrokeThickness="0.5" Padding="18,14" Margin="16,8">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="12" />
-                            </Border.StrokeShape>
-                            <VerticalStackLayout Spacing="6">
-                                <Label Text="{Binding Titlu}" FontSize="18" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                                <Label Text="{Binding Destinatie.Denumire}" FontSize="14" TextColor="{StaticResource PrimaryBlue}" FontAttributes="Italic" />
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" Text="{Binding Buget_Estimat, StringFormat='Buget: {0:C}'}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.85" />
-                                    <Label Grid.Column="1" Text="{Binding Data_Inregistrare, StringFormat='{0:dd/MM/yyyy}'}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" Opacity="0.6" />
-                                </Grid>
-                                <Label Text="{Binding Descriere}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" LineBreakMode="TailTruncation" MaxLines="3" />
-                            </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-            <ActivityIndicator x:Name="LoadingIndicator" IsRunning="True" IsVisible="False" HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource PrimaryBlue}" />
-            <!-- Floating Add Button -->
-            <Button Text="+" Clicked="OnAddSugestie" BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White" WidthRequest="56" HeightRequest="56" CornerRadius="28" HorizontalOptions="End" VerticalOptions="End" Margin="20" />
-        </Grid>
+        <!-- Content Area -->
+        <ScrollView Grid.Row="1">
+            <StackLayout>
+                <!-- Loading Indicator -->
+                <ActivityIndicator x:Name="LoadingIndicator" 
+                                   IsRunning="False" 
+                                   IsVisible="False" 
+                                   Color="{StaticResource PrimaryBlue}" 
+                                   VerticalOptions="Center" 
+                                   Margin="0,20" />
+
+                <!-- Empty State -->
+                <StackLayout x:Name="EmptyStateView" 
+                             IsVisible="False"
+                             VerticalOptions="Center" 
+                             HorizontalOptions="Center"
+                             Spacing="15"
+                             Margin="40">
+                    <Label Text="🌴"
+                           FontSize="60"
+                           HorizontalOptions="Center"
+                           Opacity="0.3" />
+                    <Label Text="Nu ai inca sugestii"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                    <Label Text="Creaza prima ta sugestie de vacanta pentru a incepe sa planifici aventuri memorabile!"
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                           Margin="0,5,0,0" />
+                </StackLayout>
+
+                <!-- Suggestions Collection -->
+                <CollectionView x:Name="SugestiiCollection" 
+                                ItemsSource="{Binding}"
+                                SelectionMode="None"
+                                VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="0,5">
+                                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                                       BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
+                                       CornerRadius="16"
+                                       Padding="20,15"
+                                       HasShadow="True"
+                                       Margin="2">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSugestieSelected" />
+                                    </Frame.GestureRecognizers>
+                                    
+                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                                        <!-- Title -->
+                                        <Label Grid.Row="0" Grid.ColumnSpan="2"
+                                               Text="{Binding Titlu}" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="2" />
+                                        
+                                        <!-- Destination -->
+                                        <Label Grid.Row="1" Grid.Column="0"
+                                               Text="{Binding Destinatie.Denumire}" 
+                                               FontSize="14" 
+                                               TextColor="{StaticResource PrimaryBlue}" 
+                                               FontAttributes="Italic" />
+                                        
+                                        <!-- Date -->
+                                        <Label Grid.Row="1" Grid.Column="1"
+                                               Text="{Binding Data_Inregistrare, StringFormat='{0:dd/MM/yyyy}'}" 
+                                               FontSize="12" 
+                                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                                               Opacity="0.7"
+                                               VerticalOptions="Center" />
+                                        
+                                        <!-- Budget -->
+                                        <Label Grid.Row="2" Grid.ColumnSpan="2"
+                                               Text="{Binding Buget_Estimat, StringFormat='💰 Buget: {0:N0} €'}" 
+                                               FontSize="13" 
+                                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                                               FontAttributes="Bold" />
+                                        
+                                        <!-- Description Preview -->
+                                        <Label Grid.Row="3" Grid.ColumnSpan="2"
+                                               Text="{Binding Descriere}" 
+                                               FontSize="12" 
+                                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                                               LineBreakMode="TailTruncation" 
+                                               MaxLines="2"
+                                               Opacity="0.8" />
+                                    </Grid>
+                                </Frame>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Add New Suggestion Button -->
+        <Button Grid.Row="2" 
+                x:Name="AddSugestieButton"
+                Text="✨ Sugestie Noua"
+                BackgroundColor="{StaticResource PrimaryBlue}"
+                TextColor="White"
+                FontSize="16"
+                FontAttributes="Bold"
+                CornerRadius="16"
+                Padding="20,15"
+                Margin="0,25,0,15"
+                Clicked="OnAddSugestie"
+                Shadow="{OnPlatform Default={x:Null}, iOS={Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}}" />
     </Grid>
 </ContentPage>

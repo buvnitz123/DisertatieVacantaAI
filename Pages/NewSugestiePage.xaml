@@ -1,12 +1,152 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.NewSugestiePage"
-             Title="Noua Sugestie"
+             Title="Sugestie Noua"
              Shell.NavBarIsVisible="True"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
-    <VerticalStackLayout Padding="24" Spacing="20">
-        <Label Text="Coming soon" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-        <Label Text="In curand vei putea crea sugestii personalizate aici." HorizontalOptions="Center" HorizontalTextAlignment="Center" TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-    </VerticalStackLayout>
+    
+    <ScrollView>
+        <Grid RowDefinitions="Auto,*,Auto" Padding="20" RowSpacing="20">
+            <!-- Header -->
+            <VerticalStackLayout Grid.Row="0" Spacing="8">
+                <Label Text="✨ Creaza o Sugestie Noua" 
+                       FontSize="26" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center" 
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                <Label Text="Adauga detaliile pentru planul tau de vacanta perfecta" 
+                       HorizontalOptions="Center" 
+                       HorizontalTextAlignment="Center" 
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
+                       Opacity="0.8"
+                       Margin="20,0" />
+            </VerticalStackLayout>
+
+            <!-- Form Content -->
+            <VerticalStackLayout Grid.Row="1" Spacing="20">
+                <!-- Title Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                       BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
+                       CornerRadius="12"
+                       Padding="15"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="📝 Titlu *" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        <Entry x:Name="TitluEntry" 
+                               BackgroundColor="Transparent"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Destination Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                       BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
+                       CornerRadius="12"
+                       Padding="15"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="🌍 Destinatie *" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        <Picker x:Name="DestinatiePicker" 
+                                Title="Alege destinatia"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"
+                                TitleColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Budget Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                       BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
+                       CornerRadius="12"
+                       Padding="15"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="💰 Buget Estimat (€) *" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        <Entry x:Name="BugetEntry" 
+                               Keyboard="Numeric"
+                               BackgroundColor="Transparent"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Description Section -->
+                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                       BorderColor="{AppThemeBinding Light=#E8E8E8, Dark=#404040}"
+                       CornerRadius="12"
+                       Padding="15"
+                       HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="📄 Descriere *" 
+                               FontSize="16" 
+                               FontAttributes="Bold" 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        <Editor x:Name="DescriereEditor" 
+                                HeightRequest="120"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Action Buttons -->
+            <VerticalStackLayout Grid.Row="2" Spacing="12">
+                <Button x:Name="SaveButton" 
+                        Text="💾 Salveaza Sugestia" 
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="{StaticResource PrimaryBlue}" 
+                        TextColor="White" 
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="50" 
+                        CornerRadius="12"
+                        Shadow="{OnPlatform Default={x:Null}, iOS={Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}}" />
+                
+                <Button x:Name="CancelButton" 
+                        Text="❌ Anuleaza" 
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="Transparent" 
+                        TextColor="{StaticResource PrimaryBlue}" 
+                        BorderColor="{StaticResource PrimaryBlue}"
+                        BorderWidth="2"
+                        FontSize="16"
+                        HeightRequest="50" 
+                        CornerRadius="12" />
+            </VerticalStackLayout>
+
+            <!-- Loading Overlay -->
+            <Grid x:Name="LoadingOverlay" 
+                  Grid.RowSpan="3"
+                  IsVisible="False" 
+                  BackgroundColor="{StaticResource LoadingOverlayBackground}">
+                <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}"
+                       CornerRadius="16"
+                       Padding="30"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="True" 
+                                           Color="{StaticResource PrimaryBlue}" 
+                                           WidthRequest="40" 
+                                           HeightRequest="40" />
+                        <Label Text="Se salveaza sugestia..." 
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" 
+                               FontSize="16" 
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+        </Grid>
+    </ScrollView>
 </ContentPage>

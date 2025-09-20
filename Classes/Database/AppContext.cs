@@ -1,4 +1,4 @@
-using MauiAppDisertatieVacantaAI.Classes.DTO;
+﻿using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Library;
 using System.Data.Entity;
 
@@ -27,6 +27,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
             // Configure MesajAI to NOT use identity for primary key (manual assignment)
             modelBuilder.Entity<MesajAI>()
                 .Property(m => m.Id_Mesaj)
+                .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+
+            // Configure Sugestie to NOT use identity for primary key (manual assignment)
+            modelBuilder.Entity<Sugestie>()
+                .Property(s => s.Id_Sugestie)
                 .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
             
             base.OnModelCreating(modelBuilder);

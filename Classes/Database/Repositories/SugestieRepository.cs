@@ -1,4 +1,4 @@
-using MauiAppDisertatieVacantaAI.Classes.Database;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -26,6 +26,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public void Insert(Sugestie entity)
         {
             using var context = new AppContext();
+            
+            // Generate new ID as max existing ID + 1
+            var maxId = context.Sugestii.Any() ? context.Sugestii.Max(s => s.Id_Sugestie) : 0;
+            entity.Id_Sugestie = maxId + 1;
+            
             context.Sugestii.Add(entity);
             context.SaveChanges();
         }

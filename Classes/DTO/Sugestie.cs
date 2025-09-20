@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,6 +9,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO
     {
         [Key]
         [Column("Id_Sugestie")]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id_Sugestie { get; set; }
 
         [Required]
