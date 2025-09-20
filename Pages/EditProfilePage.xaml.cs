@@ -1,8 +1,8 @@
-using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
-using MauiAppDisertatieVacantaAI.Classes.Session;
+ï»¿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.Library;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using System.Diagnostics;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -53,7 +53,7 @@ public partial class EditProfilePage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading user data: {ex.Message}");
-            ShowError("Eroare la înc?rcarea datelor utilizatorului.");
+            ShowError("Eroare la Ã®nc?rcarea datelor utilizatorului.");
         }
     }
 
@@ -100,7 +100,7 @@ public partial class EditProfilePage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error saving user data: {ex.Message}");
-            ShowError("Eroare la salvarea datelor. Te rog încearc? din nou.");
+            ShowError("Eroare la salvarea datelor. Te rog Ã®ncearc? din nou.");
         }
         finally
         {

@@ -1,7 +1,7 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace MauiAppDisertatieVacantaAI.Pages;
+namespace MauiAppDisertatieVacantaAI.Classes.Library.Models;
 
 public class ChatMessage : INotifyPropertyChanged
 {

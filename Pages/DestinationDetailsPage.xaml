@@ -32,15 +32,15 @@
                             </CarouselView.ItemTemplate>
                         </CarouselView>
                         
-                        <!-- Rating Overlay in top-right corner -->
+                        <!-- Rating Overlay in bottom-right corner -->
                         <Frame x:Name="RatingOverlay"
                                BackgroundColor="{StaticResource PrimaryBlue}"
                                CornerRadius="8"
                                Padding="8,4"
                                HasShadow="True"
                                HorizontalOptions="End"
-                               VerticalOptions="Start"
-                               Margin="15,15,15,0"
+                               VerticalOptions="End"
+                               Margin="15,0,15,15"
                                IsVisible="False"
                                Grid.Row="0">
                             <StackLayout Orientation="Horizontal" Spacing="4">
@@ -56,6 +56,24 @@
                                        VerticalOptions="Center" />
                             </StackLayout>
                         </Frame>
+                        
+                        <!-- Favorite Button in top-right corner -->
+                        <Button x:Name="FavoriteButton"
+                                Text="🤍"
+                                FontSize="24"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                BorderWidth="0"
+                                Padding="8"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                CornerRadius="20"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                Margin="0,15,15,0"
+                                IsVisible="True"
+                                Grid.Row="0"
+                                Clicked="OnFavoriteClicked" />
                         
                         <!-- Loading indicator for images -->
                         <ActivityIndicator x:Name="ImagesLoadingIndicator"

@@ -2,6 +2,7 @@
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using System.Diagnostics;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -26,6 +27,7 @@ public partial class CategoryDetailsPage : ContentPage
     private readonly CategorieVacanta_DestinatieRepository _catDestRepo = new();
     private readonly DestinatieRepository _destinatieRepo = new();
     private readonly ImaginiDestinatieRepository _imaginiDestRepo = new();
+    private readonly FavoriteRepository _favoriteRepo = new();
     
     // Cancellation support for cleanup
     private CancellationTokenSource _cancellationTokenSource = new();
@@ -38,6 +40,8 @@ public partial class CategoryDetailsPage : ContentPage
     
     private int _categoryId;
     private CategorieVacanta _currentCategory;
+    private int _currentUserId;
+    private bool _isFavorite;
 
     // Basic caching for improved performance
     private static readonly Dictionary<int, (CategorieVacanta Category, DateTime CachedAt)> _categoryCache = new();
@@ -124,6 +128,9 @@ public partial class CategoryDetailsPage : ContentPage
             
             // Load destinations for this category
             await LoadDestinationsAsync();
+            
+            // Load favorite status
+            await LoadFavoriteStatusAsync();
             
             Debug.WriteLine($"[CategoryDetailsPage] Successfully loaded all category details");
         }
@@ -456,6 +463,128 @@ public partial class CategoryDetailsPage : ContentPage
             Debug.WriteLine($"[CategoryDetailsPage] OnDestinationTapped called but sender or BindingContext is null");
             Debug.WriteLine($"[CategoryDetailsPage] Sender type: {sender?.GetType()?.Name}");
             Debug.WriteLine($"[CategoryDetailsPage] BindingContext type: {(sender as Frame)?.BindingContext?.GetType()?.Name}");
+        }
+    }
+
+    private async Task LoadFavoriteStatusAsync()
+    {
+        try
+        {
+            Debug.WriteLine($"[CategoryDetailsPage] Starting to load favorite status for category ID: {_categoryId}");
+            
+            // Get current user ID
+            var userIdStr = await UserSession.GetUserIdAsync();
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out _currentUserId))
+            {
+                Debug.WriteLine($"[CategoryDetailsPage] No valid user ID found, favorite functionality disabled");
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    // Show button but as disabled state (gray heart)
+                    FavoriteButton.Text = "🤍";
+                    FavoriteButton.TextColor = Colors.Gray;
+                    FavoriteButton.IsEnabled = false;
+                    Debug.WriteLine($"[CategoryDetailsPage] Showing disabled favorite button (not authenticated)");
+                });
+                return;
+            }
+            
+            // Check favorite status
+            _isFavorite = await Task.Run(() => 
+                _favoriteRepo.IsFavorite(_currentUserId, "CategorieVacanta", _categoryId), 
+                _cancellationTokenSource.Token).ConfigureAwait(false);
+            
+            Debug.WriteLine($"[CategoryDetailsPage] Favorite status loaded: {_isFavorite}");
+            
+            // Update UI
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                FavoriteButton.IsEnabled = true;
+                UpdateFavoriteButtonUI();
+                Debug.WriteLine($"[CategoryDetailsPage] Favorite button enabled with status: {_isFavorite}");
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine($"[CategoryDetailsPage] Favorite status loading cancelled");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading favorite status: {ex.Message}");
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                // Show button but as error state
+                FavoriteButton.Text = "🤍";
+                FavoriteButton.TextColor = Colors.Orange;
+                FavoriteButton.IsEnabled = false;
+                Debug.WriteLine($"[CategoryDetailsPage] Showing error favorite button");
+            });
+        }
+    }
+
+    private void UpdateFavoriteButtonUI()
+    {
+        if (_isFavorite)
+        {
+            FavoriteButton.Text = "❤️";
+            FavoriteButton.TextColor = Color.FromArgb("#FF4444"); // Red
+        }
+        else
+        {
+            FavoriteButton.Text = "🤍";
+            FavoriteButton.TextColor = Colors.White;
+        }
+    }
+
+    private async void OnFavoriteClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            if (_currentUserId <= 0)
+            {
+                await DisplayAlert("Info", "Trebuie să fii autentificat pentru a adăuga la favorite.", "OK");
+                return;
+            }
+
+            // Visual feedback - animate button
+            await FavoriteButton.ScaleTo(1.2, 100);
+            await FavoriteButton.ScaleTo(1.0, 100);
+
+            // Toggle favorite status (optimistic UI update)
+            _isFavorite = !_isFavorite;
+            UpdateFavoriteButtonUI();
+
+            try
+            {
+                // Update in database
+                var isNowFavorite = await Task.Run(() => 
+                    _favoriteRepo.ToggleFavorite(_currentUserId, "CategorieVacanta", _categoryId), 
+                    _cancellationTokenSource.Token);
+
+                // Verify the result matches our optimistic update
+                if (isNowFavorite != _isFavorite)
+                {
+                    _isFavorite = isNowFavorite;
+                    UpdateFavoriteButtonUI();
+                }
+
+                Debug.WriteLine($"[CategoryDetailsPage] Favorite toggled successfully: {_isFavorite}");
+            }
+            catch (Exception dbEx)
+            {
+                Debug.WriteLine($"[CategoryDetailsPage] Database error toggling favorite: {dbEx.Message}");
+                
+                // Revert optimistic update on failure
+                _isFavorite = !_isFavorite;
+                UpdateFavoriteButtonUI();
+                
+                await DisplayAlert("Eroare", "Nu s-a putut actualiza statusul de favorit. Te rog încercați din nou.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in OnFavoriteClicked: {ex.Message}");
+            await DisplayAlert("Eroare", "A apărut o eroare neașteptată.", "OK");
         }
     }
 }

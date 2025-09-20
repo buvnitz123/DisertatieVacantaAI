@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace MauiAppDisertatieVacantaAI.Interfaces
+namespace MauiAppDisertatieVacantaAI.Classes.Library.Interfaces
 {
     public interface IRepository<T> where T : class
     {

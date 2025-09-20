@@ -3,9 +3,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
-using MauiAppDisertatieVacantaAI.Classes.Session;
-using MauiAppDisertatieVacantaAI.Classes.Services;
 using System.Diagnostics;
+using MauiAppDisertatieVacantaAI.Classes.Library.Models;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 

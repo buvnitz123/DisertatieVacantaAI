@@ -1,4 +1,4 @@
-namespace MauiAppDisertatieVacantaAI.Classes.Session;
+﻿namespace MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 public class RegistrationDraft
 {

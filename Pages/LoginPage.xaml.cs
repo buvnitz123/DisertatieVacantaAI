@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
-using MauiAppDisertatieVacantaAI.Classes.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 

@@ -3,8 +3,8 @@ using System.Data.Entity;
 using System.Linq;
 using System.Diagnostics;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
-using MauiAppDisertatieVacantaAI.Interfaces;
-using MauiAppDisertatieVacantaAI.Classes.Services;
+using MauiAppDisertatieVacantaAI.Classes.Library.Interfaces;
+using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {

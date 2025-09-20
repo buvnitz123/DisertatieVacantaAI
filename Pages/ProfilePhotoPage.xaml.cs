@@ -2,8 +2,8 @@
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Library;
-using MauiAppDisertatieVacantaAI.Classes.Services;
-using MauiAppDisertatieVacantaAI.Classes.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library.Services;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 

@@ -1,5 +1,5 @@
-using MauiAppDisertatieVacantaAI.Classes.Session;
-using MauiAppDisertatieVacantaAI.Classes.Library;
+﻿using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -77,7 +77,7 @@ public partial class RegisterNamePage : ContentPage
 
         // Disable button and show loading state
         ContinueButton.IsEnabled = false;
-        ContinueButton.Text = "Se �ncarc?...";
+        ContinueButton.Text = "Se încarc?...";
         
         try
         {

@@ -1,8 +1,8 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using System.Collections.ObjectModel;
-using MauiAppDisertatieVacantaAI.Classes.Session;
 using System.ComponentModel;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 

@@ -38,6 +38,10 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
             modelBuilder.Entity<Recenzie>()
                 .Property(r => r.Id_Recenzie)
                 .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+
+            // Configure Favorite composite key explicitly
+            modelBuilder.Entity<Favorite>()
+                .HasKey(f => new { f.Id_Utilizator, f.TipElement, f.Id_Element });
             
             base.OnModelCreating(modelBuilder);
         }

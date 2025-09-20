@@ -1,5 +1,5 @@
-using MauiAppDisertatieVacantaAI.Classes.Session;
-using MauiAppDisertatieVacantaAI.Classes.Library;
+ï»¿using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -56,7 +56,7 @@ public partial class RegisterBirthPage : ContentPage
         var selectedDate = BirthDatePicker.Date;
         var age = CalculateAge(selectedDate);
         
-        AgeLabel.Text = $"Vârsta: {age} ani";
+        AgeLabel.Text = $"VÃ¢rsta: {age} ani";
         
         // Visual feedback based on age - informative only, no restrictions
         if (age < 0) // Future date
@@ -117,7 +117,7 @@ public partial class RegisterBirthPage : ContentPage
         finally
         {
             ContinueButton.IsEnabled = true;
-            ContinueButton.Text = "Continu? spre finalul înregistr?rii";
+            ContinueButton.Text = "Continu? spre finalul Ã®nregistr?rii";
         }
     }
 

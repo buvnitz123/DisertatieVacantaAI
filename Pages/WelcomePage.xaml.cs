@@ -1,4 +1,4 @@
-using MauiAppDisertatieVacantaAI.Classes.Session;
+﻿using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 

@@ -41,6 +41,24 @@
                                    LineBreakMode="WordWrap"
                                    MaxLines="2" />
                         </StackLayout>
+                        
+                        <!-- Favorite Button in top-right corner -->
+                        <Button x:Name="FavoriteButton"
+                                Text="🤍"
+                                FontSize="24"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                BorderWidth="0"
+                                Padding="8"
+                                WidthRequest="40"
+                                HeightRequest="40"
+                                CornerRadius="20"
+                                HorizontalOptions="End"
+                                VerticalOptions="Start"
+                                Margin="0,15,15,0"
+                                IsVisible="True"
+                                Grid.Row="0"
+                                Clicked="OnFavoriteClicked" />
                     </Grid>
                 </Frame>
                 

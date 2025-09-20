@@ -1,4 +1,5 @@
-using MauiAppDisertatieVacantaAI.Classes.Library;
+﻿using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 using System.Text.Json;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Config
@@ -69,7 +70,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
                 if (basicConfigOk)
                 {
                     // Test OpenAI connection
-                    var openAIService = new MauiAppDisertatieVacantaAI.Classes.Services.OpenAIService();
+                    var openAIService = new OpenAIService();
                     bool openAIWorking = await openAIService.InitializeAsync();
                     
                     if (!openAIWorking)

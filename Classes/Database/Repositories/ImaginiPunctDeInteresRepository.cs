@@ -1,9 +1,9 @@
-using MauiAppDisertatieVacantaAI.Classes.Database;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
-using MauiAppDisertatieVacantaAI.Interfaces;
+using MauiAppDisertatieVacantaAI.Classes.Library.Interfaces;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {

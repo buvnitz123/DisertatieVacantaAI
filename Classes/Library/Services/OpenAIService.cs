@@ -3,7 +3,7 @@ using System.Diagnostics;
 using OpenAI;
 using OpenAI.Chat;
 
-namespace MauiAppDisertatieVacantaAI.Classes.Services
+namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 {
     public class OpenAIService
     {

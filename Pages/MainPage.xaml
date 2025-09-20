@@ -88,6 +88,14 @@
                                              VerticalOptions="End" 
                                              HeightRequest="80" />
                                     
+                                    <!-- Favorite Heart - always visible -->
+                                    <Label Text="{Binding IsFavorite, Converter={StaticResource FavoriteToHeartConverter}}"
+                                           TextColor="{Binding IsFavorite, Converter={StaticResource FavoriteToColorConverter}}"
+                                           FontSize="16"
+                                           VerticalOptions="Start"
+                                           HorizontalOptions="End"
+                                           Padding="8" />
+                                    
                                     <!-- Text overlay -->
                                     <VerticalStackLayout VerticalOptions="End" Padding="15,10">
                                         <Label Text="{Binding Denumire}"

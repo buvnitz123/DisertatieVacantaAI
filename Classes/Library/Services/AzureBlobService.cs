@@ -3,7 +3,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using MauiAppDisertatieVacantaAI.Classes.Library;
 
-namespace MauiAppDisertatieVacantaAI.Classes.Services
+namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 {
     public static class AzureBlobService
     {

@@ -1,8 +1,8 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using System.Diagnostics;
-using MauiAppDisertatieVacantaAI.Classes.Session;
 using System.Collections.ObjectModel;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages
 {
@@ -12,6 +12,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         public int Id { get; set; }
         public string Denumire { get; set; }
         public string ImageUrl { get; set; }
+        public bool IsFavorite { get; set; }
     }
 
     public class DestinationDisplayItem
@@ -20,6 +21,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         public string Denumire { get; set; }
         public string Location { get; set; }
         public string ImageUrl { get; set; }
+        public bool IsFavorite { get; set; }
     }
 
     public class PointOfInterestDisplayItem
@@ -38,12 +40,14 @@ namespace MauiAppDisertatieVacantaAI.Pages
         private readonly PunctDeInteresRepository _poiRepo = new();
         private readonly ImaginiDestinatieRepository _imaginiDestRepo = new();
         private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
+        private readonly FavoriteRepository _favoriteRepo = new();
 
         // Cancellation support for cleanup
         private CancellationTokenSource _cancellationTokenSource = new();
 
         private ObservableCollection<DestinationDisplayItem> _destinations = new();
         private ObservableCollection<PointOfInterestDisplayItem> _pointsOfInterest = new();
+        private int _currentUserId;
 
         public MainPage()
         {
@@ -78,6 +82,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 if (user != null)
                 {
                     WelcomeLabel.Text = $"Bine ai venit, {user.Nume}!".Trim();
+                    _currentUserId = user.Id_Utilizator; // Store user ID for favorites
                     return;
                 }
 
@@ -127,7 +132,21 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
+                // Get current user ID for favorites
+                var userIdStr = await UserSession.GetUserIdAsync();
+                int.TryParse(userIdStr, out _currentUserId);
+                
                 var categories = await Task.Run(() => _categorieRepo.GetAll().Take(4).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
+                
+                // Get user favorites for categories in batch
+                Dictionary<int, bool> favoriteStatus = new();
+                if (_currentUserId > 0 && categories.Any())
+                {
+                    var categoryIds = categories.Select(c => c.Id_CategorieVacanta);
+                    favoriteStatus = await Task.Run(() => 
+                        _favoriteRepo.GetFavoritesStatusBatch(_currentUserId, "CategorieVacanta", categoryIds), 
+                        _cancellationTokenSource.Token).ConfigureAwait(false);
+                }
                 
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
@@ -147,7 +166,8 @@ namespace MauiAppDisertatieVacantaAI.Pages
                         var row = i / 2;
                         var col = i % 2;
 
-                        var categoryFrame = CreateCategoryFrame(category);
+                        var isFavorite = favoriteStatus.GetValueOrDefault(category.Id_CategorieVacanta, false);
+                        var categoryFrame = CreateCategoryFrame(category, isFavorite);
                         Grid.SetRow(categoryFrame, row);
                         Grid.SetColumn(categoryFrame, col);
                         CategoriesGrid.Children.Add(categoryFrame);
@@ -174,6 +194,16 @@ namespace MauiAppDisertatieVacantaAI.Pages
             {
                 var destinations = await Task.Run(() => _destinatieRepo.GetAll().Take(5).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
+                // Get user favorites for destinations in batch
+                Dictionary<int, bool> favoriteStatus = new();
+                if (_currentUserId > 0 && destinations.Any())
+                {
+                    var destinationIds = destinations.Select(d => d.Id_Destinatie);
+                    favoriteStatus = await Task.Run(() => 
+                        _favoriteRepo.GetFavoritesStatusBatch(_currentUserId, "Destinatie", destinationIds), 
+                        _cancellationTokenSource.Token).ConfigureAwait(false);
+                }
+                
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     _destinations.Clear();
@@ -194,12 +224,15 @@ namespace MauiAppDisertatieVacantaAI.Pages
                             break;
                             
                         var imageUrl = await GetFirstDestinationImageAsync(dest.Id_Destinatie);
+                        var isFavorite = favoriteStatus.GetValueOrDefault(dest.Id_Destinatie, false);
+                        
                         var displayItem = new DestinationDisplayItem
                         {
                             Id = dest.Id_Destinatie,
                             Denumire = dest.Denumire,
                             Location = $"{dest.Oras}, {dest.Tara}",
-                            ImageUrl = imageUrl ?? "placeholder_image.png"
+                            ImageUrl = imageUrl ?? "placeholder_image.png",
+                            IsFavorite = isFavorite
                         };
                         _destinations.Add(displayItem);
                     }
@@ -277,7 +310,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
             }
         }
 
-        private Frame CreateCategoryFrame(CategorieVacanta category)
+        private Frame CreateCategoryFrame(CategorieVacanta category, bool isFavorite)
         {
             var frame = new Frame
             {
@@ -321,9 +354,21 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 LineBreakMode = LineBreakMode.TailTruncation
             };
 
+            // Add favorite heart - always visible (empty or filled)
+            var favoriteHeart = new Label
+            {
+                Text = isFavorite ? "❤️" : "🤍",
+                FontSize = 16,
+                TextColor = isFavorite ? Color.FromArgb("#FF4444") : Colors.White,
+                VerticalOptions = LayoutOptions.Start,
+                HorizontalOptions = LayoutOptions.End,
+                Padding = new Thickness(0, 8, 8, 0)
+            };
+
             grid.Children.Add(image);
             grid.Children.Add(overlay);
             grid.Children.Add(label);
+            grid.Children.Add(favoriteHeart);
             frame.Content = grid;
 
             return frame;

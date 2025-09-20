@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
 
-namespace MauiAppDisertatieVacantaAI.Classes.Session
+namespace MauiAppDisertatieVacantaAI.Classes.Library.Session
 {
     public class UserSession
     {
@@ -144,7 +144,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Session
                 var prenume = await GetUserPrenumeAsync();
                 if (!string.IsNullOrWhiteSpace(nume) || !string.IsNullOrWhiteSpace(prenume))
                 {
-                    return ($"{nume} {prenume}").Trim();
+                    return $"{nume} {prenume}".Trim();
                 }
                 return null;
             }
