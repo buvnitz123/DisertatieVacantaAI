@@ -24,6 +24,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
             return await EncryptionUtils.GetDecryptedAppSettingAsync("OpenAI.ApiKey");
         }
 
+        // Weather API
+        public static async Task<string> GetWeatherApiKeyAsync()
+        {
+            var config = await LoadConfigurationDirectAsync();
+            return config?.AppSettings.TryGetValue("WeatherAPI", out var apiKey) == true ? apiKey : string.Empty;
+        }
+
         // Database Connection
         public static async Task<string> GetDbConnectionStringAsync()
         {
@@ -52,7 +59,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
             }
         }
 
-        // Initialization check (now Azure Blob + Pexels + DB + OpenAI)
+        // Initialization check (now Azure Blob + Pexels + DB + OpenAI + Weather)
         public static async Task<bool> InitializeAppAsync()
         {
             try
@@ -61,11 +68,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
                 var pexelsApiKey = await GetPexelsApiKeyAsync();
                 var dbConnectionString = await GetDbConnectionStringAsync();
                 var openAIApiKey = await GetOpenAIApiKeyAsync();
+                var weatherApiKey = await GetWeatherApiKeyAsync();
 
                 bool basicConfigOk = !string.IsNullOrEmpty(azureBlobConn) &&
                                     !string.IsNullOrEmpty(pexelsApiKey) &&
                                     !string.IsNullOrEmpty(dbConnectionString) &&
-                                    !string.IsNullOrEmpty(openAIApiKey);
+                                    !string.IsNullOrEmpty(openAIApiKey) &&
+                                    !string.IsNullOrEmpty(weatherApiKey);
 
                 if (basicConfigOk)
                 {

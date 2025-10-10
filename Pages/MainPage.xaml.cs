@@ -3,6 +3,7 @@ using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using MauiAppDisertatieVacantaAI.Classes.Library.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 
 namespace MauiAppDisertatieVacantaAI.Pages
 {
@@ -42,6 +43,9 @@ namespace MauiAppDisertatieVacantaAI.Pages
         private readonly ImaginiPunctDeInteresRepository _imaginiPoiRepo = new();
         private readonly FavoriteRepository _favoriteRepo = new();
 
+        // Weather notification service
+        private WeatherNotificationService _weatherService;
+
         // Cancellation support for cleanup
         private CancellationTokenSource _cancellationTokenSource = new();
 
@@ -59,6 +63,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
             base.OnAppearing();
             await LoadUserInfoAsync();
             await LoadHomeContentAsync();
+            await InitializeWeatherServiceAsync();
         }
 
         protected override void OnDisappearing()
@@ -69,6 +74,9 @@ namespace MauiAppDisertatieVacantaAI.Pages
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
+            
+            // Stop weather service
+            _weatherService?.StopWeatherChecks();
             
             Debug.WriteLine($"[MainPage] OnDisappearing - operations cancelled");
         }
@@ -101,6 +109,61 @@ namespace MauiAppDisertatieVacantaAI.Pages
             {
                 Debug.WriteLine($"Error loading user info: {ex.Message}");
                 WelcomeLabel.Text = "Bine ai venit!"; // Fallback display
+            }
+        }
+
+        private async Task InitializeWeatherServiceAsync()
+        {
+            try
+            {
+                // Încearcă să obții permisiunea pentru locație, dar nu face nimic dacă e refuzată
+                await RequestLocationPermissionAsync();
+
+                // Initialize weather service
+                _weatherService = new WeatherNotificationService();
+                await _weatherService.InitializeAsync();
+                
+                // Show initial weather notification (respectă cache-ul - o dată pe zi)
+                await _weatherService.CheckWeatherManuallyAsync();
+                
+                Debug.WriteLine("Weather notification service initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error initializing weather service: {ex.Message}");
+            }
+        }
+
+        private async Task<bool> RequestLocationPermissionAsync()
+        {
+            try
+            {
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                
+                if (status == PermissionStatus.Granted)
+                {
+                    return true;
+                }
+
+                // Încearcă să obții permisiunea, dar nu afișa alerturi dacă e refuzată
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                
+                return status == PermissionStatus.Granted;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error requesting location permission: {ex.Message}");
+                return false;
+            }
+        }
+
+        // Metodă pentru testare - resetează cache-ul pentru notificări (apelează doar în development)
+        public async Task ResetWeatherNotificationCacheForTestingAsync()
+        {
+            if (_weatherService != null)
+            {
+                await _weatherService.ResetNotificationCacheAsync();
+                Debug.WriteLine("Weather notification cache reset for testing");
             }
         }
 

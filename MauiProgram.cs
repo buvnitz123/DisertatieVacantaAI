@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using MauiAppDisertatieVacantaAI.Classes.Library.Interfaces;
+using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 
 namespace MauiAppDisertatieVacantaAI;
 
@@ -13,6 +15,9 @@ public static class MauiProgram
 			{
                 fonts.AddFont("RobotoFlex-VariableFont.ttf", "RobotoFlex");
             });
+
+		// Register notification service
+		builder.Services.AddSingleton<INotificationService, NotificationService>();
 
 #if DEBUG
 		builder.Logging.AddDebug();
