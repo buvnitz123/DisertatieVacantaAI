@@ -16,6 +16,7 @@ public partial class ChatConversationPage : ContentPage
 {
     private readonly MesajAIRepository _mesajRepo = new();
     private readonly OpenAIService _openAIService = new();
+    private readonly ChatDestinationHandler _destinationHandler = new();
     private readonly ObservableCollection<ChatMessage> _messages = new();
     
     public string ConversationId { get; set; }
@@ -123,7 +124,7 @@ public partial class ChatConversationPage : ContentPage
                         {
                             _messages.Add(new ChatMessage 
                             { 
-                                Text = "👋 Salut! Sunt Travel Assistant AI (powered by GPT-4o Mini) și sunt aici să te ajut să planifici vacanța perfectă! Spune-mi ce destinație te interesează sau ce fel de experiență de călătorie cauți.", 
+                                Text = "👋 Salut! Sunt Travel Assistant AI (powered by GPT-4o Mini) și sunt aici să te ajut să planifici vacanța perfectă!\n\n🌍 Pot să:\n• Răspund la întrebări despre călătorii\n• Creez destinații noi în aplicație (încearcă: \"Vreau să merg la Dubai\" sau \"Fă-mi o vacanță în Santorini\")\n• Ofer sfaturi și recomandări personalizate\n\nSpune-mi ce te interesează!", 
                                 IsUser = false,
                                 Timestamp = DateTime.Now
                             });
@@ -243,25 +244,43 @@ public partial class ChatConversationPage : ContentPage
             // Show typing indicator
             var typingMessage = new ChatMessage 
             { 
-                Text = "💭 Travel Assistant AI (GPT-4o Mini) scrie...", 
+                Text = "💭 Travel Assistant AI (GPT-4o Mini) analizează...", 
                 IsUser = false,
                 IsTyping = true,
                 Timestamp = DateTime.Now
             };
             AddMessageAnimated(typingMessage);
 
-            // Get conversation history for context
-            var conversationHistory = _messages
-                .Where(m => m.IsUser)
-                .TakeLast(5) // Last 5 user messages for context
-                .Select(m => m.Text)
-                .ToList();
-
             // Get AI response
             string aiResponseText;
             try
             {
-                aiResponseText = await _openAIService.GetChatResponseAsync(text, conversationHistory);
+                // First check if user is requesting destination creation/search
+                var (isDestinationRequest, destinationResponse) = await _destinationHandler.HandleUserMessageAsync(text);
+                
+                if (isDestinationRequest)
+                {
+                    // User requested destination functionality
+                    Debug.WriteLine($"Destination request detected. Response: {destinationResponse}");
+                    aiResponseText = destinationResponse;
+                }
+                else
+                {
+                    // Regular chat conversation
+                    Debug.WriteLine("Regular chat request detected");
+                    
+                    // Update typing indicator for regular chat
+                    typingMessage.Text = "💭 Travel Assistant AI (GPT-4o Mini) scrie...";
+                    
+                    // Get conversation history for context
+                    var conversationHistory = _messages
+                        .Where(m => m.IsUser)
+                        .TakeLast(5) // Last 5 user messages for context
+                        .Select(m => m.Text)
+                        .ToList();
+
+                    aiResponseText = await _openAIService.GetChatResponseAsync(text, conversationHistory);
+                }
             }
             catch (Exception aiEx)
             {
@@ -332,8 +351,6 @@ public partial class ChatConversationPage : ContentPage
         foreach (var word in words)
         {
             currentText += (currentText.Length > 0 ? " " : "") + word;
-            
-            Debug.WriteLine($"Animating: '{currentText}'");
             
             // Update the message text on the main thread - now with proper property change notification
             await MainThread.InvokeOnMainThreadAsync(() =>

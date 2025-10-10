@@ -135,6 +135,114 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             return await GetChatResponseAsync(prompt);
         }
 
+        /// <summary>
+        /// Generează răspuns JSON pentru crearea destinațiilor
+        /// </summary>
+        public async Task<string> GetDestinationCreationResponseAsync(string userQuery, string existingDestinations, string availableCategories)
+        {
+            try
+            {
+                if (!_initialized || _openAIClient == null)
+                {
+                    if (!await InitializeAsync())
+                    {
+                        return CreateErrorResponse("Serviciul AI nu este disponibil momentan.");
+                    }
+                }
+
+                var prompt = AIDestinationPromptTemplate.BuildPrompt(userQuery, existingDestinations, availableCategories);
+
+                var messages = new List<ChatMessage>
+                {
+                    new SystemChatMessage(prompt),
+                    new UserChatMessage($"Analizează acest mesaj și decide dacă utilizatorul vrea să creeze o destinație sau doar pune întrebări generale:\n\n\"{userQuery}\"\n\nRăspunde cu JSON conform instrucțiunilor.")
+                };
+
+                Debug.WriteLine($"Sending destination creation request to OpenAI: {userQuery}");
+
+                var chatCompletionOptions = new ChatCompletionOptions()
+                {
+                    MaxOutputTokenCount = 1500,
+                    Temperature = 0.1f, // Very low temperature for more consistent JSON
+                    FrequencyPenalty = 0.0f,
+                    PresencePenalty = 0.0f
+                };
+
+                var completion = await _openAIClient.GetChatClient("gpt-4o-mini").CompleteChatAsync(messages, chatCompletionOptions);
+                
+                if (completion?.Value?.Content?.Count > 0)
+                {
+                    var aiResponse = completion.Value.Content[0].Text;
+                    Debug.WriteLine($"Received destination creation response from OpenAI: {aiResponse}");
+                    
+                    // Clean the response
+                    var cleanedResponse = CleanAIResponse(aiResponse);
+                    if (string.IsNullOrEmpty(cleanedResponse))
+                    {
+                        return CreateErrorResponse("Răspuns gol de la AI.");
+                    }
+                    
+                    // Check if response starts with { or contains JSON
+                    if (!cleanedResponse.Contains("{") || !cleanedResponse.Contains("}"))
+                    {
+                        Debug.WriteLine($"Response doesn't appear to be JSON: {cleanedResponse}");
+                        return CreateErrorResponse("AI-ul nu a generat un răspuns în format JSON valid.");
+                    }
+                    
+                    return cleanedResponse;
+                }
+                else
+                {
+                    Debug.WriteLine("No valid response content found for destination creation");
+                    return CreateErrorResponse("Nu am primit un răspuns valid de la AI.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting destination creation response: {ex.Message}");
+                return CreateErrorResponse($"Eroare în comunicarea cu AI: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Curăță răspunsul AI de caractere problematice
+        /// </summary>
+        private string CleanAIResponse(string response)
+        {
+            if (string.IsNullOrWhiteSpace(response))
+                return string.Empty;
+
+            try
+            {
+                // Remove potential problematic characters that can cause JSON parsing issues
+                var cleaned = response
+                    .Trim()
+                    .Replace("\\\\", "\\") // Fix double backslashes
+                    .Replace("\\\n", " ") // Remove backslash + newline
+                    .Replace("\\\r", " ") // Remove backslash + carriage return
+                    .Replace("\\n\\r", " ") // Remove escaped newlines
+                    .Replace("\\r\\n", " ") // Remove escaped carriage returns
+                    .Replace("\\t", " "); // Replace tabs with spaces
+
+                return cleaned;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error cleaning AI response: {ex.Message}");
+                return response.Trim();
+            }
+        }
+
+        private string CreateErrorResponse(string errorMessage)
+        {
+            return $@"{{
+                ""action"": ""error"",
+                ""success"": false,
+                ""message"": ""{errorMessage}"",
+                ""destination"": null
+            }}";
+        }
+
         public void Dispose()
         {
             _openAIClient = null;

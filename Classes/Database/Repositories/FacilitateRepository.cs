@@ -24,6 +24,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public void Insert(Facilitate entity)
         {
             using var context = new AppContext();
+            
+            // Generate next ID manually (MAX + 1)
+            var maxId = context.Facilitati.Any() ? context.Facilitati.Max(f => f.Id_Facilitate) : 0;
+            entity.Id_Facilitate = maxId + 1;
+            
+            System.Diagnostics.Debug.WriteLine($"Generated next Facilitate ID: {entity.Id_Facilitate} (max was: {maxId})");
+            
             context.Facilitati.Add(entity);
             context.SaveChanges();
         }

@@ -32,6 +32,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public void Insert(PunctDeInteres entity)
         {
             using var context = new AppContext();
+            
+            // Generate next ID manually (MAX + 1)
+            var maxId = context.PuncteDeInteres.Any() ? context.PuncteDeInteres.Max(p => p.Id_PunctDeInteres) : 0;
+            entity.Id_PunctDeInteres = maxId + 1;
+            
+            System.Diagnostics.Debug.WriteLine($"Generated next PunctDeInteres ID: {entity.Id_PunctDeInteres} (max was: {maxId})");
+            
             context.PuncteDeInteres.Add(entity);
             context.SaveChanges();
         }

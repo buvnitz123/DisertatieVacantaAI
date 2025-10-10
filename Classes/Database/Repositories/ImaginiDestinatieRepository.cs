@@ -34,6 +34,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public void Insert(ImaginiDestinatie entity)
         {
             using var context = new AppContext();
+            
+            // Generate next ID for this destination (MAX + 1 per destination)
+            var maxId = context.ImaginiDestinatie
+                .Where(i => i.Id_Destinatie == entity.Id_Destinatie)
+                .Any() ? 
+                context.ImaginiDestinatie
+                    .Where(i => i.Id_Destinatie == entity.Id_Destinatie)
+                    .Max(i => i.Id_ImaginiDestinatie) : 0;
+            
+            entity.Id_ImaginiDestinatie = maxId + 1;
+            
+            System.Diagnostics.Debug.WriteLine($"Generated next ImaginiDestinatie ID: {entity.Id_ImaginiDestinatie} for destination {entity.Id_Destinatie} (max was: {maxId})");
+            
             context.ImaginiDestinatie.Add(entity);
             context.SaveChanges();
         }

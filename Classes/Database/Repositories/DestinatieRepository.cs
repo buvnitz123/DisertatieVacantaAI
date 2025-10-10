@@ -24,6 +24,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public void Insert(Destinatie entity)
         {
             using var context = new AppContext();
+            
+            // Generate next ID manually (MAX + 1)
+            var maxId = context.Destinatii.Any() ? context.Destinatii.Max(d => d.Id_Destinatie) : 0;
+            entity.Id_Destinatie = maxId + 1;
+            
+            System.Diagnostics.Debug.WriteLine($"Generated next Destinatie ID: {entity.Id_Destinatie} (max was: {maxId})");
+            
             context.Destinatii.Add(entity);
             context.SaveChanges();
         }
