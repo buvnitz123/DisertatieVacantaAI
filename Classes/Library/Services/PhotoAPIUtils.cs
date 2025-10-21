@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.Library.PhotoAPIViews;
 using Newtonsoft.Json;
 
@@ -11,7 +11,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
 
         private static string GetApiKey()
         {
-            return EncryptionUtils.GetDecryptedAppSetting("pexelsAPI");
+            return AppSettingsRepository.GetValue("PexelsAPI");
         }
 
         public static PexelsPhotoResponse SearchPhotos(string query, int perPage = 15, int page = 1)

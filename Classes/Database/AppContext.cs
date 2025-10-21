@@ -49,6 +49,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
                 .Property(p => p.Id_PunctDeInteres)
                 .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
 
+            // Configure AppSettings to NOT use identity for primary key (manual string key assignment)
+            modelBuilder.Entity<AppSettings>()
+                .Property(a => a.ParamKey)
+                .HasDatabaseGeneratedOption(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None);
+
             // Configure Favorite composite key explicitly
             modelBuilder.Entity<Favorite>()
                 .HasKey(f => new { f.Id_Utilizator, f.TipElement, f.Id_Element });
@@ -88,5 +93,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
         public DbSet<ConversatieAI> ConversatiiAI { get; set; }
         public DbSet<DestinatieFacilitate> DestinatieFacilitate { get; set; }
         public DbSet<CategorieVacanta_Destinatie> CategorieVacanta_Destinatie { get; set; }
+        public DbSet<AppSettings> AppSettings { get; set; }
     }
 }

@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 {
@@ -11,9 +11,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
         private static string GetConnectionString()
         {
-            var conn = EncryptionUtils.GetDecryptedAppSetting("Azure.Blob.ConnectionString");
-            if (string.IsNullOrWhiteSpace(conn))
-                throw new InvalidOperationException("Azure Blob connection string not configured (Azure.Blob.ConnectionString).");
+            var conn = AppSettingsRepository.GetValue("AzureBlobConnection");
             return conn;
         }
 

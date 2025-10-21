@@ -1,4 +1,5 @@
-﻿using MauiAppDisertatieVacantaAI.Classes.Library;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 using System.Text.Json;
 
@@ -6,38 +7,31 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
 {
     public static class ConfigHelper
     {
-        // Azure Blob
         public static async Task<string> GetAzureBlobConnectionStringAsync()
         {
-            return await EncryptionUtils.GetDecryptedAppSettingAsync("Azure.Blob.ConnectionString");
+            return await Task.Run(() => AppSettingsRepository.GetValue("AzureBlobConnection") ?? string.Empty);
         }
 
-        // Pexels API
         public static async Task<string> GetPexelsApiKeyAsync()
         {
-            return await EncryptionUtils.GetDecryptedAppSettingAsync("pexelsAPI");
+            return await Task.Run(() => AppSettingsRepository.GetValue("PexelsAPI") ?? string.Empty);
         }
 
-        // OpenAI API
-        public static async Task<string> GetOpenAIApiKeyAsync()
+        public static async Task<string> GetGeminiApiKeyAsync()
         {
-            return await EncryptionUtils.GetDecryptedAppSettingAsync("OpenAI.ApiKey");
+            return await Task.Run(() => AppSettingsRepository.GetValue("GeminiAPI") ?? string.Empty);
         }
 
-        // Weather API
         public static async Task<string> GetWeatherApiKeyAsync()
         {
-            var config = await LoadConfigurationDirectAsync();
-            return config?.AppSettings.TryGetValue("WeatherAPI", out var apiKey) == true ? apiKey : string.Empty;
+            return await Task.Run(() => AppSettingsRepository.GetValue("WeatherAPI") ?? string.Empty);
         }
 
-        // Database Connection
         public static async Task<string> GetDbConnectionStringAsync()
         {
             return await EncryptionUtils.GetDecryptedConnectionStringAsync("DbContext");
         }
 
-        // Helper for encrypting a value (dev usage)
         public static string EncryptValue(string plainText)
         {
             return EncryptionUtils.Encrypt(plainText);
@@ -59,7 +53,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
             }
         }
 
-        // Initialization check (now Azure Blob + Pexels + DB + OpenAI + Weather)
         public static async Task<bool> InitializeAppAsync()
         {
             try
@@ -67,24 +60,23 @@ namespace MauiAppDisertatieVacantaAI.Classes.Config
                 var azureBlobConn = await GetAzureBlobConnectionStringAsync();
                 var pexelsApiKey = await GetPexelsApiKeyAsync();
                 var dbConnectionString = await GetDbConnectionStringAsync();
-                var openAIApiKey = await GetOpenAIApiKeyAsync();
+                var geminiApiKey = await GetGeminiApiKeyAsync();
                 var weatherApiKey = await GetWeatherApiKeyAsync();
 
                 bool basicConfigOk = !string.IsNullOrEmpty(azureBlobConn) &&
                                     !string.IsNullOrEmpty(pexelsApiKey) &&
                                     !string.IsNullOrEmpty(dbConnectionString) &&
-                                    !string.IsNullOrEmpty(openAIApiKey) &&
+                                    !string.IsNullOrEmpty(geminiApiKey) &&
                                     !string.IsNullOrEmpty(weatherApiKey);
 
                 if (basicConfigOk)
                 {
-                    // Test OpenAI connection
-                    var openAIService = new OpenAIService();
-                    bool openAIWorking = await openAIService.InitializeAsync();
-                    
-                    if (!openAIWorking)
+                    var geminiService = new GeminiService();
+                    bool geminiWorking = await geminiService.InitializeAsync();
+
+                    if (!geminiWorking)
                     {
-                        System.Diagnostics.Debug.WriteLine("OpenAI service failed to initialize, but continuing with app startup");
+                        System.Diagnostics.Debug.WriteLine("Gemini service failed to initialize, but continuing with app startup");
                     }
                 }
 

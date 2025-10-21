@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.DTO.AI;
-using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.Services;
-using MauiAppDisertatieVacantaAI.Classes.Library.PhotoAPIViews;
 using Newtonsoft.Json;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
@@ -35,58 +30,59 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         }
 
         /// <summary>
-        /// Procesează răspunsul JSON de la AI și creează destinația în baza de date
+        /// Procesează răspunsul JSON de la AI și creează destinația SAU sugestia în baza de date
         /// </summary>
-        public async Task<ProcessResult> ProcessAIResponseAsync(string jsonResponse)
+        public async Task<ProcessResult> ProcessAIResponseAsync(string jsonResponse, int userId)
         {
             try
             {
                 // Log răspunsul pentru debugging
                 System.Diagnostics.Debug.WriteLine($"Raw AI response: {jsonResponse}");
-                
+                System.Diagnostics.Debug.WriteLine($"Processing for user ID: {userId}");
+
                 // Curăță și extrage JSON-ul din răspuns
                 var cleanedJson = ExtractAndCleanJson(jsonResponse);
-                
+
                 if (string.IsNullOrEmpty(cleanedJson))
                 {
-                    return new ProcessResult 
-                    { 
-                        Success = false, 
-                        Message = "Nu s-a putut extrage un JSON valid din răspunsul AI-ului" 
+                    return new ProcessResult
+                    {
+                        Success = false,
+                        Message = "Nu s-a putut extrage un JSON valid din răspunsul AI-ului"
                     };
                 }
-                
+
                 System.Diagnostics.Debug.WriteLine($"Cleaned JSON: {cleanedJson}");
-                
+
                 // Verifică dacă JSON-ul pare valid înainte de a încerca parsing-ul
                 if (!IsValidJsonStructure(cleanedJson))
                 {
                     System.Diagnostics.Debug.WriteLine($"JSON structure validation failed for: {cleanedJson}");
-                    return new ProcessResult 
-                    { 
-                        Success = false, 
-                        Message = "Răspunsul AI-ului nu are o structură JSON validă. Te rog încearcă din nou cu o cerere mai specifică." 
+                    return new ProcessResult
+                    {
+                        Success = false,
+                        Message = "Răspunsul AI-ului nu are o structură JSON validă. Te rog încearcă din nou cu o cerere mai specifică."
                     };
                 }
-                
+
                 var aiResponse = JsonConvert.DeserializeObject<AIDestinationResponse>(cleanedJson);
-                
+
                 if (aiResponse == null)
                 {
-                    return new ProcessResult 
-                    { 
-                        Success = false, 
-                        Message = "Răspunsul AI nu a putut fi procesat corect" 
+                    return new ProcessResult
+                    {
+                        Success = false,
+                        Message = "Răspunsul AI nu a putut fi procesat corect"
                     };
                 }
-                
+
                 // Verifică dacă răspunsul este valid
                 if (!aiResponse.Success)
                 {
-                    return new ProcessResult 
-                    { 
-                        Success = false, 
-                        Message = aiResponse.Message ?? "AI-ul a raportat o eroare" 
+                    return new ProcessResult
+                    {
+                        Success = false,
+                        Message = aiResponse.Message ?? "AI-ul a raportat o eroare"
                     };
                 }
 
@@ -95,43 +91,52 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     case "create_destination":
                         if (aiResponse.Destination == null)
                         {
-                            return new ProcessResult 
-                            { 
-                                Success = false, 
-                                Message = "Datele destinației lipsesc din răspunsul AI-ului" 
+                            return new ProcessResult
+                            {
+                                Success = false,
+                                Message = "Datele destinației lipsesc din răspunsul AI-ului"
                             };
                         }
-                        return await CreateDestinationAsync(aiResponse.Destination);
-                    
+                        // Trimite mesajul din AI împreună cu datele destinației
+                        return await CreateDestinationAsync(aiResponse.Destination, aiResponse.Message);
+
+                    case "create_suggestion":
+                        // Sugestiile sunt procesate de AISuggestionProcessorService
+                        return new ProcessResult
+                        {
+                            Success = false,
+                            Message = "Sugestiile trebuie procesate prin AISuggestionProcessorService"
+                        };
+
                     case "destination_exists":
-                        return new ProcessResult 
-                        { 
-                            Success = true, 
+                        return new ProcessResult
+                        {
+                            Success = true,
                             Message = aiResponse.Message,
                             DestinationId = aiResponse.Destination != null ? await FindExistingDestinationAsync(aiResponse.Destination) : 0
                         };
-                    
+
                     case "general_chat":
-                        return new ProcessResult 
-                        { 
+                        return new ProcessResult
+                        {
                             Success = false, // Marchează ca false pentru a nu fi tratat ca destinație
                             Message = aiResponse.Message ?? "Răspuns general de la AI",
                             DestinationId = 0,
                             IsGeneralChat = true
                         };
-                    
+
                     case "error":
-                        return new ProcessResult 
-                        { 
-                            Success = false, 
-                            Message = aiResponse.Message ?? "AI-ul a raportat o eroare necunoscută" 
+                        return new ProcessResult
+                        {
+                            Success = false,
+                            Message = aiResponse.Message ?? "AI-ul a raportat o eroare necunoscută"
                         };
-                    
+
                     default:
-                        return new ProcessResult 
-                        { 
-                            Success = false, 
-                            Message = $"Acțiune necunoscută din partea AI-ului: {aiResponse.Action}" 
+                        return new ProcessResult
+                        {
+                            Success = false,
+                            Message = $"Acțiune necunoscută din partea AI-ului: {aiResponse.Action}"
                         };
                 }
             }
@@ -139,19 +144,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             {
                 System.Diagnostics.Debug.WriteLine($"JSON parsing error: {jsonEx.Message}");
                 System.Diagnostics.Debug.WriteLine($"Problematic JSON: {jsonResponse}");
-                return new ProcessResult 
-                { 
-                    Success = false, 
-                    Message = "Răspunsul AI-ului nu este în format JSON valid. Te rog încearcă din nou cu o cerere mai specifică." 
+                return new ProcessResult
+                {
+                    Success = false,
+                    Message = "Răspunsul AI-ului nu este în format JSON valid. Te rog încearcă din nou cu o cerere mai specifică."
                 };
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error processing AI response: {ex.Message}");
-                return new ProcessResult 
-                { 
-                    Success = false, 
-                    Message = $"Eroare la procesarea răspunsului: {ex.Message}" 
+                return new ProcessResult
+                {
+                    Success = false,
+                    Message = $"Eroare la procesarea răspunsului: {ex.Message}"
                 };
             }
         }
@@ -163,23 +168,23 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         {
             if (string.IsNullOrWhiteSpace(json))
                 return false;
-                
+
             var trimmed = json.Trim();
-            
+
             // Verifică dacă începe și se termină cu acolade
             if (!trimmed.StartsWith("{") || !trimmed.EndsWith("}"))
                 return false;
-                
-            // Verifică pentru caractere problematice care pot causa erori de parsing
+
+            // Verifică pentru caractere problematice care pot cauza erori de parsing
             var problematicChars = new[] { "\\\n", "\\\r", "\\\\n", "\\\\r", "\\\\t" };
             if (problematicChars.Any(c => trimmed.Contains(c)))
                 return false;
-                
+
             // Verifică pentru ghilimele neînchise (aproximativ)
             var quoteCount = trimmed.Count(c => c == '"');
             if (quoteCount % 2 != 0)
                 return false;
-                
+
             return true;
         }
 
@@ -196,7 +201,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 // Găsește primul { și ultimul }
                 var startIndex = response.IndexOf('{');
                 var lastIndex = response.LastIndexOf('}');
-                
+
                 if (startIndex == -1 || lastIndex == -1 || startIndex >= lastIndex)
                 {
                     // Încearcă să găsească ```json sau ``` blocks
@@ -214,13 +219,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                             }
                         }
                     }
-                    
+
                     // Dacă nu găsește delimitatori, returnează răspunsul original curățat
                     return response.Trim();
                 }
-                
+
                 var jsonString = response.Substring(startIndex, lastIndex - startIndex + 1);
-                
+
                 // Nu modifică caracterele din interiorul JSON-ului - doar returnează string-ul extras
                 return jsonString.Trim();
             }
@@ -231,23 +236,24 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             }
         }
 
-        private async Task<ProcessResult> CreateDestinationAsync(DestinationData destinationData)
+        private async Task<ProcessResult> CreateDestinationAsync(DestinationData destinationData, string aiGeneratedMessage = null)
         {
             try
             {
                 // Validare date destinație
-                if (string.IsNullOrWhiteSpace(destinationData?.Denumire) || 
-                    string.IsNullOrWhiteSpace(destinationData?.Oras) || 
+                if (string.IsNullOrWhiteSpace(destinationData?.Denumire) ||
+                    string.IsNullOrWhiteSpace(destinationData?.Oras) ||
                     string.IsNullOrWhiteSpace(destinationData?.Tara))
                 {
-                    return new ProcessResult 
-                    { 
-                        Success = false, 
-                        Message = "Date incomplete pentru destinație. Lipsesc denumirea, orașul sau țara." 
+                    return new ProcessResult
+                    {
+                        Success = false,
+                        Message = "Date incomplete pentru destinație. Lipsesc denumirea, orașul sau țara."
                     };
                 }
 
                 System.Diagnostics.Debug.WriteLine($"Creating destination: {destinationData.Denumire}, {destinationData.Oras}, {destinationData.Tara}");
+                System.Diagnostics.Debug.WriteLine($"AI Generated Message: {aiGeneratedMessage ?? "NULL"}");
 
                 // 1. Verifică dacă destinația există deja
                 System.Diagnostics.Debug.WriteLine("Checking if destination already exists...");
@@ -255,9 +261,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 if (existingDest > 0)
                 {
                     System.Diagnostics.Debug.WriteLine($"Destination already exists with ID: {existingDest}");
-                    return new ProcessResult 
-                    { 
-                        Success = true, 
+                    return new ProcessResult
+                    {
+                        Success = true,
                         Message = GenerateFriendlyExistingMessage(destinationData.Denumire),
                         DestinationId = existingDest
                     };
@@ -290,14 +296,14 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     System.Diagnostics.Debug.WriteLine($"About to insert destination: {destinatie.Denumire}");
                     _destinatieRepo.Insert(destinatie);
                     System.Diagnostics.Debug.WriteLine("Destination inserted successfully");
-                    
+
                     // ID-ul a fost generat manual de repository și este acum disponibil
                     System.Diagnostics.Debug.WriteLine($"Destination created with ID: {destinatie.Id_Destinatie}");
                 }
                 catch (Exception insertEx)
                 {
                     System.Diagnostics.Debug.WriteLine($"Error inserting destination: {insertEx.Message}");
-                    
+
                     // Log complete exception chain
                     var currentEx = insertEx;
                     var level = 0;
@@ -311,25 +317,25 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                         currentEx = currentEx.InnerException;
                         level++;
                     }
-                    
+
                     throw;
                 }
-                
+
                 // ID-ul este acum disponibil direct din obiectul destinatie
                 var destinatieId = destinatie.Id_Destinatie;
                 if (destinatieId <= 0)
                 {
                     throw new Exception($"ID-ul destinației nu a fost generat corect: {destinatieId}");
                 }
-                
+
                 System.Diagnostics.Debug.WriteLine($"Proceeding with destination ID: {destinatieId}");
                 System.Diagnostics.Debug.WriteLine($"Destination created with ID: {destinatieId}");
-                
+
                 var errors = new List<string>();
-                
+
                 // Pentru debugging, să încercăm să creăm o destinație minimă mai întâi
                 System.Diagnostics.Debug.WriteLine("=== Starting to process additional destination data ===");
-                
+
                 // 3. Adaugă imagini folosind Pexels (doar dacă există query-uri)
                 try
                 {
@@ -341,8 +347,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     else
                     {
                         // Fallback search queries
-                        var fallbackQueries = new List<string> 
-                        { 
+                        var fallbackQueries = new List<string>
+                        {
                             $"{destinationData.Oras} {destinationData.Tara}",
                             $"{destinationData.Oras} tourism",
                             $"{destinationData.Tara} travel"
@@ -402,19 +408,36 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     errors.Add("puncte de interes");
                 }
 
-                var successMessage = GenerateFriendlySuccessMessage(destinationData.Denumire, errors);
+                // FOLOSEȘTE MESAJUL DIN AI (obligatoriu!)
+                string finalMessage;
+                if (!string.IsNullOrWhiteSpace(aiGeneratedMessage))
+                {
+                    System.Diagnostics.Debug.WriteLine("Using AI-generated message from JSON");
+                    finalMessage = aiGeneratedMessage;
 
-                return new ProcessResult 
-                { 
-                    Success = true, 
-                    Message = successMessage,
+                    // Adaugă warning pentru erori parțiale dacă există
+                    if (errors.Any())
+                    {
+                        finalMessage += $"\n\n⚠️ Notă: Unele detalii ({string.Join(", ", errors)}) nu au putut fi adăugate, dar destinația principală este funcțională!";
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ WARNING: AI message was empty!");
+                    finalMessage = $"Am creat destinația {destinationData.Denumire}, dar mesajul detaliat lipsește. Verifică destinația în aplicație.";
+                }
+
+                return new ProcessResult
+                {
+                    Success = true,
+                    Message = finalMessage,
                     DestinationId = destinatieId
                 };
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error creating destination: {ex.Message}");
-                
+
                 // Log complete exception chain
                 var currentEx = ex;
                 var level = 0;
@@ -430,11 +453,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     currentEx = currentEx.InnerException;
                     level++;
                 }
-                
-                return new ProcessResult 
-                { 
-                    Success = false, 
-                    Message = GenerateFriendlyErrorMessage(ex.Message, destinationData?.Denumire) 
+
+                return new ProcessResult
+                {
+                    Success = false,
+                    Message = GenerateFriendlyErrorMessage(ex.Message, destinationData?.Denumire)
                 };
             }
         }
@@ -444,14 +467,14 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             try
             {
                 System.Diagnostics.Debug.WriteLine($"Searching for existing destination: {destinationData.Oras}, {destinationData.Tara}");
-                
+
                 var destinations = _destinatieRepo.GetAll();
                 System.Diagnostics.Debug.WriteLine($"Total destinations in database: {destinations.Count()}");
-                
-                var existing = destinations.FirstOrDefault(d => 
+
+                var existing = destinations.FirstOrDefault(d =>
                     d.Oras.Equals(destinationData.Oras, StringComparison.OrdinalIgnoreCase) &&
                     d.Tara.Equals(destinationData.Tara, StringComparison.OrdinalIgnoreCase));
-                
+
                 if (existing != null)
                 {
                     System.Diagnostics.Debug.WriteLine($"Found existing destination: ID={existing.Id_Destinatie}, Name={existing.Denumire}");
@@ -479,7 +502,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 foreach (var query in searchQueries.Take(3)) // Max 3 queries
                 {
                     var photos = PhotoAPIUtils.SearchPhotos(query, 2, 1); // 2 photos per query
-                    
+
                     if (photos?.Photos != null)
                     {
                         foreach (var photo in photos.Photos.Take(2))
@@ -492,7 +515,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                                     Id_Destinatie = destinatieId,
                                     ImagineUrl = imageUrl
                                 };
-                                
+
                                 _imaginiDestRepo.Insert(imagineDestinatie);
                             }
                         }
@@ -509,7 +532,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         {
             try
             {
-                if (categorii == null || !categorii.Any()) 
+                if (categorii == null || !categorii.Any())
                 {
                     System.Diagnostics.Debug.WriteLine("No categories to process");
                     return;
@@ -518,7 +541,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 System.Diagnostics.Debug.WriteLine($"Getting all existing categories from database...");
                 var existingCategories = _categorieRepo.GetAll().ToList();
                 System.Diagnostics.Debug.WriteLine($"Found {existingCategories.Count} existing categories in database");
-                
+
                 if (existingCategories.Any())
                 {
                     System.Diagnostics.Debug.WriteLine($"Existing categories: {string.Join(", ", existingCategories.Select(c => $"\"{c.Denumire}\" (ID: {c.Id_CategorieVacanta})"))}");
@@ -531,32 +554,32 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 foreach (var categorieName in categorii)
                 {
                     System.Diagnostics.Debug.WriteLine($"Processing category: '{categorieName}'");
-                    
+
                     // Caută doar în categoriile existente
-                    var existingCategory = existingCategories.FirstOrDefault(c => 
+                    var existingCategory = existingCategories.FirstOrDefault(c =>
                         c.Denumire.Equals(categorieName, StringComparison.OrdinalIgnoreCase));
 
                     if (existingCategory != null)
                     {
                         System.Diagnostics.Debug.WriteLine($"Found matching category: '{existingCategory.Denumire}' with ID: {existingCategory.Id_CategorieVacanta}");
-                        
+
                         // Verifică dacă relația există deja
                         System.Diagnostics.Debug.WriteLine($"Checking if relationship already exists for destination {destinatieId} and category {existingCategory.Id_CategorieVacanta}");
-                        
+
                         var existingRelation = _catDestRepo.GetByDestinationId(destinatieId)
                             .FirstOrDefault(cd => cd.Id_CategorieVacanta == existingCategory.Id_CategorieVacanta);
 
                         if (existingRelation == null)
                         {
                             System.Diagnostics.Debug.WriteLine($"Creating new relationship between destination {destinatieId} and category {existingCategory.Id_CategorieVacanta}");
-                            
+
                             // Creează relația many-to-many
                             var catDest = new CategorieVacanta_Destinatie
                             {
                                 Id_Destinatie = destinatieId,
                                 Id_CategorieVacanta = existingCategory.Id_CategorieVacanta
                             };
-                            
+
                             try
                             {
                                 _catDestRepo.Insert(catDest);
@@ -605,11 +628,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
                 foreach (var facilityName in facilitati)
                 {
-                    var existingFacility = existingFacilities.FirstOrDefault(f => 
+                    var existingFacility = existingFacilities.FirstOrDefault(f =>
                         f.Denumire.Equals(facilityName, StringComparison.OrdinalIgnoreCase));
 
                     int facilityId;
-                    
+
                     if (existingFacility != null)
                     {
                         facilityId = existingFacility.Id_Facilitate;
@@ -618,27 +641,27 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     else
                     {
                         System.Diagnostics.Debug.WriteLine($"Creating new facility: {facilityName}");
-                        
-                        // Creează facilitatea nouă
+
+                        // Creează facilitea nouă
                         var newFacility = new Facilitate
                         {
                             Denumire = facilityName,
                             Descriere = $"Facilitate pentru {facilityName}"
                         };
-                        
+
                         _facilitateRepo.Insert(newFacility);
-                        
-                        // Refresh lista și găsește facilitatea nou creată
+
+                        // Refresh lista și găsește facilitea nou creată
                         existingFacilities = _facilitateRepo.GetAll().ToList();
-                        var createdFacility = existingFacilities.FirstOrDefault(f => 
+                        var createdFacility = existingFacilities.FirstOrDefault(f =>
                             f.Denumire.Equals(facilityName, StringComparison.OrdinalIgnoreCase));
-                        
+
                         if (createdFacility == null)
                         {
                             System.Diagnostics.Debug.WriteLine($"Failed to find newly created facility: {facilityName}");
                             continue; // Skip this facility if it couldn't be created
                         }
-                        
+
                         facilityId = createdFacility.Id_Facilitate;
                         System.Diagnostics.Debug.WriteLine($"Created new facility: {facilityName} with ID: {facilityId}");
                     }
@@ -655,13 +678,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
                     if (existingRelation == null)
                     {
-                        // Leagă facilitatea de destinație
+                        // Leagă facilitea de destinație
                         var destFacil = new DestinatieFacilitate
                         {
                             Id_Destinatie = destinatieId,
                             Id_Facilitate = facilityId
                         };
-                        
+
                         System.Diagnostics.Debug.WriteLine($"Linking facility {facilityId} to destination {destinatieId}");
                         _destFacilRepo.Insert(destFacil);
                     }
@@ -691,7 +714,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 foreach (var poi in puncteDeInteres)
                 {
                     System.Diagnostics.Debug.WriteLine($"Creating POI: {poi.Denumire} for destination {destinatieId}");
-                    
+
                     // Creează punctul de interes
                     var punctDeInteres = new PunctDeInteres
                     {
@@ -702,7 +725,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     };
 
                     _poiRepo.Insert(punctDeInteres);
-                    
+
                     // ID-ul este acum disponibil direct din obiectul punctDeInteres după inserare
                     var poiId = punctDeInteres.Id_PunctDeInteres;
                     System.Diagnostics.Debug.WriteLine($"POI created with ID: {poiId}");
@@ -715,12 +738,12 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                             try
                             {
                                 var photos = PhotoAPIUtils.SearchPhotos(query, 1, 1);
-                                
+
                                 if (photos?.Photos != null && photos.Photos.Any())
                                 {
                                     var photo = photos.Photos.First();
                                     var imageUrl = photo.Src?.Medium ?? photo.Src?.Original;
-                                    
+
                                     if (!string.IsNullOrEmpty(imageUrl))
                                     {
                                         var imaginePoi = new ImaginiPunctDeInteres
@@ -749,82 +772,28 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         }
 
         /// <summary>
-        /// Generează un mesaj prietenos de succes pentru utilizator
-        /// </summary>
-        private string GenerateFriendlySuccessMessage(string destinationName, List<string> errors)
-        {
-            var friendlyMessages = new[]
-            {
-                $"🎉 Excelent! Am creat destinația {destinationName} pentru tine! Acum poți explora toate detaliile și să începi să planifici vacanța ta de vis.",
-                $"✨ Perfect! {destinationName} a fost adăugată cu succes în aplicație! Am inclus și imagini frumoase, puncte de interes și facilități pentru a te ajuta să îți planifici călătoria.",
-                $"🌟 Grozav! Destinația {destinationName} este acum disponibilă în aplicație! Am pregătit tot ce ai nevoie pentru o vacanță minunată.",
-                $"🚀 Fantastic! Am creat {destinationName} cu toate detaliile necesare! Poți să începi să explorezi opțiunile de călătorie chiar acum.",
-                $"💫 Minunat! {destinationName} a fost configurată cu succes! Am adăugat imagini, puncte de interes și informații utile pentru planificarea vacanței tale."
-            };
-
-            // Selectează un mesaj aleatoriu pentru varietate
-            var random = new Random();
-            var baseMessage = friendlyMessages[random.Next(friendlyMessages.Length)];
-
-            // Adaugă informații despre erorile parțiale dacă există
-            if (errors.Any())
-            {
-                var errorMessages = new[]
-                {
-                    $" Unele detalii suplimentare ({string.Join(", ", errors)}) nu au putut fi adăugate automat, dar destinația principală este complet funcțională!",
-                    $" Am întâmpinat mici dificultăți cu {string.Join(", ", errors)}, dar toate informațiile esențiale sunt disponibile!",
-                    $" Destinația este gata, iar {string.Join(", ", errors)} pot fi adăugate ulterior pentru o experiență și mai completă!"
-                };
-                
-                baseMessage += errorMessages[random.Next(errorMessages.Length)];
-            }
-
-            return baseMessage;
-        }
-        
-        /// <summary>
         /// Generează un mesaj prietenos pentru destinații care există deja
         /// </summary>
         private string GenerateFriendlyExistingMessage(string destinationName)
         {
-            var existingMessages = new[]
-            {
-                $"😊 Ce coincidență frumoasă! {destinationName} este deja disponibilă în aplicația noastră! Poți să o explorezi chiar acum și să vezi toate opțiunile fantastice pe care le avem pregătite pentru tine.",
-                $"🎯 Perfect! {destinationName} se află deja printre destinațiile noastre populare! Asta înseamnă că ai ales o locație grozavă - mergi să vezi ce experiențe incredibile te așteaptă!",
-                $"✨ Excelentă alegere! {destinationName} este una dintre destinațiile noastre preferate și este deja complet configurată în aplicație. Hai să explorezi toate opțiunile disponibile!",
-                $"🌟 Ce gust excelent ai! {destinationName} este deja una dintre gemele noastre în aplicație. Poți să începi să planifici imediat vacanța ta de vis!",
-                $"💝 {destinationName} este deja pregătită pentru tine în aplicație! Este una dintre destinațiile noastre cel mai bine echipate - sunt sigur că vei găsi tot ce îți dorești pentru o vacanță perfectă!"
-            };
-
-            var random = new Random();
-            return existingMessages[random.Next(existingMessages.Length)];
+            // Mesaj simplu - AI-ul ar trebui să gestioneze asta
+            return $"Destinația {destinationName} există deja în aplicație. Poți să o explorezi în secțiunea Destinații!";
         }
-        
+
         /// <summary>
         /// Generează un mesaj prietenos pentru erori
         /// </summary>
         private string GenerateFriendlyErrorMessage(string errorDetails, string destinationName = null)
         {
-            var errorMessages = new[]
-            {
-                "😔 Ne pare foarte rău, dar am întâmpinat o mică problemă tehnică în timp ce încercam să creez destinația pentru tine. Te rog încearcă din nou în câteva momente!",
-                "🛠️ Ups! Ceva nu a mers cum trebuie în sistemul nostru. Nu te îngrijora, de obicei se rezolvă rapid - te rog să mai încerci o dată!",
-                "⚡ Am avut o mică întrerupere tehnică, dar echipa noastră lucrează mereu pentru a îmbunătăți aplicația. Te rog să încerci din nou!",
-                "🔧 Se pare că avem o mică problemă temporară cu sistemul. Te rog să mai încerci peste câteva secunde - de obicei funcționează perfect!",
-                "💭 Hmm, ceva nu a funcționat conform planului nostru. Te rog încearcă din nou - sunt convins că va merge de data aceasta!"
-            };
-
-            var random = new Random();
-            var message = errorMessages[random.Next(errorMessages.Length)];
+            var message = "Ne pare rău, dar am întâmpinat o problemă tehnică. Te rog încearcă din nou.";
             
-            // Adaugă numele destinației dacă este disponibil
             if (!string.IsNullOrEmpty(destinationName))
             {
-                message += $" Îmi pare rău că nu am putut crea destinația {destinationName} de prima dată.";
+                message += $" (Destinație: {destinationName})";
             }
-            
-            return message;
-        }
+  
+     return message;
+    }
     }
 
     public class ProcessResult
@@ -832,6 +801,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         public bool Success { get; set; }
         public string Message { get; set; }
         public int DestinationId { get; set; }
+        public int SuggestionId { get; set; } // NOU - ID-ul sugestiei create
         public bool IsGeneralChat { get; set; } = false;
     }
 }
