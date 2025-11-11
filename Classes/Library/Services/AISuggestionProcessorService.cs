@@ -201,37 +201,48 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 _destinatieRepo.Insert(newDestination);
 
                 System.Diagnostics.Debug.WriteLine($"✅ Created new destination with ID: {newDestination.Id_Destinatie}");
-                
+
                 // Dacă avem DestinatieData, procesează și datele suplimentare (imagini, POI-uri, etc.)
                 if (suggestionData.DestinatieData != null)
                 {
                     System.Diagnostics.Debug.WriteLine("Processing full destination data (images, POIs, facilities, categories)...");
-                    
+
                     // Procesează imaginile
                     if (suggestionData.DestinatieData.PhotoSearchQueries != null && suggestionData.DestinatieData.PhotoSearchQueries.Any())
                     {
                         await AddDestinationImagesAsync(newDestination.Id_Destinatie, suggestionData.DestinatieData.PhotoSearchQueries);
                     }
-                
+
                     // Procesează categoriile
                     if (suggestionData.DestinatieData.Categorii != null && suggestionData.DestinatieData.Categorii.Any())
                     {
                         await ProcessCategoriesAsync(newDestination.Id_Destinatie, suggestionData.DestinatieData.Categorii);
                     }
-                
+
                     // Procesează facilitățile
                     if (suggestionData.DestinatieData.Facilitati != null && suggestionData.DestinatieData.Facilitati.Any())
                     {
                         await ProcessFacilitiesAsync(newDestination.Id_Destinatie, suggestionData.DestinatieData.Facilitati);
                     }
-                    
+
                     // Procesează punctele de interes
                     if (suggestionData.DestinatieData.PuncteDeInteres != null && suggestionData.DestinatieData.PuncteDeInteres.Any())
                     {
                         await ProcessPointsOfInterestAsync(newDestination.Id_Destinatie, suggestionData.DestinatieData.PuncteDeInteres);
                     }
                 }
-                
+                else
+                {
+
+                    // Creează query-uri de căutare bazate pe destinație (separat: Țară și Oraș)
+                    var fallbackQueries = new List<string>
+                    {
+                        suggestionData.DestinatieTara,     // Ex: "Franța"
+                        suggestionData.DestinatieOras,     // Ex: "Paris"
+                    };
+                    await AddDestinationImagesAsync(newDestination.Id_Destinatie, fallbackQueries);
+                }
+
                 return newDestination.Id_Destinatie;
             }
             catch (Exception ex)
@@ -361,8 +372,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     // Leagă facilitea de destinație
                     var destFacil = new DestinatieFacilitate
                     {
-                     Id_Destinatie = destinatieId,
-                    Id_Facilitate = facilityId
+                        Id_Destinatie = destinatieId,
+                        Id_Facilitate = facilityId
                     };
 
                     destFacilRepo.Insert(destFacil);
@@ -453,7 +464,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
             // ❌ NU ELIMINA DIACRITICE! Păstrează doar caracterele JSON invalide
             // var cleaned = System.Text.RegularExpressions.Regex.Replace(json, @"[^\u0000-\u007F]+", string.Empty);
-            
+
             // ✅ Doar elimină caracterele de control problematice (null, backspace, etc.)
             var cleaned = System.Text.RegularExpressions.Regex.Replace(json, @"[\x00-\x08\x0B\x0C\x0E-\x1F]", string.Empty);
 
