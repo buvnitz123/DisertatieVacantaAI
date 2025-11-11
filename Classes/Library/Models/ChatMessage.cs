@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MauiAppDisertatieVacantaAI.Classes.Library.Utils; // ✅ NOU
 
 namespace MauiAppDisertatieVacantaAI.Classes.Library.Models;
 
@@ -19,9 +20,13 @@ public class ChatMessage : INotifyPropertyChanged
             { 
                 _text = value; 
                 OnPropertyChanged(); 
+                OnPropertyChanged(nameof(FormattedText)); // ✅ NOU - notifică FormattedText
             } 
         } 
     }
+
+    // ✅ NOU - Proprietate pentru text formatat cu Markdown
+    public FormattedString FormattedText => MarkdownParser.ParseToFormattedString(Text);
 
     public bool IsUser 
     { 
