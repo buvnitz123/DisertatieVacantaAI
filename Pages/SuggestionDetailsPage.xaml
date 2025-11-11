@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SuggestionDetailsPage"
-             Title="Detalii Sugestie"
+             Title="Detalii Planificare"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     
     <Grid>
@@ -229,7 +229,7 @@
                     
                     <!-- Description Section -->
                     <StackLayout Spacing="12">
-                        <Label Text="📝 Descrierea Sugestiei" 
+                        <Label Text="📝 Descrierea Planificării" 
                                FontSize="20" 
                                FontAttributes="Bold" 
                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -377,7 +377,7 @@
                     
                     <!-- Action Buttons -->
                     <StackLayout Spacing="12" Margin="0,10,0,0">
-                        <Button Text="✏️ Editeaza Sugestia" 
+                        <Button Text="✏️ Editează Planificarea" 
                                 BackgroundColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                 TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
                                 CornerRadius="12"
@@ -385,7 +385,7 @@
                                 FontAttributes="Bold"
                                 Clicked="OnEditSuggestion" />
                         
-                        <Button Text="🗑️ Sterge Sugestia" 
+                        <Button Text="🗑️ Șterge Planificarea" 
                                 BackgroundColor="Red"
                                 TextColor="White"
                                 CornerRadius="12"
@@ -411,7 +411,7 @@
                                   Color="{StaticResource PrimaryBlue}" 
                                   WidthRequest="50" 
                                   HeightRequest="50" />
-                <Label Text="Se incarca detaliile sugestiei..." 
+                <Label Text="Se încarcă detaliile planificării..." 
                        FontSize="16" 
                        FontAttributes="Bold"
                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"

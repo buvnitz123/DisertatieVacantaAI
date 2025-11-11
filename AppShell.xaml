@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Shell
     x:Class="MauiAppDisertatieVacantaAI.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -139,7 +139,7 @@
         Shell.FlyoutItemIsVisible="False" />
 
     <TabBar>
-        <ShellContent Title="Sugestii" ContentTemplate="{DataTemplate local:SugestiiPage}" Route="SugestiiPage" Icon="notes.png" />
+        <ShellContent Title="Planificări" ContentTemplate="{DataTemplate local:SugestiiPage}" Route="SugestiiPage" Icon="notes.png" />
         <ShellContent Title="Chat" ContentTemplate="{DataTemplate local:ChatPage}" Route="ChatPage" Icon="chat.png" />
         <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" Route="MainPage" Icon="home.png" />
         <ShellContent Title="Search" ContentTemplate="{DataTemplate local:SearchPage}" Route="SearchPage" Icon="search.png" />

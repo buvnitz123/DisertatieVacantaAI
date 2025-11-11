@@ -26,12 +26,14 @@ public partial class ChatConversationPage : ContentPage
     private int _conversationId;
     private int _currentUserId;
     private bool _isAIResponding = false;
+    private bool _isFirstUserMessage = true; // NOU - track dacă e primul mesaj user
 
     // Pagination properties
     private const int MessagesPerPage = 10;
     private int _currentPage = 0;
     private bool _hasMoreMessages = true;
     private bool _isLoadingMessages = false;
+    private readonly ConversatieAIRepository _conversatieRepo = new(); // NOU - pentru actualizare denumire
 
     public ChatConversationPage()
     {
@@ -71,6 +73,14 @@ public partial class ChatConversationPage : ContentPage
             {
                 Title = ConversationName;
             }
+
+            // NOU: Verifică dacă există deja mesaje user în conversație
+            var existingUserMessages = _mesajRepo.GetByConversationId(_conversationId)
+                .Where(m => m.Mesaj_User == 1)
+                .Count();
+
+            _isFirstUserMessage = existingUserMessages == 0;
+            Debug.WriteLine($"ℹ️ Conversation has {existingUserMessages} user messages. IsFirstMessage: {_isFirstUserMessage}");
 
             await LoadMessagesAsync();
         }
@@ -242,6 +252,13 @@ public partial class ChatConversationPage : ContentPage
             };
             _mesajRepo.Insert(userMesaj);
 
+            // NOU: Actualizează denumirea conversației cu primele 40 caractere din primul mesaj user
+            if (_isFirstUserMessage)
+            {
+                await UpdateConversationNameFromFirstMessageAsync(text);
+                _isFirstUserMessage = false;
+            }
+
             // Show typing indicator
             var typingMessage = new ChatMessage
             {
@@ -351,6 +368,35 @@ public partial class ChatConversationPage : ContentPage
         {
             SetInputEnabled(true); // Re-enable input after AI response is complete
             _isAIResponding = false;
+        }
+    }
+
+    private async Task UpdateConversationNameFromFirstMessageAsync(string text)
+    {
+        try
+        {
+            // Actualizează denumirea conversației în funcție de primle 40 caractere din mesaj
+            var newName = text.Length > 40 ? text.Substring(0, 40) + "..." : text;
+
+            await Task.Run(() =>
+            {
+                var conversation = _conversatieRepo.GetById(_conversationId);
+                if (conversation != null)
+                {
+                    conversation.Denumire = newName; // ✅ Corect - numele câmpului e "Denumire"
+                    _conversatieRepo.Update(conversation);
+                }
+            });
+
+            // Update local prop for immediate effect
+            ConversationName = newName;
+            Title = newName;
+
+            Debug.WriteLine($"Conversation name updated to: {newName}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error updating conversation name: {ex.Message}");
         }
     }
 
@@ -503,14 +549,14 @@ public partial class ChatConversationPage : ContentPage
             return;
 
         try
-        {
+ {
             UpdateLoadMoreButtonVisibility(); // Show loading indicator
-            await LoadMessagesAsync(loadMore: true);
-        }
+          await LoadMessagesAsync(loadMore: true);
+   }
         catch (Exception ex)
-        {
-            Debug.WriteLine($"Error loading older messages: {ex.Message}");
-            await DisplayAlert("Eroare", "Nu s-au putut incarca mesajele mai vechi", "OK");
-        }
+      {
+  Debug.WriteLine($"Error loading older messages: {ex.Message}");
+     await DisplayAlert("Eroare", "Nu s-au putut incarca mesajele mai vechi", "OK");
+      }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
+using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -17,13 +17,13 @@ public class SugestieDisplayItem : INotifyPropertyChanged
     public int? EstePublic { get; set; }
     public string CodPartajare { get; set; }
     public Destinatie Destinatie { get; set; }
-    
+
     private string _imageUrl = "https://via.placeholder.com/150x100/E0E0E0/999999?text=No+Image";
-    public string ImageUrl 
-    { 
-        get => _imageUrl; 
-        set 
-        { 
+    public string ImageUrl
+    {
+        get => _imageUrl;
+        set
+        {
             // Handle both URLs and local filenames
             if (string.IsNullOrEmpty(value))
             {
@@ -43,18 +43,33 @@ public class SugestieDisplayItem : INotifyPropertyChanged
                 _imageUrl = value;
             }
             OnPropertyChanged();
-        } 
+        }
     }
-    
+
     public bool IsAIGenerated => EsteGenerataDeAI == 1;
     public bool IsManualGenerated => EsteGenerataDeAI == 0;
     public bool IsNew => (DateTime.Now - Data_Inregistrare).TotalDays <= 1;
-    
+
     // Always show AI or Manual indicator
     public bool ShowAIIndicator => EsteGenerataDeAI == 1;
     public bool ShowManualIndicator => EsteGenerataDeAI == 0;
     public bool ShowNewIndicator => (DateTime.Now - Data_Inregistrare).TotalDays <= 1;
-    
+
+    // Truncated title for display in list (max 15 characters)
+    public string TitluTruncat
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Titlu))
+                return string.Empty;
+
+            if (Titlu.Length <= 15)
+                return Titlu;
+
+            return Titlu.Substring(0, 15) + "...";
+        }
+    }
+
     // Additional helper properties for better UX
     public string FormattedBudget => $"{Buget_Estimat:N0} €";
     public string FormattedDate => Data_Inregistrare.ToString("dd/MM/yyyy");
@@ -63,7 +78,7 @@ public class SugestieDisplayItem : INotifyPropertyChanged
     public string AIStatusText => IsAIGenerated ? "🤖 AI" : "👤 Manual";
 
     public event PropertyChangedEventHandler PropertyChanged;
-    
+
     protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -104,7 +119,7 @@ public partial class SugestiiPage : ContentPage
             }
 
             var suggestions = _sugestieRepo.GetByUser(_userId);
-            
+
             foreach (var s in suggestions)
             {
                 var displayItem = new SugestieDisplayItem
@@ -120,23 +135,23 @@ public partial class SugestiiPage : ContentPage
                     Destinatie = s.Destinatie,
                     ImageUrl = null // Will trigger placeholder, then be updated async
                 };
-                
+
                 _items.Add(displayItem);
-                
+
                 // Load image asynchronously and update the item
                 _ = LoadImageForSuggestionAsync(displayItem, s.Id_Destinatie);
-                
+
                 // Debug info for indicators
                 System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Suggestion '{displayItem.Titlu}' - AI: {displayItem.ShowAIIndicator}, Manual: {displayItem.ShowManualIndicator}, New: {displayItem.ShowNewIndicator}, EsteGenerataDeAI: {displayItem.EsteGenerataDeAI}");
             }
 
             UpdateEmptyState();
-            
+
             System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Loaded {_items.Count} suggestions");
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Eroare", $"Nu s-au putut incarca sugestiile: {ex.Message}", "OK");
+            await DisplayAlert("Eroare", $"Nu s-au putut incarca planificarile: {ex.Message}", "OK");
         }
         finally
         {
@@ -150,7 +165,7 @@ public partial class SugestiiPage : ContentPage
         {
             // Run on background thread
             var imageUrl = await Task.Run(() => GetFirstDestinationImageSync(destinationId));
-            
+
             // Update on main thread
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -200,13 +215,13 @@ public partial class SugestiiPage : ContentPage
             var images = _imaginiDestRepo.GetByDestinationId(destinationId);
             var imagesList = images?.ToList();
             var firstImage = imagesList?.FirstOrDefault()?.ImagineUrl;
-            
+
             System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Found {imagesList?.Count ?? 0} images for destination {destinationId}");
             if (firstImage != null)
             {
                 System.Diagnostics.Debug.WriteLine($"[SugestiiPage] First image URL: {firstImage}");
             }
-            
+
             return firstImage;
         }
         catch (Exception ex)
@@ -220,7 +235,7 @@ public partial class SugestiiPage : ContentPage
     {
         LoadingIndicator.IsVisible = isLoading;
         LoadingIndicator.IsRunning = isLoading;
-        
+
         // Hide other views when loading
         if (isLoading)
         {
@@ -246,25 +261,102 @@ public partial class SugestiiPage : ContentPage
         {
             var frame = sender as Frame;
             var sugestie = frame?.BindingContext as SugestieDisplayItem;
-            
+
             if (sugestie != null)
             {
                 // Visual feedback
                 await frame.ScaleTo(0.95, 100);
                 await frame.ScaleTo(1.0, 100);
-                
+
                 // Navigate to suggestion details page
                 await Shell.Current.GoToAsync($"{nameof(SuggestionDetailsPage)}?suggestionId={sugestie.Id_Sugestie}");
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Eroare", $"Nu s-au putut afișa detaliile sugestiei: {ex.Message}", "OK");
+            await DisplayAlert("Eroare", $"Nu s-au putut afișa detaliile planificării: {ex.Message}", "OK");
         }
     }
 
     private async void OnAddSugestie(object sender, EventArgs e)
     {
         await Shell.Current.GoToAsync(nameof(NewSugestiePage));
+    }
+
+    private async void OnMenuTapped(object sender, EventArgs e)
+    {
+        try
+        {
+            var label = sender as Label;
+            var sugestie = label?.BindingContext as SugestieDisplayItem;
+
+            if (sugestie == null) return;
+
+            // Visual feedback
+            await label.ScaleTo(1.2, 100);
+            await label.ScaleTo(1.0, 100);
+
+            // Show action sheet with options (no icons)
+            // DisplayActionSheet(title, cancel, destroy, otherButtons...)
+            string action = await DisplayActionSheet(
+        $"Opțiuni pentru \"{sugestie.Titlu}\"",
+     "Anulează",
+                 "Șterge",
+            "Vezi detalii"
+             );
+
+            switch (action)
+            {
+                case "Șterge":
+                    await DeleteSuggestionAsync(sugestie);
+                    break;
+                case "Vezi detalii":
+                    await Shell.Current.GoToAsync($"{nameof(SuggestionDetailsPage)}?suggestionId={sugestie.Id_Sugestie}");
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in menu: {ex.Message}");
+            await DisplayAlert("Eroare", "A apărut o eroare. Te rog încearcă din nou.", "OK");
+        }
+    }
+
+    private async Task DeleteSuggestionAsync(SugestieDisplayItem sugestie)
+    {
+        try
+        {
+            bool confirm = await DisplayAlert(
+                "Confirmare Ștergere",
+                $"Ești sigur că vrei să ștergi planificarea \"{sugestie.Titlu}\"?\n\nAceastă acțiune nu poate fi anulată.",
+                "Da, Șterge",
+                "Anulează");
+
+            if (!confirm) return;
+
+            SetLoadingState(true);
+
+            // Delete from database
+            await Task.Run(() => _sugestieRepo.Delete(sugestie.Id_Sugestie));
+
+            // Remove from collection
+            _items.Remove(sugestie);
+
+            // Update UI
+            UpdateEmptyState();
+
+            await DisplayAlert("Succes", "Planificarea a fost ștearsă cu succes! 🗑️", "OK");
+
+            System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Deleted suggestion: {sugestie.Titlu} (ID: {sugestie.Id_Sugestie})");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error deleting suggestion: {ex.Message}");
+            await DisplayAlert("Eroare", "Nu s-a putut șterge planificarea. Te rog încearcă din nou.", "OK");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
     }
 }

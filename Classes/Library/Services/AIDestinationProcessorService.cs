@@ -108,6 +108,17 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                             Message = "Sugestiile trebuie procesate prin AISuggestionProcessorService"
                         };
 
+                    case "ask_preference":
+                        // NOU - AI cere preferințe utilizatorului
+                        return new ProcessResult
+                        {
+                            Success = true,
+                            Message = aiResponse.Message ?? "Am câteva recomandări pentru tine!",
+                            DestinationId = 0,
+                            IsGeneralChat = false,
+                            IsAskPreference = true // NOU - flag pentru UI
+                        };
+
                     case "destination_exists":
                         return new ProcessResult
                         {
@@ -803,5 +814,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         public int DestinationId { get; set; }
         public int SuggestionId { get; set; } // NOU - ID-ul sugestiei create
         public bool IsGeneralChat { get; set; } = false;
+        public bool IsAskPreference { get; set; } = false; // NOU - AI cere preferințe
     }
 }

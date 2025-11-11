@@ -3,15 +3,28 @@
 namespace MauiAppDisertatieVacantaAI.Classes.DTO.AI
 {
     /// <summary>
-    /// Model pentru răspunsul AI-ului când creează destinații SAU sugestii
+    /// Model pentru răspunsul AI-ului când creează sugestii (cu destinație opțională)
     /// </summary>
     public class AIDestinationResponse
     {
-        public string Action { get; set; } // "create_destination", "create_suggestion", "destination_exists", "general_chat", "error"
-        public DestinationData Destination { get; set; }
-        public SuggestionData Suggestion { get; set; } // NOU - pentru sugestii
+        public string Action { get; set; } // "create_suggestion", "ask_preference", "general_chat", "error"
+        public DestinationData Destination { get; set; } // DEPRECATED - păstrat pentru compatibilitate
+        public SuggestionData Suggestion { get; set; } // Pentru planificări complete
+        public List<DestinationSuggestion> Suggestions { get; set; } // NOU - pentru recomandări multiple (ask_preference)
         public string Message { get; set; } // Pentru utilizator
         public bool Success { get; set; }
+    }
+
+    /// <summary>
+    /// Model pentru o recomandare de destinație (fără planificare completă)
+    /// </summary>
+    public class DestinationSuggestion
+    {
+        public string DestinatieDenumire { get; set; }
+        public string DestinatieTara { get; set; }
+        public string DestinatieOras { get; set; }
+        public decimal BugetEstimat { get; set; }
+        public string DescriereScurta { get; set; }
     }
 
     public class DestinationData
@@ -24,15 +37,15 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO.AI
         public decimal PretAdult { get; set; }
         public decimal PretMinor { get; set; }
         
-        // Lista de categorii (IDs existente sau nume noi)
+        // Lista de categorii (nume existente din DB)
         public List<string> Categorii { get; set; } = new List<string>();
     
-        // Lista de facilități (IDs existente sau nume noi)
+        // Lista de facilități (pot fi noi sau existente)
         public List<string> Facilitati { get; set; } = new List<string>();
         
         // Lista de puncte de interes
         public List<PointOfInterestData> PuncteDeInteres { get; set; } = new List<PointOfInterestData>();
-        
+   
         // Pentru Pexels search
         public List<string> PhotoSearchQueries { get; set; } = new List<string>();
     }
@@ -49,6 +62,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.DTO.AI
         public string DestinatieTara { get; set; } // Țara destinației
         public string DestinatieOras { get; set; } // Orașul destinației
         public int? EstePublic { get; set; } // 0 = privat, 1 = public (default 0)
+        
+        // NOU: Date pentru crearea destinației dacă nu există
+        public DestinationData DestinatieData { get; set; }
     }
 
     public class PointOfInterestData

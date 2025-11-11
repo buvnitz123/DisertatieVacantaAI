@@ -96,7 +96,7 @@ public partial class SuggestionDetailsPage : ContentPage
                 Debug.WriteLine($"[SuggestionDetailsPage] Suggestion with ID {_suggestionId} not found in database");
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlert("Eroare", "Sugestia nu a fost gasita.", "OK");
+                    await DisplayAlert("Eroare", "Planificarea nu a fost găsită.", "OK");
                     await Shell.Current.GoToAsync("..");
                 });
                 return;
@@ -130,7 +130,7 @@ public partial class SuggestionDetailsPage : ContentPage
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlert("Eroare", "Nu s-au putut incarca detaliile sugestiei.", "OK");
+                    await DisplayAlert("Eroare", "Nu s-au putut încărca detaliile planificării.", "OK");
                 });
             }
         }
@@ -553,8 +553,8 @@ public partial class SuggestionDetailsPage : ContentPage
             bool isCurrentlyPublic = _currentSuggestion.EstePublic == 1;
             string action = isCurrentlyPublic ? "privată" : "publică";
             string message = isCurrentlyPublic 
-                ? "Vrei să faci această sugestie privată? Va fi vizibilă doar pentru tine."
-                : "Vrei să faci această sugestie publică? Va fi vizibilă pentru toți utilizatorii și va primi un cod de partajare.";
+                 ? "Vrei să faci această planificare privată? Va fi vizibilă doar pentru tine."
+                : "Vrei să faci această planificare publică? Va fi vizibilă pentru toți utilizatorii și va primi un cod de partajare.";
 
             bool confirm = await DisplayAlert(
                 "Schimbă Vizibilitate", 
@@ -584,8 +584,8 @@ public partial class SuggestionDetailsPage : ContentPage
 
                 // Success message without showing the code
                 string successMessage = _currentSuggestion.EstePublic == 1 
-                    ? "Sugestia este acum publică și poate fi partajată!"
-                    : "Sugestia este acum privată.";
+                    ? "Planificarea este acum publică și poate fi partajată!"
+                    : "Planificarea este acum privată.";
 
                 await DisplayAlert("Succes", successMessage, "OK");
             }
@@ -597,7 +597,7 @@ public partial class SuggestionDetailsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error toggling visibility: {ex.Message}");
-            await DisplayAlert("Eroare", "Nu s-a putut schimba vizibilitatea sugestiei. Te rog încearcă din nou.", "OK");
+            await DisplayAlert("Eroare", "Nu s-a putut schimba vizibilitatea planificării. Te rog încearcă din nou.", "OK");
         }
         finally
         {
@@ -663,7 +663,7 @@ public partial class SuggestionDetailsPage : ContentPage
         try
         {
             // Navigate to edit suggestion page (you might need to create this)
-            await DisplayAlert("Functionalitate", "Editarea sugestiilor va fi implementata in viitor.", "OK");
+            await DisplayAlert("Funcționalitate", "Editarea planificărilor va fi implementată în viitor.", "OK");
             
             // TODO: Implement navigation to edit page
             // await Shell.Current.GoToAsync($"{nameof(EditSuggestionPage)}?suggestionId={_suggestionId}");
@@ -680,9 +680,9 @@ public partial class SuggestionDetailsPage : ContentPage
         {
             bool confirm = await DisplayAlert(
                 "Confirmare", 
-                "Esti sigur ca vrei sa stergi aceasta sugestie? Actiunea nu poate fi anulata.", 
-                "Da, Sterge", 
-                "Anuleaza");
+                "Ești sigur că vrei să ștergi această planificare? Acțiunea nu poate fi anulată.", 
+                "Da, Șterge", 
+                "Anulează");
 
             if (confirm)
             {
@@ -692,7 +692,7 @@ public partial class SuggestionDetailsPage : ContentPage
                 // Delete from database
                 await Task.Run(() => _sugestieRepo.Delete(_suggestionId), _cancellationTokenSource.Token);
                 
-                await DisplayAlert("Succes", "Sugestia a fost stearsa cu succes.", "OK");
+                await DisplayAlert("Succes", "Planificarea a fost ștearsă cu succes.", "OK");
                 
                 // Navigate back
                 await Shell.Current.GoToAsync("..");
@@ -705,7 +705,7 @@ public partial class SuggestionDetailsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error deleting suggestion: {ex.Message}");
-            await DisplayAlert("Eroare", "Nu s-a putut sterge sugestia. Te rog incearca din nou.", "OK");
+            await DisplayAlert("Eroare", "Nu s-a putut șterge planificarea. Te rog încearcă din nou.", "OK");
         }
         finally
         {

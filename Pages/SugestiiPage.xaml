@@ -2,13 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SugestiiPage"
-             Title="Sugestii"
+             Title="Planificări"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="15">
         <!-- Header -->
         <VerticalStackLayout Grid.Row="0" Spacing="6" Margin="0,10,0,15">
-            <Label Text="✈️ Sugestiile Tale" 
+            <Label Text="✈️ Planificările Tale" 
                    FontSize="24" 
                    FontAttributes="Bold" 
                    HorizontalOptions="Center"
@@ -42,12 +42,12 @@
                            FontSize="50"
                            HorizontalOptions="Center"
                            Opacity="0.3" />
-                    <Label Text="Nu ai inca sugestii"
+                    <Label Text="Nu ai încă planificări"
                            FontSize="16"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
-                    <Label Text="Creaza prima ta sugestie de vacanta!"
+                    <Label Text="Creează prima ta planificare de vacanță!"
                            FontSize="13"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
@@ -76,7 +76,7 @@
                                     <!-- Main Content Grid with overlay for status indicators -->
                                     <Grid>
                                         <!-- Base content in a horizontal layout -->
-                                        <Grid ColumnDefinitions="80,*" ColumnSpacing="12">
+                                        <Grid ColumnDefinitions="80,*,40" ColumnSpacing="12">
 
                                             <!-- Left: Destination Image -->
                                             <Border Grid.Column="0" 
@@ -95,14 +95,28 @@
                                                          Spacing="4"
                                                          VerticalOptions="Center">
 
-                                                <!-- Title -->
-                                                <Label Text="{Binding Titlu}" 
-                                                       FontSize="15" 
-                                                       FontAttributes="Bold"
-                                                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
-                                                       LineBreakMode="TailTruncation"
-                                                       MaxLines="1"
-                                                       Margin="0,0,50,0" />
+                                                <!-- AI/Manual Status Indicator + Title on same line -->
+                                                <HorizontalStackLayout Spacing="6">
+                                                    <!-- AI Generated Indicator -->
+                                                    <Label Text="🤖"
+                                                           FontSize="16"
+                                                           IsVisible="{Binding ShowAIIndicator}"
+                                                           VerticalOptions="Center" />
+
+                                                    <!-- Manual Generated Indicator -->
+                                                    <Label Text="👤"
+                                                           FontSize="16"
+                                                           IsVisible="{Binding ShowManualIndicator}"
+                                                           VerticalOptions="Center" />
+
+                                                    <!-- Title (Truncated to 15 chars) -->
+                                                    <Label Text="{Binding TitluTruncat}" 
+                                                           FontSize="15" 
+                                                           FontAttributes="Bold"
+                                                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" 
+                                                           VerticalOptions="Center"
+                                                           HorizontalOptions="Start" />
+                                                </HorizontalStackLayout>
 
                                                 <!-- Destination -->
                                                 <Label Text="{Binding Destinatie.Denumire}" 
@@ -118,28 +132,35 @@
                                                        FontAttributes="Bold"
                                                        VerticalOptions="Start" />
                                             </StackLayout>
+
+                                            <!-- Menu Button (3 dots) -->
+                                            <Border Grid.Column="2"
+                                                   StrokeThickness="0"
+                                                   BackgroundColor="Transparent"
+                                                   VerticalOptions="Start"
+                                                   HorizontalOptions="Center"
+                                                   Padding="0"
+                                                   Margin="0,0,0,0">
+                                                <Label Text="⋮"
+                                                       FontSize="24"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                                       VerticalOptions="Center"
+                                                       HorizontalOptions="Center"
+                                                       Padding="8">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer Tapped="OnMenuTapped" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </Border>
                                         </Grid>
 
-                                        <!-- Overlaid Status Indicators - Top Right -->
+                                        <!-- Overlaid Status Indicators - Top Right (adjusted position) -->
                                         <StackLayout Orientation="Horizontal"
                                                      Spacing="4"
                                                      VerticalOptions="Start"
                                                      HorizontalOptions="End"
-                                                     Margin="0,0,0,0">
-
-                                            <!-- AI Generated Indicator -->
-                                            <Label Text="🤖"
-                                                   FontSize="15"
-                                                   IsVisible="{Binding ShowAIIndicator}"
-                                                   VerticalOptions="Center"
-                                                   HorizontalOptions="Center" />
-
-                                            <!-- Manual Generated Indicator -->
-                                            <Label Text="👤"
-                                                   FontSize="15"
-                                                   IsVisible="{Binding ShowManualIndicator}"
-                                                   VerticalOptions="Center"
-                                                   HorizontalOptions="Center" />
+                                                     Margin="0,0,45,0">
 
                                             <!-- New Indicator -->
                                             <Label Text="🆕"
@@ -169,7 +190,7 @@
         <!-- Add New Suggestion Button -->
         <Button Grid.Row="2" 
                 x:Name="AddSugestieButton"
-                Text="✨ Sugestie Noua"
+                Text="✨ Planificare Nouă"
                 BackgroundColor="{StaticResource PrimaryBlue}"
                 TextColor="White"
                 FontSize="15"
