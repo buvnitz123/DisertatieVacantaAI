@@ -117,6 +117,13 @@ public partial class DestinationDetailsPage : ContentPage
         
         if (_destinationId > 0)
         {
+            // Preluăm aici manual userId-ul din session, deoarece ai nevoie de un currentUserId pt favorites - ne folosim de el si pt Log
+            var userIdStr = await UserSession.GetUserIdAsync();
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, "View", "Destinatie", _destinationId);
+            }
+
             await LoadDestinationDetailsAsync();
         }
         else
@@ -843,6 +850,11 @@ public partial class DestinationDetailsPage : ContentPage
                 {
                     _isFavorite = isNowFavorite;
                     UpdateFavoriteButtonUI();
+                }
+
+                if (_isFavorite)
+                {
+                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(_currentUserId, "AddFavorite", "Destinatie", _destinationId);
                 }
 
                 Debug.WriteLine($"[DestinationDetailsPage] Favorite toggled successfully: {_isFavorite}");

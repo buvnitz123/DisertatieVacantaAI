@@ -132,6 +132,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
                 System.Diagnostics.Debug.WriteLine($"✅ Suggestion created successfully with ID: {sugestie.Id_Sugestie}");
 
+                // Inregistrare log pentru actiunea CreateAI
+                MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, "CreateAI", "Sugestie", sugestie.Id_Sugestie);
+
                 // ===== PASUL 3: RETURNEAZĂ REZULTATUL =====
                 string finalMessage = !string.IsNullOrWhiteSpace(aiGeneratedMessage)
                      ? aiGeneratedMessage

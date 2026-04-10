@@ -6,7 +6,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 {
     public class AppSettingsRepository : IRepository<AppSettings>
     {
-        // Metode statice pentru acces rapid
         public static string GetValue(string key)
         {
             using var context = new AppContext();
@@ -44,8 +43,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                 context.SaveChanges();
             }
         }
-
-        // Metode instance (IRepository)
         public IEnumerable<AppSettings> GetAll()
         {
             using var context = new AppContext();
@@ -76,7 +73,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
 
         }
 
-        // Metode instance pentru backwards compatibility
         public string GetValueByKey(string key) => GetValue(key);
         public void SetValueByKey(string key, string value) => SetValue(key, value);
         public void DeleteByKey(string key) => DeleteValue(key);

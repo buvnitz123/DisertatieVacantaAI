@@ -91,6 +91,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 {
                     WelcomeLabel.Text = $"Bine ai venit, {user.Nume}!".Trim();
                     _currentUserId = user.Id_Utilizator; // Store user ID for favorites
+                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(_currentUserId, "View", "Pagina", null, "MainPage"); // Adăugare logger
                     return;
                 }
 
@@ -542,3 +543,4 @@ namespace MauiAppDisertatieVacantaAI.Pages
         }
     }
 }
+

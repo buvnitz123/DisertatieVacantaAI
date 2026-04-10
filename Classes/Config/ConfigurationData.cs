@@ -1,6 +1,5 @@
-namespace MauiAppDisertatieVacantaAI.Classes.Config
+﻿namespace MauiAppDisertatieVacantaAI.Classes.Config
 {
-    // Configuration data models
     public class ConfigurationData
     {
         public Dictionary<string, string> AppSettings { get; set; }

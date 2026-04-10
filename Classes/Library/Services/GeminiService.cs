@@ -23,9 +23,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 }
 
                 _geminiClient = new GoogleAI(apiKey);
-                _model = _geminiClient.GenerativeModel(model: "gemini-2.5-flash");
+                _model = _geminiClient.GenerativeModel(model: "gemini-2.5-flash"); // Aici putem pune gemini-3-flash-preview cand este disponibil pachetul Mscc.GenerativeAI, momentan folosim 2.5
                 _initialized = true;
-                Debug.WriteLine("Gemini service initialized successfully with Gemini 2.5 Flash");
+                Debug.WriteLine("Gemini service initialized successfully");
 
                 return true;
             }
@@ -167,7 +167,8 @@ Când vorbești despre destinații, include:
                 var generationConfig = new GenerationConfig
                 {
                     MaxOutputTokens = 10000,
-                    Temperature = 0.3f
+                    Temperature = 0.3f,
+                    ResponseMimeType = "application/json"
                 };
 
                 var response = await _model.GenerateContent(prompt, generationConfig);
