@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 using MauiAppDisertatieVacantaAI.Classes.Library.Services;
+using MauiAppDisertatieVacantaAI.Classes.Library.Utils;
 
 namespace MauiAppDisertatieVacantaAI.Pages
 {
@@ -91,7 +92,6 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 {
                     WelcomeLabel.Text = $"Bine ai venit, {user.Nume}!".Trim();
                     _currentUserId = user.Id_Utilizator; // Store user ID for favorites
-                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(_currentUserId, "View", "Pagina", null, "MainPage"); // Adăugare logger
                     return;
                 }
 
@@ -200,7 +200,8 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 var userIdStr = await UserSession.GetUserIdAsync();
                 int.TryParse(userIdStr, out _currentUserId);
                 
-                var categories = await Task.Run(() => _categorieRepo.GetAll().Take(4).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
+                var recommendationService = new RecommendationService();
+                var categories = await Task.Run(() => recommendationService.GetRecommendedCategories(_currentUserId, 4), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
                 // Get user favorites for categories in batch
                 Dictionary<int, bool> favoriteStatus = new();
@@ -256,7 +257,8 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var destinations = await Task.Run(() => _destinatieRepo.GetAll().Take(5).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
+                var recommendationService = new RecommendationService();
+                var destinations = await Task.Run(() => recommendationService.GetRecommendedDestinations(_currentUserId, 5), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
                 // Get user favorites for destinations in batch
                 Dictionary<int, bool> favoriteStatus = new();
@@ -323,7 +325,8 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
-                var pois = await Task.Run(() => _poiRepo.GetAll().Take(5).ToList(), _cancellationTokenSource.Token).ConfigureAwait(false);
+                var recommendationService = new RecommendationService();
+                var pois = await Task.Run(() => recommendationService.GetRecommendedPointsOfInterest(_currentUserId, 5), _cancellationTokenSource.Token).ConfigureAwait(false);
                 
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
@@ -471,6 +474,7 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             try
             {
+                MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(_currentUserId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Vizitare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.CategorieVacanta, category.Id_CategorieVacanta);
                 Debug.WriteLine($"[MainPage] Navigating to category details with ID: {category.Id_CategorieVacanta}");
                 await Shell.Current.GoToAsync($"{nameof(CategoryDetailsPage)}?categoryId={category.Id_CategorieVacanta}");
                 Debug.WriteLine($"[MainPage] Category navigation completed successfully");

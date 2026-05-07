@@ -1,8 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
-using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
-using System.Diagnostics;
+using MauiAppDisertatieVacantaAI.Classes.Enums;
 using MauiAppDisertatieVacantaAI.Classes.Library.Session;
+using MauiAppDisertatieVacantaAI.Classes.Library.Utils;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -58,7 +60,7 @@ public partial class DestinationDetailsPage : ContentPage
     private readonly ObservableCollection<DestinationCategoryDisplayItem> _categories = new();
     private readonly ObservableCollection<PoiDisplayItem> _pointsOfInterest = new();
     private readonly ObservableCollection<ReviewDisplayItem> _reviews = new();
-    
+
     // Repositories
     private readonly DestinatieRepository _destinatieRepo = new();
     private readonly ImaginiDestinatieRepository _imaginiDestRepo = new();
@@ -71,10 +73,10 @@ public partial class DestinationDetailsPage : ContentPage
     private readonly RecenzieRepository _recenzieRepo = new();
     private readonly UtilizatorRepository _utilizatorRepo = new();
     private readonly FavoriteRepository _favoriteRepo = new();
-    
+
     // Cancellation support for cleanup
     private CancellationTokenSource _cancellationTokenSource = new();
-    
+
     private int _destinationId;
     private Destinatie _currentDestination;
     private int _currentUserId;
@@ -94,14 +96,14 @@ public partial class DestinationDetailsPage : ContentPage
     public DestinationDetailsPage()
     {
         InitializeComponent();
-        
+
         // Set up data sources
         ImagesCarousel.ItemsSource = _destinationImages;
         FacilitiesCollectionView.ItemsSource = _facilities;
         CategoriesCollectionView.ItemsSource = _categories;
         PointsOfInterestCollectionView.ItemsSource = _pointsOfInterest;
         ReviewsCollectionView.ItemsSource = _reviews;
-        
+
         // Initially hide sections until data is loaded
         FacilitiesSection.IsVisible = false;
         CategoriesSection.IsVisible = false;
@@ -112,16 +114,16 @@ public partial class DestinationDetailsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        
+
         Debug.WriteLine($"[DestinationDetailsPage] OnAppearing called with destinationId: {_destinationId}");
-        
+
         if (_destinationId > 0)
         {
             // Preluăm aici manual userId-ul din session, deoarece ai nevoie de un currentUserId pt favorites - ne folosim de el si pt Log
             var userIdStr = await UserSession.GetUserIdAsync();
             if (int.TryParse(userIdStr, out int userId))
             {
-                MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, "View", "Destinatie", _destinationId);
+                ActivityLogger.Log(userId, TipActivitate.Vizitare, TipEntitate.Destinatie, _destinationId);
             }
 
             await LoadDestinationDetailsAsync();
@@ -137,12 +139,12 @@ public partial class DestinationDetailsPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        
+
         // Cancel any ongoing operations
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = new CancellationTokenSource();
-        
+
         Debug.WriteLine($"[DestinationDetailsPage] OnDisappearing - operations cancelled");
     }
 
@@ -153,13 +155,13 @@ public partial class DestinationDetailsPage : ContentPage
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load details for destination ID: {_destinationId}");
             LoadingOverlay.IsVisible = true;
             Debug.WriteLine($"[DestinationDetailsPage] LoadingOverlay set to visible");
-            
+
             // Add a short delay to ensure UI has updated
             await Task.Delay(100, _cancellationTokenSource.Token);
-            
+
             // Load destination basic info
             await LoadDestinationInfoAsync();
-            
+
             // Load all related data in parallel with cancellation support
             await Task.WhenAll(
                 LoadDestinationImagesAsync(),
@@ -169,9 +171,9 @@ public partial class DestinationDetailsPage : ContentPage
                 LoadReviewsAsync(),
                 LoadFavoriteStatusAsync()
             );
-            
+
             Debug.WriteLine($"[DestinationDetailsPage] Successfully loaded all destination details");
-            
+
             // Force UI update
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -207,7 +209,7 @@ public partial class DestinationDetailsPage : ContentPage
         {
             Debug.WriteLine($"[DestinationDetailsPage] Loading destination info for ID: {_destinationId}");
             _currentDestination = await Task.Run(() => _destinatieRepo.GetById(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
-            
+
             if (_currentDestination == null)
             {
                 Debug.WriteLine($"[DestinationDetailsPage] Destination with ID {_destinationId} not found in database");
@@ -227,7 +229,7 @@ public partial class DestinationDetailsPage : ContentPage
                 LocationLabel.Text = $"{_currentDestination.Oras}, {_currentDestination.Regiune}, {_currentDestination.Tara}";
                 AdultPriceLabel.Text = $"{_currentDestination.PretAdult:C}";
                 ChildPriceLabel.Text = $"{_currentDestination.PretMinor:C}";
-                
+
                 // Update description
                 if (!string.IsNullOrWhiteSpace(_currentDestination.Descriere))
                 {
@@ -240,7 +242,7 @@ public partial class DestinationDetailsPage : ContentPage
                     DescriptionSection.IsVisible = false;
                     Debug.WriteLine($"[DestinationDetailsPage] No description available");
                 }
-                
+
                 // Update page title
                 Title = _currentDestination.Denumire;
                 Debug.WriteLine($"[DestinationDetailsPage] Updated UI with destination info");
@@ -269,14 +271,14 @@ public partial class DestinationDetailsPage : ContentPage
                 ImagesLoadingIndicator.IsVisible = true;
                 ImagesLoadingIndicator.IsRunning = true;
             });
-            
+
             var images = await Task.Run(() => _imaginiDestRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             Debug.WriteLine($"[DestinationDetailsPage] Found {images?.Count() ?? 0} images");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _destinationImages.Clear();
-                
+
                 if (images?.Any() == true)
                 {
                     foreach (var image in images)
@@ -286,7 +288,7 @@ public partial class DestinationDetailsPage : ContentPage
                             ImagineUrl = PrepareImageUrl(image.ImagineUrl)
                         });
                     }
-                    
+
                     NoImagesLayout.IsVisible = false;
                     ImagesCarousel.IsVisible = true;
                     IndicatorView.IsVisible = _destinationImages.Count > 1;
@@ -299,7 +301,7 @@ public partial class DestinationDetailsPage : ContentPage
                     {
                         ImagineUrl = "https://via.placeholder.com/400x250/E0E0E0/999999?text=No+Image"
                     });
-                    
+
                     NoImagesLayout.IsVisible = true;
                     ImagesCarousel.IsVisible = false;
                     IndicatorView.IsVisible = false;
@@ -315,7 +317,7 @@ public partial class DestinationDetailsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading destination images: {ex.Message}");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 // Show placeholder on error
@@ -324,7 +326,7 @@ public partial class DestinationDetailsPage : ContentPage
                 {
                     ImagineUrl = "https://via.placeholder.com/400x250/E0E0E0/999999?text=No+Image"
                 });
-                
+
                 NoImagesLayout.IsVisible = true;
                 ImagesCarousel.IsVisible = false;
                 IndicatorView.IsVisible = false;
@@ -346,10 +348,10 @@ public partial class DestinationDetailsPage : ContentPage
         try
         {
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load categories for destination ID: {_destinationId}");
-            
+
             var categoryRelations = await Task.Run(() => _catDestRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             Debug.WriteLine($"[DestinationDetailsPage] Found {categoryRelations?.Count() ?? 0} category relations");
-            
+
             if (!categoryRelations?.Any() == true)
             {
                 await MainThread.InvokeOnMainThreadAsync(() =>
@@ -360,22 +362,22 @@ public partial class DestinationDetailsPage : ContentPage
                 });
                 return;
             }
-            
+
             var categoryIds = categoryRelations.Select(cr => cr.Id_CategorieVacanta).Take(5).ToList();
-            
+
             var categories = await Task.Run(() =>
             {
                 return categoryIds.Select(id => _categorieRepo.GetById(id))
                                  .Where(c => c != null)
                                  .ToList();
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
-            
+
             Debug.WriteLine($"[DestinationDetailsPage] Loaded {categories.Count} categories");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _categories.Clear();
-                
+
                 if (categories.Any())
                 {
                     foreach (var category in categories)
@@ -386,10 +388,10 @@ public partial class DestinationDetailsPage : ContentPage
                             Denumire = category.Denumire,
                             ImagineUrl = PrepareImageUrl(category.ImagineUrl)
                         };
-                        
+
                         _categories.Add(categoryItem);
                     }
-                    
+
                     CategoriesSection.IsVisible = true;
                     Debug.WriteLine($"[DestinationDetailsPage] Added {_categories.Count} categories to UI");
                 }
@@ -408,7 +410,7 @@ public partial class DestinationDetailsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading categories: {ex.Message}");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _categories.Clear();
@@ -426,7 +428,7 @@ public partial class DestinationDetailsPage : ContentPage
             var destFacilities = await Task.Run(() => _destFacilitateRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             var facilityIds = destFacilities.Select(df => df.Id_Facilitate).ToList();
             Debug.WriteLine($"[DestinationDetailsPage] Found {facilityIds.Count} facility associations");
-            
+
             if (!facilityIds.Any())
             {
                 await MainThread.InvokeOnMainThreadAsync(() =>
@@ -437,20 +439,20 @@ public partial class DestinationDetailsPage : ContentPage
                 });
                 return;
             }
-            
+
             var facilities = await Task.Run(() =>
             {
                 return facilityIds.Select(id => _facilitateRepo.GetById(id))
                                  .Where(f => f != null)
                                  .ToList();
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
-            
+
             Debug.WriteLine($"[DestinationDetailsPage] Loaded {facilities.Count} facilities");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _facilities.Clear();
-                
+
                 if (facilities.Any())
                 {
                     foreach (var facility in facilities)
@@ -461,7 +463,7 @@ public partial class DestinationDetailsPage : ContentPage
                             Descriere = facility.Descriere
                         });
                     }
-                    
+
                     FacilitiesSection.IsVisible = true;
                     Debug.WriteLine($"[DestinationDetailsPage] Added {_facilities.Count} facilities to UI");
                 }
@@ -480,7 +482,7 @@ public partial class DestinationDetailsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading facilities: {ex.Message}");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _facilities.Clear();
@@ -496,7 +498,7 @@ public partial class DestinationDetailsPage : ContentPage
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load POIs for destination ID: {_destinationId}");
             var pois = await Task.Run(() => _poiRepo.GetByDestinationId(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             Debug.WriteLine($"[DestinationDetailsPage] Found {pois?.Count() ?? 0} POIs");
-            
+
             if (!pois?.Any() == true)
             {
                 await MainThread.InvokeOnMainThreadAsync(() =>
@@ -507,28 +509,28 @@ public partial class DestinationDetailsPage : ContentPage
                 });
                 return;
             }
-            
+
             // Batch collect POIs to reduce UI thread calls
             var poiDisplayItems = new List<PoiDisplayItem>();
-            
+
             // Load POIs with their images
             foreach (var poi in pois)
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                     break;
-                    
+
                 try
                 {
                     var poiImages = await Task.Run(() => _imaginiPoiRepo.GetByPointOfInterestId(poi.Id_PunctDeInteres), _cancellationTokenSource.Token).ConfigureAwait(false);
                     Debug.WriteLine($"[DestinationDetailsPage] POI '{poi.Denumire}' has {poiImages?.Count() ?? 0} images");
-                    
+
                     var poiDisplayItem = new PoiDisplayItem
                     {
                         Denumire = poi.Denumire ?? "Punct de interes",
                         Descriere = poi.Descriere,
                         Tip = poi.Tip
                     };
-                    
+
                     // Add images to POI
                     if (poiImages?.Any() == true)
                     {
@@ -550,14 +552,14 @@ public partial class DestinationDetailsPage : ContentPage
                             ImagineUrl = "https://via.placeholder.com/100x100/E0E0E0/999999?text=No+Image"
                         });
                     }
-                    
+
                     poiDisplayItems.Add(poiDisplayItem);
                     Debug.WriteLine($"[DestinationDetailsPage] Prepared POI '{poiDisplayItem.Denumire}' for UI");
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Error loading POI {poi.Id_PunctDeInteres}: {ex.Message}");
-                    
+
                     // Add POI without images on error
                     var poiDisplayItem = new PoiDisplayItem
                     {
@@ -565,16 +567,16 @@ public partial class DestinationDetailsPage : ContentPage
                         Descriere = poi.Descriere,
                         Tip = poi.Tip
                     };
-                    
+
                     poiDisplayItem.Images.Add(new DestinationImageItem
                     {
                         ImagineUrl = "https://via.placeholder.com/100x100/E0E0E0/999999?text=No+Image"
                     });
-                    
+
                     poiDisplayItems.Add(poiDisplayItem);
                 }
             }
-            
+
             // Batch update UI
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -583,7 +585,7 @@ public partial class DestinationDetailsPage : ContentPage
                 {
                     _pointsOfInterest.Add(poi);
                 }
-                
+
                 if (_pointsOfInterest.Any())
                 {
                     PointsOfInterestSection.IsVisible = true;
@@ -604,7 +606,7 @@ public partial class DestinationDetailsPage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading points of interest: {ex.Message}");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _pointsOfInterest.Clear();
@@ -618,17 +620,17 @@ public partial class DestinationDetailsPage : ContentPage
         try
         {
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load reviews for destination ID: {_destinationId}");
-            
+
             var reviews = await Task.Run(() => _recenzieRepo.GetByDestinationWithDetails(_destinationId), _cancellationTokenSource.Token).ConfigureAwait(false);
             Debug.WriteLine($"[DestinationDetailsPage] Found {reviews?.Count() ?? 0} reviews");
-            
+
             // ALWAYS show the reviews section with the "Add Review" button
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 ReviewsSection.IsVisible = true; // Show section regardless of reviews
                 Debug.WriteLine($"[DestinationDetailsPage] Reviews section is now visible");
             });
-            
+
             if (!reviews?.Any() == true)
             {
                 await MainThread.InvokeOnMainThreadAsync(() =>
@@ -639,24 +641,24 @@ public partial class DestinationDetailsPage : ContentPage
                 });
                 return;
             }
-            
+
             // Take only last 5 reviews and calculate average rating
             var recentReviews = reviews.OrderByDescending(r => r.Data_Creare).Take(5).ToList();
             var averageRating = reviews.Average(r => r.Nota);
             var totalReviews = reviews.Count();
-            
+
             Debug.WriteLine($"[DestinationDetailsPage] Processing {recentReviews.Count} recent reviews, average: {averageRating:F1}");
-            
+
             var reviewDisplayItems = new List<ReviewDisplayItem>();
-            
+
             foreach (var review in recentReviews)
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                     break;
-                
+
                 // Prepare profile photo URL
                 string profilePhotoUrl = PrepareProfileImageUrl(review.Utilizator?.PozaProfil);
-                
+
                 // Generate user initials as fallback
                 var userInitials = "";
                 if (review.Utilizator != null)
@@ -665,7 +667,7 @@ public partial class DestinationDetailsPage : ContentPage
                     var lastName = review.Utilizator.Prenume ?? "";
                     userInitials = $"{(firstName.Length > 0 ? firstName[0] : '?')}{(lastName.Length > 0 ? lastName[0] : "")}".ToUpper();
                 }
-                
+
                 var reviewItem = new ReviewDisplayItem
                 {
                     Id_Recenzie = review.Id_Recenzie,
@@ -676,11 +678,11 @@ public partial class DestinationDetailsPage : ContentPage
                     Comment = review.Comentariu,
                     CreatedDate = review.Data_Creare
                 };
-                
+
                 reviewDisplayItems.Add(reviewItem);
                 Debug.WriteLine($"[DestinationDetailsPage] Prepared review from {reviewItem.UserName} with rating {reviewItem.Rating}, photo: {reviewItem.HasProfilePhoto}");
             }
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _reviews.Clear();
@@ -688,7 +690,7 @@ public partial class DestinationDetailsPage : ContentPage
                 {
                     _reviews.Add(review);
                 }
-                
+
                 UpdateRatingDisplay(averageRating, totalReviews);
                 Debug.WriteLine($"[DestinationDetailsPage] Reviews section visible with {_reviews.Count} items");
             });
@@ -702,7 +704,7 @@ public partial class DestinationDetailsPage : ContentPage
         {
             Debug.WriteLine($"Error loading reviews: {ex.Message}");
             Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _reviews.Clear();
@@ -739,7 +741,7 @@ public partial class DestinationDetailsPage : ContentPage
 
             var destinationName = Uri.EscapeDataString(_currentDestination.Denumire);
             var location = Uri.EscapeDataString($"{_currentDestination.Oras}, {_currentDestination.Tara}");
-            
+
             Debug.WriteLine($"[DestinationDetailsPage] Navigating to add review for destination ID: {_destinationId}");
             await Shell.Current.GoToAsync($"{nameof(AddReviewPage)}?destinationId={_destinationId}&destinationName={destinationName}&location={location}");
         }
@@ -755,7 +757,7 @@ public partial class DestinationDetailsPage : ContentPage
         try
         {
             Debug.WriteLine($"[DestinationDetailsPage] Starting to load favorite status for destination ID: {_destinationId}");
-            
+
             // Get current user ID
             var userIdStr = await UserSession.GetUserIdAsync();
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out _currentUserId))
@@ -771,14 +773,14 @@ public partial class DestinationDetailsPage : ContentPage
                 });
                 return;
             }
-            
+
             // Check favorite status
-            _isFavorite = await Task.Run(() => 
-                _favoriteRepo.IsFavorite(_currentUserId, "Destinatie", _destinationId), 
+            _isFavorite = await Task.Run(() =>
+                _favoriteRepo.IsFavorite(_currentUserId, "Destinatie", _destinationId),
                 _cancellationTokenSource.Token).ConfigureAwait(false);
-            
+
             Debug.WriteLine($"[DestinationDetailsPage] Favorite status loaded: {_isFavorite}");
-            
+
             // Update UI
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -841,8 +843,8 @@ public partial class DestinationDetailsPage : ContentPage
             try
             {
                 // Update in database
-                var isNowFavorite = await Task.Run(() => 
-                    _favoriteRepo.ToggleFavorite(_currentUserId, "Destinatie", _destinationId), 
+                var isNowFavorite = await Task.Run(() =>
+                    _favoriteRepo.ToggleFavorite(_currentUserId, "Destinatie", _destinationId),
                     _cancellationTokenSource.Token);
 
                 // Verify the result matches our optimistic update
@@ -854,7 +856,7 @@ public partial class DestinationDetailsPage : ContentPage
 
                 if (_isFavorite)
                 {
-                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(_currentUserId, "AddFavorite", "Destinatie", _destinationId);
+                    ActivityLogger.Log(_currentUserId, TipActivitate.Favorit, TipEntitate.Destinatie, _destinationId);
                 }
 
                 Debug.WriteLine($"[DestinationDetailsPage] Favorite toggled successfully: {_isFavorite}");
@@ -866,11 +868,11 @@ public partial class DestinationDetailsPage : ContentPage
             catch (Exception dbEx)
             {
                 Debug.WriteLine($"[DestinationDetailsPage] Database error toggling favorite: {dbEx.Message}");
-                
+
                 // Revert optimistic update on failure
                 _isFavorite = !_isFavorite;
                 UpdateFavoriteButtonUI();
-                
+
                 await DisplayAlert("Eroare", "Nu s-a putut actualiza statusul de favorit. Te rog încearcă din nou.", "OK");
             }
         }

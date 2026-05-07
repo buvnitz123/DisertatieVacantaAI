@@ -1,6 +1,8 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.DTO.AI;
+using MauiAppDisertatieVacantaAI.Classes.Enums;
+using MauiAppDisertatieVacantaAI.Classes.Library.Utils;
 using MauiAppDisertatieVacantaAI.Classes.Services;
 using Newtonsoft.Json;
 
@@ -133,7 +135,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 System.Diagnostics.Debug.WriteLine($"✅ Suggestion created successfully with ID: {sugestie.Id_Sugestie}");
 
                 // Inregistrare log pentru actiunea CreateAI
-                MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, "CreateAI", "Sugestie", sugestie.Id_Sugestie);
+                ActivityLogger.Log(userId, TipActivitate.CreareAI, TipEntitate.Sugestie, sugestie.Id_Sugestie);
 
                 // ===== PASUL 3: RETURNEAZĂ REZULTATUL =====
                 string finalMessage = !string.IsNullOrWhiteSpace(aiGeneratedMessage)

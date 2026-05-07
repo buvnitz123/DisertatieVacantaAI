@@ -54,7 +54,7 @@ public partial class SearchPage : ContentPage
     private bool _hasPriceFilter = false;
 
     // Sorting
-    private string _currentSort = "Nume"; // Nume, PretAsc, PretDesc, Location
+    private string _currentSort = "Relevanta"; // Relevanta, Nume, PretAsc, PretDesc, Location
 
     // Debouncing & Caching
     private Timer _searchTimer;
@@ -101,25 +101,25 @@ public partial class SearchPage : ContentPage
     {
         Device.BeginInvokeOnMainThread(() =>
         {
-            if (_currentSort == "Nume")
+            if (_currentSort == "Nume" || _currentSort == "Relevanta")
             {
                 // Default state - inactive appearance
                 SortButton.BackgroundColor = GetInactiveBackgroundColor();
                 SortButton.TextColor = GetInactiveTextColor();
-                SortButton.Text = "📊 Sortare";
+                SortButton.Text = _currentSort == "Relevanta" ? "⭐ Relevanță" : "📊 Sortare";
             }
             else
             {
                 // Active sort - blue appearance with specific text
                 SortButton.BackgroundColor = (Color)Application.Current.Resources["PrimaryBlue"];
                 SortButton.TextColor = Colors.White;
-                
+
                 SortButton.Text = _currentSort switch
                 {
                     "PretAsc" => "💰⬆ Preț ↗",
                     "PretDesc" => "💰⬇ Preț ↘",
                     "Location" => "📍 Locație",
-                    _ => "📊 Sortare"
+                    _ => _currentSort == "Relevanta" ? "⭐ Relevanță" : "📊 Sortare"
                 };
             }
             
@@ -208,7 +208,19 @@ public partial class SearchPage : ContentPage
                 _activeFilter = "Facilități";
             else if (button == PoiFilter)
                 _activeFilter = "Puncte Interes";
-            
+
+            // Log active filter search if logged in
+            var userIdStr = await MauiAppDisertatieVacantaAI.Classes.Library.Session.UserSession.GetUserIdAsync();
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                if (_activeFilter == "Categorii")
+                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Cautare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.CategorieVacanta);
+                else if (_activeFilter == "Facilități")
+                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Cautare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.Facilitate);
+                else if (_activeFilter == "Puncte Interes")
+                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Cautare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.PunctDeInteres);
+            }
+
             Debug.WriteLine($"[SearchPage] Active filter set to: '{_activeFilter}'");
             UpdateFilterButtons();
             
@@ -440,13 +452,35 @@ public partial class SearchPage : ContentPage
                         d.PretAdult >= _minPrice && d.PretAdult <= _maxPrice);
                 }
 
+                // Prepare relevance scores
+                var userIdStr = await MauiAppDisertatieVacantaAI.Classes.Library.Session.UserSession.GetUserIdAsync();
+                int.TryParse(userIdStr, out int currentUserId);
+                var recommendationService = new MauiAppDisertatieVacantaAI.Classes.Library.Services.RecommendationService();
+                var userScores = recommendationService.GetEntityScores(currentUserId, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.Destinatie);
+
+                // Setup logic function for dynamic scoring
+                int GetRelevanceScore(Destinatie d)
+                {
+                    int s = 0;
+                    if (!string.IsNullOrEmpty(searchLower))
+                    {
+                        if (d.Denumire.ToLowerInvariant() == searchLower) s += 30; // Redus de la 100 la 30
+                        else if (d.Denumire.ToLowerInvariant().Contains(searchLower)) s += 15; // Redus de la 50 la 15
+                        if (d.Tara.ToLowerInvariant().Contains(searchLower)) s += 10; // Redus
+                        if (d.Oras.ToLowerInvariant().Contains(searchLower)) s += 10; // Redus
+                    }
+                    s += userScores.GetValueOrDefault(d.Id_Destinatie, 0); // Include custom profile AI scores
+                    return s;
+                }
+
                 // Apply sorting
                 filteredDestinations = _currentSort switch
                 {
                     "PretAsc" => filteredDestinations.OrderBy(d => d.PretAdult),
                     "PretDesc" => filteredDestinations.OrderByDescending(d => d.PretAdult),
                     "Location" => filteredDestinations.OrderBy(d => d.Tara).ThenBy(d => d.Oras),
-                    _ => filteredDestinations.OrderBy(d => d.Denumire) // Default: Nume
+                    "Nume" => filteredDestinations.OrderBy(d => d.Denumire),
+                    _ => filteredDestinations.OrderByDescending(d => GetRelevanceScore(d)).ThenBy(d => d.Denumire) // Default: Relevanta
                 };
 
                 // Apply pagination
@@ -748,14 +782,15 @@ public partial class SearchPage : ContentPage
     {
         try
         {
-            var hasActiveSort = _currentSort != "Nume";
-            
+            var hasActiveSort = _currentSort != "Relevanta" && _currentSort != "Nume";
+
             Debug.WriteLine($"[SearchPage] OnSortClicked - Current sort: '{_currentSort}', Has active sort: {hasActiveSort}");
-            
+
             var action = await DisplayActionSheet(
                 "Sortare rezultate", 
                 "Anulează", 
                 hasActiveSort ? "Șterge sortarea" : null,
+                "⭐ Relevanță",
                 "📝 Nume (A-Z)",
                 "💰⬆ Preț crescător", 
                 "💰⬇ Preț descrescător",
@@ -766,6 +801,9 @@ public partial class SearchPage : ContentPage
 
             switch (action)
             {
+                case "⭐ Relevanță":
+                    SetSort("Relevanta");
+                    break;
                 case "📝 Nume (A-Z)":
                     SetSort("Nume");
                     break;
@@ -868,14 +906,14 @@ public partial class SearchPage : ContentPage
 
     private void ClearSort()
     {
-        _currentSort = "Nume";
-        
+        _currentSort = "Relevanta";
+
         // Reset button appearance to inactive state
         Device.BeginInvokeOnMainThread(() =>
         {
             SortButton.BackgroundColor = GetInactiveBackgroundColor();
             SortButton.TextColor = GetInactiveTextColor();
-            SortButton.Text = "📊 Sortare";
+            SortButton.Text = "⭐ Relevanță";
         });
 
         ApplyFiltersAndSearch();

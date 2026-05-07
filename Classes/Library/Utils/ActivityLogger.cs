@@ -1,12 +1,13 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
+using MauiAppDisertatieVacantaAI.Classes.Enums;
 using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
 {
     public static class ActivityLogger
     {
-        public static void Log(int userId, string tipActivitate, string tipEntitate, int? idEntitate = null, string idActivitate = null)
+        public static void Log(int userId, TipActivitate tipActivitate, TipEntitate tipEntitate, int? idEntitate = null, string idActivitate = null)
         {
             Task.Run(() =>
             {
@@ -20,8 +21,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                     {
                         Id_LogActivitate = nextId,
                         Id_Utilizator = userId,
-                        TipActivitate = tipActivitate,
-                        TipEntitate = tipEntitate,
+                        TipActivitate = tipActivitate.ToString(),
+                        TipEntitate = tipEntitate.ToString(),
                         IdEntitate = idEntitate,
                         IdActivitate = idActivitate,
                         DataInregistrare = DateTime.Now

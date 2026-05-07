@@ -138,6 +138,18 @@ Când vorbești despre destinații, include:
 
                 var prompt = await AIDestinationPromptTemplate.BuildPromptAsync(userQuery, existingDestinations, availableCategories);
 
+                // Fetch and inject custom AI profile
+                var userIdStr = await MauiAppDisertatieVacantaAI.Classes.Library.Session.UserSession.GetUserIdAsync();
+                if (int.TryParse(userIdStr, out int currentUserId) && currentUserId > 0)
+                {
+                    var recommendationService = new RecommendationService();
+                    var profileSummary = recommendationService.GetUserProfileSummaryText(currentUserId);
+                    if (!string.IsNullOrEmpty(profileSummary))
+                    {
+                        prompt += $"\n\n👤 PROFIL UTILIZATOR (Context invizibil pentru el, folosește-l ca sa personalizezi rezultatul):\n{profileSummary}\n";
+                    }
+                }
+
                 // Adaugă context conversațional dacă există
                 if (conversationHistory != null && conversationHistory.Any())
                 {
@@ -168,7 +180,83 @@ Când vorbești despre destinații, include:
                 {
                     MaxOutputTokens = 10000,
                     Temperature = 0.3f,
-                    ResponseMimeType = "application/json"
+                    ResponseMimeType = "application/json",
+                    ResponseSchema = new Schema
+                    {
+                        Type = Mscc.GenerativeAI.ParameterType.Object,
+                        Properties = new Dictionary<string, Schema>
+                        {
+                            { "action", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                            { "success", new Schema { Type = Mscc.GenerativeAI.ParameterType.Boolean } },
+                            { "message", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                            { "suggestion", new Schema 
+                                { 
+                                    Type = Mscc.GenerativeAI.ParameterType.Object,
+                                    Nullable = true,
+                                    Properties = new Dictionary<string, Schema>
+                                    {
+                                        { "titlu", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                        { "bugetEstimat", new Schema { Type = Mscc.GenerativeAI.ParameterType.Number } },
+                                        { "descriere", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                        { "destinatieDenumire", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                        { "destinatieTara", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                        { "destinatieOras", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                        { "estePublic", new Schema { Type = Mscc.GenerativeAI.ParameterType.Integer, Nullable = true } },
+                                        { "destinatieData", new Schema 
+                                            { 
+                                                Type = Mscc.GenerativeAI.ParameterType.Object,
+                                                Nullable = true,
+                                                Properties = new Dictionary<string, Schema>
+                                                {
+                                                    { "regiune", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                                    { "descriere", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                                    { "pretAdult", new Schema { Type = Mscc.GenerativeAI.ParameterType.Number } },
+                                                    { "pretMinor", new Schema { Type = Mscc.GenerativeAI.ParameterType.Number } },
+                                                    { "categorii", new Schema { Type = Mscc.GenerativeAI.ParameterType.Array, Items = new Schema { Type = Mscc.GenerativeAI.ParameterType.String } } },
+                                                    { "facilitati", new Schema { Type = Mscc.GenerativeAI.ParameterType.Array, Items = new Schema { Type = Mscc.GenerativeAI.ParameterType.String } } },
+                                                    { "photoSearchQueries", new Schema { Type = Mscc.GenerativeAI.ParameterType.Array, Items = new Schema { Type = Mscc.GenerativeAI.ParameterType.String } } },
+                                                    { "puncteDeInteres", new Schema 
+                                                        { 
+                                                            Type = Mscc.GenerativeAI.ParameterType.Array,
+                                                            Items = new Schema 
+                                                            { 
+                                                                Type = Mscc.GenerativeAI.ParameterType.Object,
+                                                                Properties = new Dictionary<string, Schema>
+                                                                {
+                                                                    { "denumire", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                                                    { "descriere", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                                                    { "tip", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                                                    { "photoSearchQueries", new Schema { Type = Mscc.GenerativeAI.ParameterType.Array, Items = new Schema { Type = Mscc.GenerativeAI.ParameterType.String } } }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } 
+                                        }
+                                    }
+                                } 
+                            },
+                            { "suggestions", new Schema 
+                                {
+                                    Type = Mscc.GenerativeAI.ParameterType.Array,
+                                    Nullable = true,
+                                    Items = new Schema 
+                                    {
+                                        Type = Mscc.GenerativeAI.ParameterType.Object,
+                                        Properties = new Dictionary<string, Schema>
+                                        {
+                                            { "destinatieDenumire", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                            { "destinatieTara", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                            { "destinatieOras", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } },
+                                            { "bugetEstimat", new Schema { Type = Mscc.GenerativeAI.ParameterType.Number } },
+                                            { "descriereScurta", new Schema { Type = Mscc.GenerativeAI.ParameterType.String } }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 };
 
                 var response = await _model.GenerateContent(prompt, generationConfig);

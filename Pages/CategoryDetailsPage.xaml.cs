@@ -75,6 +75,12 @@ public partial class CategoryDetailsPage : ContentPage
         
         if (_categoryId > 0)
         {
+            var userIdStr = await UserSession.GetUserIdAsync();
+            if (int.TryParse(userIdStr, out int userId))
+            {
+                MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Vizitare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.CategorieVacanta, _categoryId);
+            }
+
             // Check if we already have data for this category to avoid reloading
             if (_currentCategory?.Id_CategorieVacanta != _categoryId || !_destinations.Any())
             {
@@ -566,6 +572,11 @@ public partial class CategoryDetailsPage : ContentPage
                 {
                     _isFavorite = isNowFavorite;
                     UpdateFavoriteButtonUI();
+                }
+
+                if (_isFavorite)
+                {
+                    MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(_currentUserId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Favorit, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.CategorieVacanta, _categoryId);
                 }
 
                 Debug.WriteLine($"[CategoryDetailsPage] Favorite toggled successfully: {_isFavorite}");

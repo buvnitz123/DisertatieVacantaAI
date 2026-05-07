@@ -65,6 +65,13 @@ public partial class SuggestionDetailsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        var userIdStr = await MauiAppDisertatieVacantaAI.Classes.Library.Session.UserSession.GetUserIdAsync();
+        if (int.TryParse(userIdStr, out int userId))
+        {
+            MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(userId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Vizitare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.Sugestie, _suggestionId);
+        }
+
         await LoadSuggestionDetailsAsync();
     }
 
