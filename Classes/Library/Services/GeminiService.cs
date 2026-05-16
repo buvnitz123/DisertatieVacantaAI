@@ -154,7 +154,7 @@ Când vorbești despre destinații, include:
                 if (conversationHistory != null && conversationHistory.Any())
                 {
                     prompt += "\n\n📝 CONTEXT CONVERSAȚIE ANTERIOARĂ:\n";
-                    foreach (var message in conversationHistory.TakeLast(10)) // Ultimele 3 mesaje
+                    foreach (var message in conversationHistory.TakeLast(5)) // Ultimele 5 mesaje
                     {
                         prompt += $"- {message}\n";
                     }

@@ -25,6 +25,38 @@ public class ChatMessage : INotifyPropertyChanged
         } 
     }
 
+    // ✅ PROPRIETĂȚI NOI PENTRU BUTOANE ACȚIUNI
+    private bool _hasAction;
+    public bool HasAction
+    {
+        get => _hasAction;
+        set
+        {
+            if (_hasAction != value)
+            {
+                _hasAction = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private string _actionButtonText;
+    public string ActionButtonText
+    {
+        get => _actionButtonText;
+        set
+        {
+            if (_actionButtonText != value)
+            {
+                _actionButtonText = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public int? ActionSuggestionId { get; set; }
+    public int? ActionDestinationId { get; set; }
+
     // ✅ NOU - Proprietate pentru text formatat cu Markdown
     public FormattedString FormattedText => MarkdownParser.ParseToFormattedString(Text);
 

@@ -5,6 +5,7 @@ using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 using MauiAppDisertatieVacantaAI.Classes.Library.Session;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Windows.Input;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -19,6 +20,8 @@ public partial class ChatConversationPage : ContentPage
     private readonly DestinatieRepository _destinatieRepo = new();
     private readonly CategorieVacantaRepository _categorieRepo = new();
     private readonly ObservableCollection<ChatMessage> _messages = new();
+
+    public ICommand ActionCommand { get; }
 
     public string ConversationId { get; set; }
     public string ConversationName { get; set; }
@@ -39,6 +42,20 @@ public partial class ChatConversationPage : ContentPage
     {
         InitializeComponent();
         MessagesView.ItemsSource = _messages;
+
+        ActionCommand = new Command<ChatMessage>(async (msg) => {
+            if (msg == null) return;
+
+            if (msg.ActionSuggestionId.HasValue && msg.ActionSuggestionId.Value > 0)
+            {
+                await Shell.Current.GoToAsync($"{nameof(SuggestionDetailsPage)}?suggestionId={msg.ActionSuggestionId.Value}");
+            }
+            else if (msg.ActionDestinationId.HasValue && msg.ActionDestinationId.Value > 0)
+            {
+                await Shell.Current.GoToAsync($"{nameof(DestinationDetailsPage)}?destinationId={msg.ActionDestinationId.Value}");
+            }
+        });
+        BindingContext = this;
     }
 
     protected override async void OnAppearing()
@@ -145,12 +162,7 @@ public partial class ChatConversationPage : ContentPage
                             // Add messages
                             foreach (var msg in messages)
                             {
-                                _messages.Add(new ChatMessage
-                                {
-                                    Text = msg.Mesaj,
-                                    IsUser = msg.Mesaj_User == 1,
-                                    Timestamp = msg.Data_Creare
-                                });
+                                _messages.Add(ParseDbMessageToChat(msg));
                             }
                         }
 
@@ -175,12 +187,7 @@ public partial class ChatConversationPage : ContentPage
                         for (int i = messages.Count - 1; i >= 0; i--)
                         {
                             var msg = messages[i];
-                            _messages.Insert(insertIndex, new ChatMessage
-                            {
-                                Text = msg.Mesaj,
-                                IsUser = msg.Mesaj_User == 1,
-                                Timestamp = msg.Data_Creare
-                            });
+                            _messages.Insert(insertIndex, ParseDbMessageToChat(msg));
                         }
 
                         // Maintain scroll position (scroll to the message that was first before)
@@ -271,16 +278,21 @@ public partial class ChatConversationPage : ContentPage
 
             // Get AI response
             string aiResponseText;
+            int? actionSuggestionId = null;
+            int? actionDestinationId = null;
+            bool hasAction = false;
+            string actionButtonText = "";
+
             try
             {
                 var existingDestinations = GetExistingDestinationsForPrompt();
                 var availableCategories = GetAvailableCategoriesForPrompt();
 
-                // Construiește istoricul conversației (ultimele 3 mesaje pentru a economisi tokeni)
+                // Construiește istoricul conversației (ultimele 5 mesaje pentru a economisi tokeni)
                 // Limitează fiecare mesaj la maxim 500 caractere pentru a nu supraîncărca context-ul
                 var conversationHistory = _messages
                     .Where(m => !m.IsTyping && !m.Text.Contains("👋 Salut! Sunt Travel Assistant AI"))
-                    .TakeLast(3) // Redus de la 5 la 3 pentru eficiență
+                    .TakeLast(5) // Ultimele 5 pentru context extins
                   .Select(m =>
                         {
                             var text = m.Text.Length > 500 ? m.Text.Substring(0, 500) + "..." : m.Text;
@@ -308,6 +320,13 @@ public partial class ChatConversationPage : ContentPage
                     Debug.WriteLine("Processing as suggestion...");
                     var suggestionResult = await _suggestionProcessor.ProcessAISuggestionAsync(aiJsonResponse, _currentUserId);
                     aiResponseText = suggestionResult.Message;
+
+                    if (suggestionResult.Success && suggestionResult.SuggestionId > 0)
+                    {
+                        hasAction = true;
+                        actionSuggestionId = suggestionResult.SuggestionId;
+                        actionButtonText = "👉 Vezi Detalii Plan";
+                    }
                 }
                 else
                 {
@@ -325,6 +344,14 @@ public partial class ChatConversationPage : ContentPage
                     {
                         Debug.WriteLine($"Destination request detected. Response: {result.Message}");
                         aiResponseText = result.Message;
+
+                        // NOU: Afișare buton pentru Destinație
+                        if (result.DestinationId > 0 && !result.IsAskPreference)
+                        {
+                            hasAction = true;
+                            actionDestinationId = result.DestinationId;
+                            actionButtonText = "👉 Explorează Destinația";
+                        }
                     }
                     else
                     {
@@ -342,17 +369,36 @@ public partial class ChatConversationPage : ContentPage
             _messages.Remove(typingMessage);
 
             // Create AI message for animated typing
-            var aiMessage = new ChatMessage { Text = "", IsUser = false, Timestamp = DateTime.Now };
+            var aiMessage = new ChatMessage 
+            { 
+                Text = "", 
+                IsUser = false, 
+                Timestamp = DateTime.Now,
+                HasAction = hasAction,
+                ActionButtonText = actionButtonText,
+                ActionSuggestionId = actionSuggestionId,
+                ActionDestinationId = actionDestinationId
+            };
             AddMessageAnimated(aiMessage);
 
             // Animate the AI response word by word
             await AnimateAIResponseAsync(aiMessage, aiResponseText);
 
             // Save AI response to database (ID will be auto-generated by repository)
+            string dbMessageText = aiResponseText;
+            if (actionSuggestionId.HasValue && actionSuggestionId.Value > 0)
+            {
+                dbMessageText += $"[META:Sugestie={actionSuggestionId.Value}]";
+            }
+            else if (actionDestinationId.HasValue && actionDestinationId.Value > 0)
+            {
+                dbMessageText += $"[META:Destinatie={actionDestinationId.Value}]";
+            }
+
             var aiMesaj = new MesajAI
             {
                 // Don't set Id_Mesaj - let the repository generate it
-                Mesaj = aiResponseText,
+                Mesaj = dbMessageText,
                 Data_Creare = DateTime.Now,
                 Mesaj_User = 0, // 0 = AI message
                 Id_ConversatieAI = _conversationId
@@ -525,6 +571,52 @@ public partial class ChatConversationPage : ContentPage
     {
         _messages.Add(msg);
         MessagesView.ScrollTo(msg, position: ScrollToPosition.End, animate: true);
+    }
+
+    private ChatMessage ParseDbMessageToChat(MesajAI msg)
+    {
+        string displayMessage = msg.Mesaj ?? "";
+        bool hasAction = false;
+        string actionBtnText = "";
+        int? sugId = null;
+        int? destId = null;
+
+        var matchSug = System.Text.RegularExpressions.Regex.Match(displayMessage, @"\[META:Sugestie=(\d+)\]");
+        if (matchSug.Success)
+        {
+            if (int.TryParse(matchSug.Groups[1].Value, out int sId))
+            {
+                sugId = sId;
+                hasAction = true;
+                actionBtnText = "👉 Vezi Detalii Plan";
+            }
+            displayMessage = displayMessage.Replace(matchSug.Value, "");
+        }
+        else
+        {
+            var matchDest = System.Text.RegularExpressions.Regex.Match(displayMessage, @"\[META:Destinatie=(\d+)\]");
+            if (matchDest.Success)
+            {
+                if (int.TryParse(matchDest.Groups[1].Value, out int dId))
+                {
+                    destId = dId;
+                    hasAction = true;
+                    actionBtnText = "👉 Explorează Destinația";
+                }
+                displayMessage = displayMessage.Replace(matchDest.Value, "");
+            }
+        }
+
+        return new ChatMessage
+        {
+            Text = displayMessage.TrimEnd(),
+            IsUser = msg.Mesaj_User == 1,
+            Timestamp = msg.Data_Creare,
+            HasAction = hasAction,
+            ActionButtonText = actionBtnText,
+            ActionSuggestionId = sugId,
+            ActionDestinationId = destId
+        };
     }
 
     private async void OnLoadMoreClicked(object sender, EventArgs e)

@@ -60,6 +60,21 @@
                                 <Label FormattedText="{Binding FormattedText}"
                                        TextColor="White"
                                        LineBreakMode="WordWrap" />
+
+                                <!-- ✅ ADĂUGAT - Buton acțiune -->
+                                <Button Text="{Binding ActionButtonText}"
+                                        IsVisible="{Binding HasAction}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=ActionCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+                                        TextColor="{AppThemeBinding Light={StaticResource PrimaryBlue}, Dark={StaticResource White}}"
+                                        CornerRadius="10"
+                                        Margin="0,5,0,0"
+                                        HeightRequest="36"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        Padding="10,0"/>
+
                                 <Label Text="{Binding TimeString}"
                                        FontSize="10"
                                        HorizontalOptions="End"

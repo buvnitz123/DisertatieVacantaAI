@@ -12,6 +12,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         private readonly CategorieVacantaRepository _catRepo;
         private readonly CategorieVacanta_DestinatieRepository _catDestRepo;
         private readonly PunctDeInteresRepository _poiRepo;
+        private readonly UtilizatorRepository _userRepo; // NOU
 
         public RecommendationService()
         {
@@ -20,6 +21,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             _catRepo = new CategorieVacantaRepository();
             _catDestRepo = new CategorieVacanta_DestinatieRepository();
             _poiRepo = new PunctDeInteresRepository();
+            _userRepo = new UtilizatorRepository(); // NOU
         }
 
         // 1. Calcularea Scorul per Entitate (ex: Destinatii)
@@ -55,25 +57,37 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         // 2. Extragerea unui text pentru Prompt-ul AI
         public string GetUserProfileSummaryText(int userId)
         {
-            var dateDest = GetEntityScores(userId, TipEntitate.Destinatie).Take(3).Select(k => k.Key).ToList();
-            if (!dateDest.Any()) return string.Empty;
-
-            var destinatiiAlese = _destinatieRepo.GetAll().Where(d => dateDest.Contains(d.Id_Destinatie)).Select(d => d.Denumire).ToList();
-
-            var categScores = GetEntityScores(userId, TipEntitate.CategorieVacanta).Take(2).Select(k => k.Key).ToList();
-            var categAlese = _catRepo.GetAll().Where(c => categScores.Contains(c.Id_CategorieVacanta)).Select(c => c.Denumire).ToList();
-
             StringBuilder sb = new StringBuilder();
-            sb.Append("Acest utilizator prezinta un interes deosebit pentru urmatoarele: ");
-            if (categAlese.Any())
+
+            var user = _userRepo.GetById(userId);
+            if (user != null)
             {
-                sb.Append($"Categoriile de vacanta '{string.Join(", ", categAlese)}'. ");
+                int varsta = DateTime.Today.Year - user.Data_Nastere.Year;
+                if (user.Data_Nastere.Date > DateTime.Today.AddYears(-varsta)) varsta--;
+
+                sb.AppendLine($"Utilizatorul se numeste {user.Prenume} {user.Nume} si are {varsta} ani. Te rog sa i te adresezi MEREU direct, utilizand prenumele lui ({user.Prenume}) si un ton prietenos.");
+                sb.AppendLine("De asemenea, imbogateste-ti mesajele presarand cateva emoticoane relevante (dar nu in exces).");
             }
-            if (destinatiiAlese.Any())
+
+            var dateDest = GetEntityScores(userId, TipEntitate.Destinatie).Take(3).Select(k => k.Key).ToList();
+            var categScores = GetEntityScores(userId, TipEntitate.CategorieVacanta).Take(2).Select(k => k.Key).ToList();
+
+            if (dateDest.Any() || categScores.Any())
             {
-                sb.Append($"Destinatii apreciate recent includ '{string.Join(", ", destinatiiAlese)}'. ");
+                var destinatiiAlese = _destinatieRepo.GetAll().Where(d => dateDest.Contains(d.Id_Destinatie)).Select(d => d.Denumire).ToList();
+                var categAlese = _catRepo.GetAll().Where(c => categScores.Contains(c.Id_CategorieVacanta)).Select(c => c.Denumire).ToList();
+
+                sb.Append("Acest utilizator prezinta un interes deosebit pentru urmatoarele: ");
+                if (categAlese.Any())
+                {
+                    sb.Append($"Categoriile de vacanta '{string.Join(", ", categAlese)}'. ");
+                }
+                if (destinatiiAlese.Any())
+                {
+                    sb.Append($"Destinatii apreciate recent includ '{string.Join(", ", destinatiiAlese)}'. ");
+                }
+                sb.Append("Pastreaza acest context pentru a-i recomanda sugestii cat mai potrivite si personalizate.");
             }
-            sb.Append("Pastreaza acest context pentru a-i recomanda sugestii cat mai potrivite si personalizate.");
 
             return sb.ToString();
         }

@@ -1,6 +1,7 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Library;
+using MauiAppDisertatieVacantaAI.Classes.Library.Utils;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -162,7 +163,10 @@ public partial class SuggestionDetailsPage : ContentPage
         SuggestionTitleLabel.Text = _currentSuggestion.Titlu;
         DestinationNameLabel.Text = _currentSuggestion.Destinatie?.Denumire ?? "Destinatie necunoscuta";
         BudgetLabel.Text = $"{_currentSuggestion.Buget_Estimat:N0} €";
-        DescriptionLabel.Text = _currentSuggestion.Descriere;
+
+        // Parse markdown text for bold/italic support
+        DescriptionLabel.FormattedText = MarkdownParser.ParseToFormattedString(_currentSuggestion.Descriere);
+
         CreationDateLabel.Text = _currentSuggestion.Data_Inregistrare.ToString("dd/MM/yyyy");
         
         // Update visibility status with appropriate styling

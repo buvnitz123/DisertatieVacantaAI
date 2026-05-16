@@ -314,13 +314,20 @@ public partial class SugestiiPage : ContentPage
             }
 
             // Create new unshared cloned suggestion
+            string newTitle = $"{importedSuggestion.Titlu} (Importat)";
+            if (newTitle.Length > 50)
+            {
+                newTitle = newTitle.Substring(0, 47) + "...";
+            }
+
             var newSuggestion = new Sugestie
             {
                 Id_Utilizator = currentUserId,
                 Id_Destinatie = importedSuggestion.Id_Destinatie,
-                Titlu = $"{importedSuggestion.Titlu} (Importat)",
+                Titlu = newTitle,
                 Descriere = importedSuggestion.Descriere,
                 Buget_Estimat = importedSuggestion.Buget_Estimat,
+                EsteGenerataDeAI = importedSuggestion.EsteGenerataDeAI,
                 EstePublic = 0,
                 CodPartajare = null,
                 Data_Inregistrare = DateTime.Now
