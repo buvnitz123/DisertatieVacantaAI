@@ -283,6 +283,63 @@ public partial class SugestiiPage : ContentPage
         await Shell.Current.GoToAsync(nameof(NewSugestiePage));
     }
 
+    private async void OnImportClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            string shareCode = await DisplayPromptAsync("Importă Plan", "Introdu codul de partajare primit:", "Importă", "Anulează", placeholder: "Ex: VAC-12345");
+
+            if (string.IsNullOrWhiteSpace(shareCode))
+                return;
+
+            string userIdStr = await UserSession.GetUserIdAsync();
+            if (!int.TryParse(userIdStr, out int currentUserId) || currentUserId <= 0)
+            {
+                await DisplayAlert("Eroare", "Trebuie să fii autentificat pentru a importa planuri.", "OK");
+                return;
+            }
+
+            var importedSuggestion = await Task.Run(() => _sugestieRepo.GetByShareCode(shareCode));
+
+            if (importedSuggestion == null)
+            {
+                await DisplayAlert("Eroare", "Cod invalid, planul nu există sau nu este public.", "OK");
+                return;
+            }
+
+            if (importedSuggestion.Id_Utilizator == currentUserId)
+            {
+                await DisplayAlert("Info", "Acest plan îți aparține deja.", "OK");
+                return;
+            }
+
+            // Create new unshared cloned suggestion
+            var newSuggestion = new Sugestie
+            {
+                Id_Utilizator = currentUserId,
+                Id_Destinatie = importedSuggestion.Id_Destinatie,
+                Titlu = $"{importedSuggestion.Titlu} (Importat)",
+                Descriere = importedSuggestion.Descriere,
+                Buget_Estimat = importedSuggestion.Buget_Estimat,
+                EstePublic = 0,
+                CodPartajare = null,
+                Data_Inregistrare = DateTime.Now
+            };
+
+            await Task.Run(() => _sugestieRepo.Insert(newSuggestion));
+
+            MauiAppDisertatieVacantaAI.Classes.Library.Utils.ActivityLogger.Log(currentUserId, MauiAppDisertatieVacantaAI.Classes.Enums.TipActivitate.Creare, MauiAppDisertatieVacantaAI.Classes.Enums.TipEntitate.Sugestie, newSuggestion.Id_Sugestie);
+
+            await DisplayAlert("Succes!", $"Planul '{importedSuggestion.Titlu}' a fost importat cu succes.", "OK");
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SugestiiPage] Eroare la importul sugestiei: {ex.Message}");
+            await DisplayAlert("Eroare", "A apărut o problemă la importare.", "OK");
+        }
+    }
+
     private async void OnMenuTapped(object sender, EventArgs e)
     {
         try

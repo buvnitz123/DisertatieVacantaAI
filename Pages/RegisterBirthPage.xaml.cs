@@ -8,7 +8,7 @@ public partial class RegisterBirthPage : ContentPage
     public RegisterBirthPage()
     {
         InitializeComponent();
-        
+
         // Set initial date
         if (RegistrationSession.Draft?.DataNastere != null)
         {
@@ -19,7 +19,7 @@ public partial class RegisterBirthPage : ContentPage
             // Default to a reasonable date (25 years old)
             BirthDatePicker.Date = DateTime.Today.AddYears(-25);
         }
-        
+
         UpdateAgeDisplay();
     }
 
@@ -55,9 +55,9 @@ public partial class RegisterBirthPage : ContentPage
     {
         var selectedDate = BirthDatePicker.Date;
         var age = CalculateAge(selectedDate);
-        
+
         AgeLabel.Text = $"Vârsta: {age} ani";
-        
+
         // Visual feedback based on age - informative only, no restrictions
         if (age < 0) // Future date
         {
@@ -77,20 +77,20 @@ public partial class RegisterBirthPage : ContentPage
     {
         var today = DateTime.Today;
         var age = today.Year - birthDate.Year;
-        
+
         // Adjust if birthday hasn't occurred this year
         if (birthDate.Date > today.AddYears(-age))
             age--;
-            
+
         return age;
     }
 
     private async void OnNext(object sender, EventArgs e)
     {
         ErrorLabel.IsVisible = false;
-        
+
         var selectedDate = BirthDatePicker.Date;
-        
+
         // Only validate that date is not in future
         if (!ValidationUtils.IsValidBirthDate(selectedDate))
         {
@@ -100,13 +100,13 @@ public partial class RegisterBirthPage : ContentPage
 
         // Show loading state
         ContinueButton.IsEnabled = false;
-        ContinueButton.Text = "Se preg?te?te...";
-        
+        ContinueButton.Text = "Se pregătește...";
+
         try
         {
             // Small delay for better UX
             await Task.Delay(300);
-            
+
             RegistrationSession.SetBirthDate(selectedDate);
             await Shell.Current.GoToAsync(nameof(ProfilePhotoPage));
         }
@@ -117,7 +117,7 @@ public partial class RegisterBirthPage : ContentPage
         finally
         {
             ContinueButton.IsEnabled = true;
-            ContinueButton.Text = "Continu? spre finalul înregistr?rii";
+            ContinueButton.Text = "Continuă spre finalul înregistrării";
         }
     }
 
@@ -136,17 +136,17 @@ public partial class RegisterBirthPage : ContentPage
     {
         ErrorLabel.Text = msg;
         ErrorLabel.IsVisible = true;
-        
+
         // Visual feedback
         DateFrame.BorderColor = Color.FromArgb("#FF6B6B");
-        
+
         // Remove border color after a delay
         Device.StartTimer(TimeSpan.FromSeconds(3), () =>
         {
             DateFrame.BorderColor = Colors.Transparent;
             return false;
         });
-        
+
         // Gentle shake animation
         this.ScaleTo(0.98, 100)
             .ContinueWith(t => this.ScaleTo(1.0, 100));

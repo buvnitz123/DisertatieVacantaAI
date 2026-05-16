@@ -187,17 +187,29 @@
             </StackLayout>
         </ScrollView>
 
-        <!-- Add New Suggestion Button -->
-        <Button Grid.Row="2" 
-                x:Name="AddSugestieButton"
-                Text="✨ Planificare Nouă"
-                BackgroundColor="{StaticResource PrimaryBlue}"
-                TextColor="White"
-                FontSize="15"
-                FontAttributes="Bold"
-                CornerRadius="12"
-                Padding="0,12"
-                Margin="0,15,0,10"
-                Clicked="OnAddSugestie" />
+        <!-- Add New & Import Buttons -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,15,0,10">
+            <Button Grid.Column="0"
+                    x:Name="AddSugestieButton"
+                    Text="✨ Plan Nou"
+                    BackgroundColor="{StaticResource PrimaryBlue}"
+                    TextColor="White"
+                    FontSize="15"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    Padding="0,12"
+                    Clicked="OnAddSugestie" />
+            
+            <Button Grid.Column="1"
+                    x:Name="ImportButton"
+                    Text="🔗 Importă"
+                    BackgroundColor="DarkGreen"
+                    TextColor="White"
+                    FontSize="15"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    Padding="0,12"
+                    Clicked="OnImportClicked" />
+        </Grid>
     </Grid>
 </ContentPage>

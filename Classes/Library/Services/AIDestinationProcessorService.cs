@@ -110,10 +110,23 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
                     case "ask_preference":
                         // NOU - AI cere preferințe utilizatorului
+                        var message = aiResponse.Message ?? "Am câteva recomandări pentru tine!";
+                        if (aiResponse.Suggestions != null && aiResponse.Suggestions.Any())
+                        {
+                            message += "\n\n";
+                            for (int i = 0; i < aiResponse.Suggestions.Count; i++)
+                            {
+                                var s = aiResponse.Suggestions[i];
+                                message += $"{i + 1}. {s.DestinatieDenumire} ({s.DestinatieTara}, {s.DestinatieOras})\n";
+                                message += $"   Buget estimat: {s.BugetEstimat} RON\n";
+                                message += $"   Descriere: {s.DescriereScurta}\n\n";
+                            }
+                        }
+
                         return new ProcessResult
                         {
                             Success = true,
-                            Message = aiResponse.Message ?? "Am câteva recomandări pentru tine!",
+                            Message = message.TrimEnd(),
                             DestinationId = 0,
                             IsGeneralChat = false,
                             IsAskPreference = true // NOU - flag pentru UI

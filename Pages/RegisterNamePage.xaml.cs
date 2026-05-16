@@ -77,8 +77,8 @@ public partial class RegisterNamePage : ContentPage
 
         // Disable button and show loading state
         ContinueButton.IsEnabled = false;
-        ContinueButton.Text = "Se încarc?...";
-        
+        ContinueButton.Text = "Se încarcă...";
+
         try
         {
             RegistrationSession.SetName(nume, prenume);
@@ -91,7 +91,7 @@ public partial class RegisterNamePage : ContentPage
         finally
         {
             ContinueButton.IsEnabled = true;
-            ContinueButton.Text = "Continu?";
+            ContinueButton.Text = "Continuă";
         }
     }
 

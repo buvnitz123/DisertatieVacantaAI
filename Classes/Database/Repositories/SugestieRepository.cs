@@ -82,5 +82,14 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
                 .OrderByDescending(s => s.Data_Inregistrare)
                 .ToList();
         }
+
+        // Metodă nouă pentru importul după cod
+        public Sugestie GetByShareCode(string shareCode)
+        {
+            using var context = new AppContext();
+            return context.Sugestii
+                .Include(s => s.Destinatie)
+                .FirstOrDefault(s => s.CodPartajare == shareCode && s.EstePublic == 1);
+        }
     }
 }

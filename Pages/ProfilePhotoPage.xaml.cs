@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
+﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
 using MauiAppDisertatieVacantaAI.Classes.Library;
 using MauiAppDisertatieVacantaAI.Classes.Library.Services;
 using MauiAppDisertatieVacantaAI.Classes.Library.Session;
+using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -18,7 +18,7 @@ public partial class ProfilePhotoPage : ContentPage
     {
         InitializeComponent();
         _repo = new UtilizatorRepository();
-        
+
         // Add tap gesture to the photo area
         var photoTapGesture = new TapGestureRecognizer();
         photoTapGesture.Tapped += OnPhotoAreaTapped;
@@ -28,17 +28,17 @@ public partial class ProfilePhotoPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        
+
         if (RegistrationSession.Draft == null)
         {
             ShowError("Sesiunea de înregistrare a expirat.");
             return;
         }
-        
+
         // Show user preview
         var draft = RegistrationSession.Draft;
         UserPreviewLabel.Text = $"{draft.Nume} {draft.Prenume}";
-        
+
         // Set default photo
         if (!_hasSelectedPhoto)
         {
@@ -53,10 +53,10 @@ public partial class ProfilePhotoPage : ContentPage
         PhotoActionsGrid.IsVisible = false;
         StatusLabel.IsVisible = false;
         _hasSelectedPhoto = false;
-        
+
         // Update button text
-        FinishButton.Text = "?? Finalizeaz? înregistrarea";
-        SkipButton.Text = "Sari acest pas ?i finalizeaz?";
+        FinishButton.Text = "✨ Finalizează înregistrarea";
+        SkipButton.Text = "Sari acest pas și finalizează";
     }
 
     private void SetPhotoSelectedState()
@@ -65,13 +65,13 @@ public partial class ProfilePhotoPage : ContentPage
         PlaceholderContent.IsVisible = false;
         PhotoActionsGrid.IsVisible = true;
         StatusLabel.IsVisible = true;
-        StatusLabel.Text = "Poza selectata cu succes! ?";
+        StatusLabel.Text = "Poza selectata cu succes! ✅";
         StatusLabel.TextColor = Color.FromArgb("#4CAF50");
         _hasSelectedPhoto = true;
-        
+
         // Update button text
-        FinishButton.Text = "?? Finalizeaza cu poza selectata";
-        SkipButton.Text = "Finalizeaza fara poza";
+        FinishButton.Text = "✨ Finalizează cu poza selectată";
+        SkipButton.Text = "Finalizează fara poza";
     }
 
     private async void OnPhotoAreaTapped(object sender, TappedEventArgs e)
@@ -90,17 +90,17 @@ public partial class ProfilePhotoPage : ContentPage
 
 #if ANDROID
         string action = await DisplayActionSheet(
-            "Selecteaz? sursa pentru poza de profil", 
-            "Anuleaz?", 
-            null, 
-            "?? F? o poz?", 
-            "??? Alege din galerie");
+            "Selectează sursa pentru poza de profil",
+            "Anulează",
+            null,
+            "📸 Fă o poză",
+            "🖼️ Alege din galerie");
 
-        if (action == "?? F? o poz?")
+        if (action == "📸 Fă o poză")
         {
             await CameraClickedAsync();
         }
-        else if (action == "??? Alege din galerie")
+        else if (action == "🖼️ Alege din galerie")
         {
             await GalleryClickedAsync();
         }
@@ -110,12 +110,12 @@ public partial class ProfilePhotoPage : ContentPage
     private async Task CameraClickedAsync()
     {
         if (_isBusy) return;
-        
+
         try
         {
             if (!await EnsurePermissionsAsync())
             {
-                ShowError("Permisiunile pentru camer? sunt necesare pentru a face o poza.");
+                ShowError("Permisiunile pentru cameră sunt necesare pentru a face o poza.");
                 return;
             }
 
@@ -130,7 +130,7 @@ public partial class ProfilePhotoPage : ContentPage
     private async Task GalleryClickedAsync()
     {
         if (_isBusy) return;
-        
+
         try
         {
             if (!await EnsurePermissionsAsync())
@@ -189,7 +189,7 @@ public partial class ProfilePhotoPage : ContentPage
         }
         catch (Exception ex)
         {
-            var msg = $"Opera?ia a e?uat: {ex.Message}";
+            var msg = $"Operația a eșuat: {ex.Message}";
             Debug.WriteLine(msg);
             ShowError(msg);
         }
@@ -212,7 +212,7 @@ public partial class ProfilePhotoPage : ContentPage
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Capturarea imaginii a e?uat", ex);
+            throw new InvalidOperationException("Capturarea imaginii a eșuat", ex);
         }
     }
 
@@ -223,7 +223,7 @@ public partial class ProfilePhotoPage : ContentPage
             var result = await FilePicker.PickAsync(new PickOptions
             {
                 FileTypes = FilePickerFileType.Images,
-                PickerTitle = "Selecteaz? imagine pentru profil"
+                PickerTitle = "Selectează imagine pentru profil"
             });
 
             if (result != null)
@@ -234,7 +234,7 @@ public partial class ProfilePhotoPage : ContentPage
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Selectarea imaginii a e?uat", ex);
+            throw new InvalidOperationException("Selectarea imaginii a eșuat", ex);
         }
     }
 
@@ -246,13 +246,13 @@ public partial class ProfilePhotoPage : ContentPage
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             _pendingImageBytes = ms.ToArray();
-            
+
             // Display the image
             PreviewImage.Source = ImageSource.FromStream(() => new MemoryStream(_pendingImageBytes));
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException("Înc?rcarea imaginii a e?uat", ex);
+            throw new InvalidOperationException("Încărcarea imaginii a eșuat", ex);
         }
     }
 
@@ -303,7 +303,7 @@ public partial class ProfilePhotoPage : ContentPage
                 try
                 {
                     SetBusy(true, "Se incarca poza de profil...");
-                    
+
                     // Upload with fixed name; store only relative path in DB
                     var blobName = $"profiles/profile_user_{newId}.jpg";
                     var contentType = AzureBlobService.GetContentTypeFromFileName(blobName);
@@ -364,7 +364,7 @@ public partial class ProfilePhotoPage : ContentPage
     {
         ErrorLabel.Text = msg;
         ErrorLabel.IsVisible = true;
-        
+
         // Gentle shake animation
         this.ScaleTo(0.98, 100)
             .ContinueWith(t => this.ScaleTo(1.0, 100));
@@ -380,12 +380,12 @@ public partial class ProfilePhotoPage : ContentPage
         _isBusy = busy;
         BusyIndicator.IsVisible = busy;
         BusyIndicator.IsRunning = busy;
-        
+
         // Disable buttons during busy state
         FinishButton.IsEnabled = !busy;
         SkipButton.IsEnabled = !busy;
         AddPhotoButton.IsEnabled = !busy;
-        
+
         if (busy)
         {
             StatusLabel.Text = message;

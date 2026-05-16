@@ -7,7 +7,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
 {
     public static class ActivityLogger
     {
-        public static void Log(int userId, TipActivitate tipActivitate, TipEntitate tipEntitate, int? idEntitate = null, string idActivitate = null)
+        public static void Log(int userId, TipActivitate tipActivitate, TipEntitate tipEntitate, int? idEntitate = null)
         {
             Task.Run(() =>
             {
@@ -24,7 +24,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                         TipActivitate = tipActivitate.ToString(),
                         TipEntitate = tipEntitate.ToString(),
                         IdEntitate = idEntitate,
-                        IdActivitate = idActivitate,
                         DataInregistrare = DateTime.Now
                     };
 
