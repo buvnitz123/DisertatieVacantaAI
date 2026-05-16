@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiAppDisertatieVacantaAI.Pages"
              x:Class="MauiAppDisertatieVacantaAI.Pages.DestinationDetailsPage"
              Title="Detalii Destinatie"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
@@ -21,11 +22,14 @@
                                       BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}"
                                       HeightRequest="250">
                             <CarouselView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:DestinationImageItem">
                                     <Grid>
-                                        <Image Source="{Binding ImagineUrl}" 
-                                               Aspect="AspectFill"
-                                               BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+                                        <Image Aspect="AspectFill"
+                                               BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}">
+                                            <Image.Source>
+                                                <UriImageSource Uri="{Binding ImagineUrl}" CachingEnabled="True" CacheValidity="14:0:0:0" />
+                                            </Image.Source>
+                                        </Image>
                                         <BoxView BackgroundColor="Transparent" />
                                     </Grid>
                                 </DataTemplate>
@@ -189,7 +193,7 @@
                                 <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12" />
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:DestinationCategoryDisplayItem">
                                     <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
                                            CornerRadius="8" 
                                            Padding="0"
@@ -198,9 +202,12 @@
                                            HeightRequest="80"
                                            Margin="0,5">
                                         <Grid>
-                                            <Image Source="{Binding ImagineUrl}" 
-                                                   Aspect="AspectFill"
-                                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" />
+                                            <Image Aspect="AspectFill"
+                                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}">
+                                                <Image.Source>
+                                                    <UriImageSource Uri="{Binding ImagineUrl}" CachingEnabled="True" CacheValidity="14:0:0:0" />
+                                                </Image.Source>
+                                            </Image>
                                             
                                             <!-- Dark overlay for text readability -->
                                             <BoxView BackgroundColor="Black" 
@@ -284,7 +291,7 @@
                                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="20" />
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:PoiDisplayItem">
                                     <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
                                            CornerRadius="8" 
                                            Padding="15"
@@ -329,16 +336,19 @@
                                                                      ItemSpacing="8" />
                                                 </CollectionView.ItemsLayout>
                                                 <CollectionView.ItemTemplate>
-                                                    <DataTemplate>
+                                                    <DataTemplate x:DataType="models:DestinationImageItem">
                                                         <Frame CornerRadius="6" 
                                                                Padding="0" 
                                                                HasShadow="False"
                                                                BackgroundColor="Transparent"
                                                                WidthRequest="100"
                                                                HeightRequest="100">
-                                                            <Image Source="{Binding ImagineUrl}" 
-                                                                   Aspect="AspectFill"
-                                                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" />
+                                                            <Image Aspect="AspectFill"
+                                                                   BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}">
+                                                                <Image.Source>
+                                                                    <UriImageSource Uri="{Binding ImagineUrl}" CachingEnabled="True" CacheValidity="14:0:0:0" />
+                                                                </Image.Source>
+                                                            </Image>
                                                         </Frame>
                                                     </DataTemplate>
                                                 </CollectionView.ItemTemplate>
@@ -378,7 +388,7 @@
                                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
                             </CollectionView.ItemsLayout>
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate x:DataType="models:ReviewDisplayItem">
                                     <Frame BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource MediumGray}}" 
                                            CornerRadius="12" 
                                            Padding="15"
@@ -401,9 +411,12 @@
                                                                CornerRadius="18"
                                                                Padding="0"
                                                                HasShadow="False">
-                                                            <Image Source="{Binding UserProfilePhoto}" 
-                                                                   Aspect="AspectFill"
-                                                                   BackgroundColor="#F0F0F0" />
+                                                            <Image Aspect="AspectFill"
+                                                                   BackgroundColor="#F0F0F0">
+                                                                <Image.Source>
+                                                                    <UriImageSource Uri="{Binding UserProfilePhoto}" CachingEnabled="True" CacheValidity="14:0:0:0" />
+                                                                </Image.Source>
+                                                            </Image>
                                                         </Frame>
                                                         
                                                     </Grid>
