@@ -51,36 +51,69 @@
                                 <Setter Property="HasShadow" Value="False" />
                             </Style>
                         </Grid.Resources>
-                        <Frame Style="{StaticResource BubbleStyle}"
-                               BackgroundColor="{Binding BubbleColor}"
-                               HorizontalOptions="{Binding HorizontalAlignment}"
-                               MaximumWidthRequest="280">
-                            <VerticalStackLayout Spacing="4">
-                                <!-- ✅ SCHIMBAT - Folosește FormattedText pentru Markdown -->
-                                <Label FormattedText="{Binding FormattedText}"
-                                       TextColor="White"
-                                       LineBreakMode="WordWrap" />
+                        <VerticalStackLayout HorizontalOptions="{Binding HorizontalAlignment}">
+                            <Frame Style="{StaticResource BubbleStyle}"
+                                   BackgroundColor="{Binding BubbleColor}"
+                                   MaximumWidthRequest="280">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label FormattedText="{Binding FormattedText}"
+                                           TextColor="White"
+                                           LineBreakMode="WordWrap" />
 
-                                <!-- ✅ ADĂUGAT - Buton acțiune -->
-                                <Button Text="{Binding ActionButtonText}"
-                                        IsVisible="{Binding HasAction}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=ActionCommand}"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
-                                        TextColor="{AppThemeBinding Light={StaticResource PrimaryBlue}, Dark={StaticResource White}}"
-                                        CornerRadius="10"
-                                        Margin="0,5,0,0"
-                                        HeightRequest="36"
-                                        FontSize="13"
-                                        FontAttributes="Bold"
-                                        Padding="10,0"/>
+                                    <Button Text="{Binding ActionButtonText}"
+                                            IsVisible="{Binding HasAction}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=ActionCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}"
+                                            TextColor="{AppThemeBinding Light={StaticResource PrimaryBlue}, Dark={StaticResource White}}"
+                                            CornerRadius="10"
+                                            Margin="0,5,0,0"
+                                            HeightRequest="36"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            Padding="10,0"/>
 
-                                <Label Text="{Binding TimeString}"
-                                       FontSize="10"
-                                       HorizontalOptions="End"
-                                       TextColor="#CCCCCC" />
+                                    <Label Text="{Binding TimeString}"
+                                           FontSize="10"
+                                           HorizontalOptions="End"
+                                           TextColor="#CCCCCC" />
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <!-- Rating - sub balon -->
+                            <VerticalStackLayout IsVisible="{Binding ShowRating}"
+                                                 Margin="4,6,0,0"
+                                                 Spacing="4">
+                                <Label Text="Vă place răspunsul?"
+                                       FontSize="11"
+                                       TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                       Opacity="0.8" />
+                                <HorizontalStackLayout Spacing="16">
+                                    <Label Text="👍"
+                                           FontSize="20">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=RateLikeCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Label Text="👎"
+                                           FontSize="20">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=RateDislikeCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </HorizontalStackLayout>
                             </VerticalStackLayout>
-                        </Frame>
+
+                            <!-- Feedback după rating -->
+                            <Label Text="{Binding RatingText}"
+                                   IsVisible="{Binding HasRatingText}"
+                                   FontSize="11"
+                                   Margin="4,4,0,0"
+                                   TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
+                                   Opacity="0.7" />
+                        </VerticalStackLayout>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

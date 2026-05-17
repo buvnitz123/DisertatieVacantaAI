@@ -4,11 +4,19 @@ using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 {
-    public class GeminiService
+    public class GeminiService : IAIService
     {
         private GoogleAI? _geminiClient;
         private GenerativeModel? _model;
         private bool _initialized = false;
+        private readonly string _modelId;
+
+        public string ModelName => _modelId;
+
+        public GeminiService(string modelId = "gemini-2.5-flash")
+        {
+            _modelId = modelId;
+        }
 
         public async Task<bool> InitializeAsync()
         {
@@ -23,9 +31,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 }
 
                 _geminiClient = new GoogleAI(apiKey);
-                _model = _geminiClient.GenerativeModel(model: "gemini-2.5-flash"); // Aici putem pune gemini-3-flash-preview cand este disponibil pachetul Mscc.GenerativeAI, momentan folosim 2.5
+                _model = _geminiClient.GenerativeModel(model: _modelId);
                 _initialized = true;
-                Debug.WriteLine("Gemini service initialized successfully");
+                Debug.WriteLine($"Gemini service initialized successfully with model: {_modelId}");
 
                 return true;
             }
@@ -89,7 +97,14 @@ Când vorbești despre destinații, include:
                     Temperature = 0.6f
                 };
 
+                var sw = Stopwatch.StartNew();
                 var response = await _model.GenerateContent(fullPrompt, generationConfig);
+                sw.Stop();
+
+                // Log performance
+                var tokenIn = response?.UsageMetadata?.PromptTokenCount ?? 0;
+                var tokenOut = response?.UsageMetadata?.CandidatesTokenCount ?? 0;
+                AIPerformanceLogger.Log(ModelName, (decimal)sw.Elapsed.TotalSeconds, tokenIn, tokenOut);
 
                 if (!string.IsNullOrEmpty(response?.Text))
                 {
@@ -259,7 +274,14 @@ Când vorbești despre destinații, include:
                     }
                 };
 
+                var sw = Stopwatch.StartNew();
                 var response = await _model.GenerateContent(prompt, generationConfig);
+                sw.Stop();
+
+                // Log performance
+                var tokenIn = response?.UsageMetadata?.PromptTokenCount ?? 0;
+                var tokenOut = response?.UsageMetadata?.CandidatesTokenCount ?? 0;
+                AIPerformanceLogger.Log(ModelName, (decimal)sw.Elapsed.TotalSeconds, tokenIn, tokenOut);
 
                 Debug.WriteLine($"API Response - IsEmpty: {response == null}");
                 Debug.WriteLine($"API Response - Text IsEmpty: {string.IsNullOrEmpty(response?.Text)}");
@@ -271,7 +293,7 @@ Când vorbești despre destinații, include:
                     var aiResponse = response.Text.Trim();
                     Debug.WriteLine($"Received destination creation response from Gemini: {aiResponse}");
 
-                    var cleanedResponse = CleanAIResponse(aiResponse);
+                    var cleanedResponse = AIResponseHelper.CleanAIResponse(aiResponse);
                     if (string.IsNullOrEmpty(cleanedResponse))
                     {
                         return CreateErrorResponse("Răspuns gol de la AI.");

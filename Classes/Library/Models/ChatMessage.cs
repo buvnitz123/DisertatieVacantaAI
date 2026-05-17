@@ -57,6 +57,35 @@ public class ChatMessage : INotifyPropertyChanged
     public int? ActionSuggestionId { get; set; }
     public int? ActionDestinationId { get; set; }
 
+    // Rating
+    private bool _showRating;
+    public bool ShowRating
+    {
+        get => _showRating;
+        set { if (_showRating != value) { _showRating = value; OnPropertyChanged(); } }
+    }
+
+    private string _ratingText;
+    public string RatingText
+    {
+        get => _ratingText;
+        set { if (_ratingText != value) { _ratingText = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasRatingText)); } }
+    }
+
+    public bool HasRatingText => !string.IsNullOrEmpty(RatingText);
+
+    private int? _userRating;
+    public int? UserRating
+    {
+        get => _userRating;
+        set { if (_userRating != value) { _userRating = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShowRating)); OnPropertyChanged(nameof(RatedLike)); OnPropertyChanged(nameof(RatedDislike)); } }
+    }
+
+    public bool RatedLike => UserRating == 1;
+    public bool RatedDislike => UserRating == 0;
+
+    public int? PerformanceLogId { get; set; }
+
     // ✅ NOU - Proprietate pentru text formatat cu Markdown
     public FormattedString FormattedText => MarkdownParser.ParseToFormattedString(Text);
 

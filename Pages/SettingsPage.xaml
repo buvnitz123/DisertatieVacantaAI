@@ -36,6 +36,23 @@
 
             <BoxView HeightRequest="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
 
+            <!-- Model AI -->
+            <Label Text="Model AI"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Label Text="🤖" FontSize="20" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="Model utilizat" VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                <Picker x:Name="AIModelPicker" Grid.Column="2"
+                        WidthRequest="160"
+                        SelectedIndexChanged="OnAIModelChanged"
+                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+            </Grid>
+
+            <BoxView HeightRequest="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+
             <!-- Date -->
             <Label Text="Date"
                    FontSize="18" FontAttributes="Bold"

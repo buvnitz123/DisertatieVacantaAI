@@ -14,14 +14,16 @@ namespace MauiAppDisertatieVacantaAI.Pages;
 public partial class ChatConversationPage : ContentPage
 {
     private readonly MesajAIRepository _mesajRepo = new();
-    private readonly GeminiService _geminiService = new();
+    private IAIService _aiService;
     private readonly AIDestinationProcessorService _processorService = new();
-    private readonly AISuggestionProcessorService _suggestionProcessor = new(); // NOU!
+    private readonly AISuggestionProcessorService _suggestionProcessor = new();
     private readonly DestinatieRepository _destinatieRepo = new();
     private readonly CategorieVacantaRepository _categorieRepo = new();
     private readonly ObservableCollection<ChatMessage> _messages = new();
 
     public ICommand ActionCommand { get; }
+    public ICommand RateLikeCommand { get; }
+    public ICommand RateDislikeCommand { get; }
 
     public string ConversationId { get; set; }
     public string ConversationName { get; set; }
@@ -29,7 +31,9 @@ public partial class ChatConversationPage : ContentPage
     private int _conversationId;
     private int _currentUserId;
     private bool _isAIResponding = false;
-    private bool _isFirstUserMessage = true; // NOU - track dacă e primul mesaj user
+    private bool _isFirstUserMessage = true;
+    private int _actionMessageCount = 0;
+    private int _nextRatingThreshold = Random.Shared.Next(2, 4);
 
     // Pagination properties
     private const int MessagesPerPage = 10;
@@ -41,6 +45,7 @@ public partial class ChatConversationPage : ContentPage
     public ChatConversationPage()
     {
         InitializeComponent();
+        _aiService = AIServiceFactory.Create();
         MessagesView.ItemsSource = _messages;
 
         ActionCommand = new Command<ChatMessage>(async (msg) => {
@@ -55,6 +60,10 @@ public partial class ChatConversationPage : ContentPage
                 await Shell.Current.GoToAsync($"{nameof(DestinationDetailsPage)}?destinationId={msg.ActionDestinationId.Value}");
             }
         });
+
+        RateLikeCommand = new Command<ChatMessage>(msg => RateMessage(msg, 1));
+        RateDislikeCommand = new Command<ChatMessage>(msg => RateMessage(msg, 0));
+
         BindingContext = this;
     }
 
@@ -282,6 +291,7 @@ public partial class ChatConversationPage : ContentPage
             int? actionDestinationId = null;
             bool hasAction = false;
             string actionButtonText = "";
+            string actionType = "unknown";
 
             try
             {
@@ -307,11 +317,11 @@ public partial class ChatConversationPage : ContentPage
                     Debug.WriteLine($"📊 Total context size: {totalChars} characters");
                 }
 
-                var aiJsonResponse = await _geminiService.GetDestinationCreationResponseAsync(
+                var aiJsonResponse = await _aiService.GetDestinationCreationResponseAsync(
                   text, existingDestinations, availableCategories, conversationHistory);
 
                 // Detectează tipul de acțiune din JSON
-                var actionType = DetectActionType(aiJsonResponse);
+                actionType = DetectActionType(aiJsonResponse);
                 Debug.WriteLine($"🎯 Detected action type: {actionType}");
 
                 if (actionType == "create_suggestion")
@@ -368,6 +378,18 @@ public partial class ChatConversationPage : ContentPage
             // Remove typing indicator
             _messages.Remove(typingMessage);
 
+            // Determine if we should show rating
+            bool showRating = false;
+            if (actionType == "create_suggestion" || actionType == "create_destination" || actionType == "ask_preference")
+            {
+                _actionMessageCount++;
+                if (_actionMessageCount >= _nextRatingThreshold)
+                {
+                    showRating = true;
+                    _nextRatingThreshold = _actionMessageCount + Random.Shared.Next(2, 4);
+                }
+            }
+
             // Create AI message for animated typing
             var aiMessage = new ChatMessage 
             { 
@@ -377,7 +399,9 @@ public partial class ChatConversationPage : ContentPage
                 HasAction = hasAction,
                 ActionButtonText = actionButtonText,
                 ActionSuggestionId = actionSuggestionId,
-                ActionDestinationId = actionDestinationId
+                ActionDestinationId = actionDestinationId,
+                ShowRating = showRating,
+                PerformanceLogId = AIPerformanceLogger.LastLogId
             };
             AddMessageAnimated(aiMessage);
 
@@ -567,6 +591,21 @@ public partial class ChatConversationPage : ContentPage
         });
     }
 
+    private void RateMessage(ChatMessage msg, int rating)
+    {
+        if (msg == null || msg.UserRating != null) return;
+
+        msg.UserRating = rating;
+        msg.ShowRating = false;
+        msg.RatingText = rating == 1 ? "👍 Ați apreciat acest mesaj" : "👎 Nu ați apreciat acest mesaj";
+
+        if (msg.PerformanceLogId.HasValue && msg.PerformanceLogId.Value > 0)
+        {
+            Task.Run(() => AIPerformanceLogger.UpdateApreciere(msg.PerformanceLogId.Value, rating));
+        }
+
+        Debug.WriteLine($"[Rating] User rated {(rating == 1 ? "👍" : "👎")} for PerformanceLogId: {msg.PerformanceLogId}");
+    }
     private void AddMessageAnimated(ChatMessage msg)
     {
         _messages.Add(msg);

@@ -1,13 +1,23 @@
-﻿namespace MauiAppDisertatieVacantaAI.Pages;
+﻿using MauiAppDisertatieVacantaAI.Classes.Library.Services;
+
+namespace MauiAppDisertatieVacantaAI.Pages;
 
 public partial class SettingsPage : ContentPage
 {
 	private const string ThemePreferenceKey = "AppThemePreference";
 	private const string WeatherNotifKey = "WeatherNotificationsEnabled";
 
+	private static readonly Dictionary<string, string> AIModels = new()
+	{
+		{ AIServiceFactory.Gemini25, "Gemini 2.5 Flash" },
+		{ AIServiceFactory.Gemini3, "Gemini 3 Flash" },
+		{ AIServiceFactory.GPT4, "GPT-4o" }
+	};
+
 	public SettingsPage()
 	{
 		InitializeComponent();
+		AIModelPicker.ItemsSource = AIModels.Values.ToList();
 	}
 
 	protected override void OnAppearing()
@@ -28,6 +38,13 @@ public partial class SettingsPage : ContentPage
 		// App info
 		AppVersionLabel.Text = AppInfo.Current.VersionString;
 		PlatformLabel.Text = DeviceInfo.Platform.ToString();
+
+		// AI Model
+		AIModelPicker.SelectedIndexChanged -= OnAIModelChanged;
+		var currentModel = AIServiceFactory.GetCurrentModelKey();
+		var modelIndex = AIModels.Keys.ToList().IndexOf(currentModel);
+		AIModelPicker.SelectedIndex = modelIndex >= 0 ? modelIndex : 0;
+		AIModelPicker.SelectedIndexChanged += OnAIModelChanged;
 	}
 
 	private void OnThemeToggled(object sender, ToggledEventArgs e)
@@ -39,6 +56,13 @@ public partial class SettingsPage : ContentPage
 	private void OnWeatherToggled(object sender, ToggledEventArgs e)
 	{
 		Preferences.Set(WeatherNotifKey, e.Value);
+	}
+
+	private void OnAIModelChanged(object sender, EventArgs e)
+	{
+		if (AIModelPicker.SelectedIndex < 0) return;
+		var selectedKey = AIModels.Keys.ElementAt(AIModelPicker.SelectedIndex);
+		AIServiceFactory.SetModel(selectedKey);
 	}
 
 	private async void OnClearCacheClicked(object sender, EventArgs e)

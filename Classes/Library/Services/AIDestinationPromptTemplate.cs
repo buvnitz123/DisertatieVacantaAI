@@ -42,7 +42,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
             return basePrompt
             .Replace("{EXISTING_DESTINATIONS}", existingDestinations)
-            .Replace("{AVAILABLE_CATEGORIES}", availableCategories) + $"\n\nCererea utilizatorului: {userQuery}";
+            .Replace("{AVAILABLE_CATEGORIES}", availableCategories)
+            .Replace("{CURRENT_DATE}", DateTime.Now.ToString("dd MMMM yyyy")) + $"\n\nCererea utilizatorului: {userQuery}";
         }
 
         public static void RefreshPrompt()
