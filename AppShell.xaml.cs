@@ -48,6 +48,12 @@ public partial class AppShell : Shell
         await GoToAsync("//SettingsPage");
     }
 
+    private async void OnInfoClicked(object sender, EventArgs e)
+    {
+        FlyoutIsPresented = false;
+        await GoToAsync("//InfoPage");
+    }
+
     private async void OnLogoutClicked(object sender, EventArgs e)
     {
         FlyoutIsPresented = false;

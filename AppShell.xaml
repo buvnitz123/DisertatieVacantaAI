@@ -83,6 +83,24 @@
                 </Grid>
             </Border>
 
+            <!-- Info Row -->
+            <Border BackgroundColor="Transparent">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnInfoClicked" />
+                </Border.GestureRecognizers>
+                <Grid Padding="25,15" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Label Text="ℹ️"
+                           FontSize="20"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
+                    <Label Grid.Column="1"
+                           Text="Despre aplicație"
+                           FontSize="16"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
+                </Grid>
+            </Border>
+
             <!-- Logout Row -->
             <Border BackgroundColor="Transparent">
                 <Border.GestureRecognizers>
@@ -136,6 +154,13 @@
         Title="Settings"
         ContentTemplate="{DataTemplate local:SettingsPage}"
         Route="SettingsPage"
+        Shell.FlyoutItemIsVisible="False" />
+
+    <!-- Info (hidden for navigation) -->
+    <ShellContent
+        Title="Info"
+        ContentTemplate="{DataTemplate local:InfoPage}"
+        Route="InfoPage"
         Shell.FlyoutItemIsVisible="False" />
 
     <TabBar>

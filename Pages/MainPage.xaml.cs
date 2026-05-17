@@ -53,6 +53,8 @@ namespace MauiAppDisertatieVacantaAI.Pages
         private ObservableCollection<DestinationDisplayItem> _destinations = new();
         private ObservableCollection<PointOfInterestDisplayItem> _pointsOfInterest = new();
         private int _currentUserId;
+        private DateTime _lastContentLoadTime = DateTime.MinValue;
+        private static readonly TimeSpan ContentCacheDuration = TimeSpan.FromSeconds(60);
 
         public MainPage()
         {
@@ -63,7 +65,13 @@ namespace MauiAppDisertatieVacantaAI.Pages
         {
             base.OnAppearing();
             await LoadUserInfoAsync();
-            await LoadHomeContentAsync();
+
+            if (DateTime.Now - _lastContentLoadTime > ContentCacheDuration)
+            {
+                await LoadHomeContentAsync();
+                _lastContentLoadTime = DateTime.Now;
+            }
+
             await InitializeWeatherServiceAsync();
         }
 
@@ -396,11 +404,15 @@ namespace MauiAppDisertatieVacantaAI.Pages
 
             var image = new Image
             {
-                Source = !string.IsNullOrEmpty(category.ImagineUrl) ? category.ImagineUrl : "placeholder_image.png",
                 Aspect = Aspect.AspectFill,
                 VerticalOptions = LayoutOptions.Fill,
                 HorizontalOptions = LayoutOptions.Fill
             };
+
+            if (!string.IsNullOrEmpty(category.ImagineUrl))
+                image.Source = new UriImageSource { Uri = new Uri(category.ImagineUrl), CachingEnabled = true, CacheValidity = TimeSpan.FromDays(14) };
+            else
+                image.Source = "placeholder_image.png";
 
             var overlay = new BoxView
             {

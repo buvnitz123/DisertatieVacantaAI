@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SettingsPage"
@@ -6,12 +6,87 @@
              Shell.NavBarIsVisible="True"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="24">
-            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto" >
-                <Label Text="Dark Mode" VerticalOptions="Center" TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
-                <Switch x:Name="ThemeSwitch" Grid.Column="1" Toggled="OnThemeToggled" />
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Aparență -->
+            <Label Text="Aparență"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Label Text="🌙" FontSize="20" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="Dark Mode" VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                <Switch x:Name="ThemeSwitch" Grid.Column="2" Toggled="OnThemeToggled" />
             </Grid>
-            <BoxView HeightRequest="2" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+
+            <BoxView HeightRequest="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+
+            <!-- Notificări -->
+            <Label Text="Notificări"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Label Text="🌤️" FontSize="20" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="Notificări meteo" VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                <Switch x:Name="WeatherSwitch" Grid.Column="2" Toggled="OnWeatherToggled" />
+            </Grid>
+
+            <BoxView HeightRequest="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+
+            <!-- Date -->
+            <Label Text="Date"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+
+            <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
+                   CornerRadius="12" Padding="0" HasShadow="False">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16">
+                    <Label Text="🗑️" FontSize="20" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="Șterge cache imagini"
+                               TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                        <Label x:Name="CacheSizeLabel" Text="Eliberează spațiu de stocare"
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="2" Text="Șterge" 
+                            BackgroundColor="{StaticResource PrimaryBlue}" TextColor="White"
+                            CornerRadius="8" HeightRequest="36" FontSize="13" Padding="12,0"
+                            Clicked="OnClearCacheClicked" />
+                </Grid>
+            </Frame>
+
+            <BoxView HeightRequest="1" BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" />
+
+            <!-- Despre -->
+            <Label Text="Despre"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+
+            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Versiune aplicație"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    <Label x:Name="AppVersionLabel" Grid.Column="1"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                </Grid>
+                <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                    <Label Text="Platformă"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    <Label x:Name="PlatformLabel" Grid.Column="1"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                </Grid>
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                    <Label Text="Framework"
+                           TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
+                    <Label Text=".NET 9 MAUI" Grid.Column="1"
+                           TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
+                </Grid>
+            </Grid>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

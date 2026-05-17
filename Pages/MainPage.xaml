@@ -78,11 +78,14 @@
                                 </Frame.GestureRecognizers>
                                 
                                 <Grid>
-                                    <Image Source="{Binding ImageUrl}"
-                                           Aspect="AspectFill"
+                                    <Image Aspect="AspectFill"
                                            VerticalOptions="Fill"
-                                           HorizontalOptions="Fill" />
-                                    
+                                           HorizontalOptions="Fill">
+                                        <Image.Source>
+                                            <UriImageSource Uri="{Binding ImageUrl}" CachingEnabled="True" CacheValidity="14:0:0:0" />
+                                        </Image.Source>
+                                    </Image>
+
                                     <!-- Overlay -->
                                     <BoxView Color="#80000000"
                                              VerticalOptions="End" 
@@ -151,11 +154,14 @@
                                 </Frame.GestureRecognizers>
                                 
                                 <Grid>
-                                    <Image Source="{Binding ImageUrl}"
-                                           Aspect="AspectFill"
+                                    <Image Aspect="AspectFill"
                                            VerticalOptions="Fill"
-                                           HorizontalOptions="Fill" />
-                                    
+                                           HorizontalOptions="Fill">
+                                        <Image.Source>
+                                            <UriImageSource Uri="{Binding ImageUrl}" CachingEnabled="True" CacheValidity="14:0:0:0" />
+                                        </Image.Source>
+                                    </Image>
+
                                     <!-- Overlay -->
                                     <BoxView Color="#80000000"
                                              VerticalOptions="End" 
