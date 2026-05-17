@@ -1,8 +1,8 @@
 ﻿using MauiAppDisertatieVacantaAI.Classes.Database.Repositories;
-using MauiAppDisertatieVacantaAI.Classes.Library;
 using MauiAppDisertatieVacantaAI.Classes.DTO;
-using System.Diagnostics;
+using MauiAppDisertatieVacantaAI.Classes.Library;
 using MauiAppDisertatieVacantaAI.Classes.Library.Session;
+using System.Diagnostics;
 
 namespace MauiAppDisertatieVacantaAI.Pages;
 
@@ -39,7 +39,7 @@ public partial class EditProfilePage : ContentPage
             _currentUser = _repo.GetById(_userId);
             if (_currentUser == null)
             {
-                await DisplayAlert("Eroare", "Utilizatorul nu a fost g?sit.", "OK");
+                await DisplayAlert("Eroare", "Utilizatorul nu a fost găsit.", "OK");
                 await Shell.Current.GoToAsync("//LoginPage");
                 return;
             }
@@ -53,7 +53,7 @@ public partial class EditProfilePage : ContentPage
         catch (Exception ex)
         {
             Debug.WriteLine($"Error loading user data: {ex.Message}");
-            ShowError("Eroare la înc?rcarea datelor utilizatorului.");
+            ShowError("Eroare la încărcarea datelor utilizatorului.");
         }
     }
 
@@ -113,8 +113,8 @@ public partial class EditProfilePage : ContentPage
         // Validate nume
         if (!ValidationUtils.IsValidNume(NumeEntry.Text))
         {
-            var message = string.IsNullOrWhiteSpace(NumeEntry.Text) 
-                ? ValidationUtils.GetNameValidationMessage("numele") 
+            var message = string.IsNullOrWhiteSpace(NumeEntry.Text)
+                ? ValidationUtils.GetNameValidationMessage("numele")
                 : ValidationUtils.GetNameLengthValidationMessage("Numele");
             ShowError(message, NumeFrame);
             NumeEntry.Focus();
@@ -124,8 +124,8 @@ public partial class EditProfilePage : ContentPage
         // Validate prenume
         if (!ValidationUtils.IsValidPrenume(PrenumeEntry.Text))
         {
-            var message = string.IsNullOrWhiteSpace(PrenumeEntry.Text) 
-                ? ValidationUtils.GetNameValidationMessage("prenumele") 
+            var message = string.IsNullOrWhiteSpace(PrenumeEntry.Text)
+                ? ValidationUtils.GetNameValidationMessage("prenumele")
                 : ValidationUtils.GetNameLengthValidationMessage("Prenumele");
             ShowError(message, PrenumeFrame);
             PrenumeEntry.Focus();
@@ -135,8 +135,8 @@ public partial class EditProfilePage : ContentPage
         // Validate email
         if (!ValidationUtils.IsValidEmail(EmailEntry.Text))
         {
-            var message = string.IsNullOrWhiteSpace(EmailEntry.Text) 
-                ? "Te rog introdu adresa de email." 
+            var message = string.IsNullOrWhiteSpace(EmailEntry.Text)
+                ? "Te rog introdu adresa de email."
                 : ValidationUtils.GetEmailValidationMessage();
             ShowError(message, EmailFrame);
             EmailEntry.Focus();

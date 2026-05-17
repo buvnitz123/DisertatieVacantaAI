@@ -598,4 +598,25 @@ public partial class CategoryDetailsPage : ContentPage
             await DisplayAlert("Eroare", "A apărut o eroare neașteptată.", "OK");
         }
     }
+
+    private async void OnGalleryImageTapped(object sender, EventArgs e)
+    {
+        var imageUrl = (e as TappedEventArgs)?.Parameter as string;
+        if (string.IsNullOrEmpty(imageUrl)) return;
+
+        var overlay = new Grid { BackgroundColor = Color.FromArgb("#CC000000"), ZIndex = 999 };
+        var image = new Image
+        {
+            Source = new UriImageSource { Uri = new Uri(imageUrl), CachingEnabled = true },
+            Aspect = Aspect.AspectFit, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center,
+            MaximumWidthRequest = 350, MaximumHeightRequest = 500
+        };
+        var close = new Label { Text = "✕", FontSize = 28, TextColor = Colors.White, HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Start, Margin = new Thickness(0, 50, 20, 0) };
+        overlay.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(async () => { await overlay.FadeTo(0, 200); if (Content is Grid g) g.Children.Remove(overlay); }) });
+        overlay.Children.Add(image);
+        overlay.Children.Add(close);
+        overlay.Opacity = 0;
+        if (Content is Grid mainGrid) { Grid.SetRowSpan(overlay, Math.Max(mainGrid.RowDefinitions.Count, 1)); Grid.SetColumnSpan(overlay, Math.Max(mainGrid.ColumnDefinitions.Count, 1)); mainGrid.Children.Add(overlay); }
+        await overlay.FadeTo(1, 200);
+    }
 }

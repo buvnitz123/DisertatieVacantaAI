@@ -20,7 +20,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                 if (match.Index > lastIndex)
                 {
                     var normalText = text.Substring(lastIndex, match.Index - lastIndex);
-                    formattedString.Spans.Add(new Span { Text = normalText });
+                    formattedString.Spans.Add(new Span { Text = normalText, TextColor = Colors.White });
                 }
 
                 string formattedText = "";
@@ -50,7 +50,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                 formattedString.Spans.Add(new Span
                 {
                     Text = formattedText,
-                    FontAttributes = attributes
+                    FontAttributes = attributes,
+                    TextColor = Colors.White
                 });
 
                 lastIndex = match.Index + match.Length;
@@ -59,11 +60,11 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
             if (lastIndex < text.Length)
             {
                 var remainingText = text.Substring(lastIndex);
-                formattedString.Spans.Add(new Span { Text = remainingText });
+                formattedString.Spans.Add(new Span { Text = remainingText, TextColor = Colors.White });
             }
             if (formattedString.Spans.Count == 0)
             {
-                formattedString.Spans.Add(new Span { Text = text });
+                formattedString.Spans.Add(new Span { Text = text, TextColor = Colors.White });
             }
 
             return formattedString;

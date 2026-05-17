@@ -343,6 +343,9 @@
                                                                BackgroundColor="Transparent"
                                                                WidthRequest="100"
                                                                HeightRequest="100">
+                                                            <Frame.GestureRecognizers>
+                                                                <TapGestureRecognizer Tapped="OnGalleryImageTapped" CommandParameter="{Binding ImagineUrl}" />
+                                                            </Frame.GestureRecognizers>
                                                             <Image Aspect="AspectFill"
                                                                    BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}">
                                                                 <Image.Source>

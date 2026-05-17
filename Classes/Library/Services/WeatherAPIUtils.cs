@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace MauiAppDisertatieVacantaAI.Classes.Services
 {
@@ -27,7 +24,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Eroare la ob?inerea vremii pentru {city}: {ex.Message}");
+                throw new Exception($"Eroare la obținerea vremii pentru {city}: {ex.Message}");
             }
         }
 
@@ -41,7 +38,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Eroare la ob?inerea vremii pentru coordonatele {latitude}, {longitude}: {ex.Message}");
+                throw new Exception($"Eroare la obținerea vremii pentru coordonatele {latitude}, {longitude}: {ex.Message}");
             }
         }
 
@@ -55,7 +52,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Eroare la ob?inerea prognozei pentru {city}: {ex.Message}");
+                throw new Exception($"Eroare la obținerea prognozei pentru {city}: {ex.Message}");
             }
         }
 

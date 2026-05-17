@@ -21,6 +21,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
             modelBuilder.Entity<PunctDeInteres>().Property(p => p.Id_PunctDeInteres).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
             modelBuilder.Entity<AppSettings>().Property(a => a.ParamKey).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
             modelBuilder.Entity<LogActivitate>().Property(l => l.Id_LogActivitate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            modelBuilder.Entity<ModelPerformanta>().Property(m => m.Id_ModelPerformanta).HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
             modelBuilder.Entity<Favorite>().HasKey(f => new { f.Id_Utilizator, f.TipElement, f.Id_Element });
             modelBuilder.Entity<CategorieVacanta_Destinatie>().HasKey(cd => new { cd.Id_Destinatie, cd.Id_CategorieVacanta });
             modelBuilder.Entity<DestinatieFacilitate>().HasKey(df => new { df.Id_Destinatie, df.Id_Facilitate });
@@ -45,5 +46,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database
         public DbSet<DestinatieFacilitate> DestinatieFacilitate { get; set; }
         public DbSet<CategorieVacanta_Destinatie> CategorieVacanta_Destinatie { get; set; }
         public DbSet<AppSettings> AppSettings { get; set; }
+        public DbSet<ModelPerformanta> ModelPerformanta { get; set; }
     }
 }

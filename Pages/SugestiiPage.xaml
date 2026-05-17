@@ -84,6 +84,9 @@
                                                     Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#404040}"
                                                     StrokeThickness="1"
                                                     BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnGalleryImageTapped" CommandParameter="{Binding ImageUrl}" />
+                                                </Border.GestureRecognizers>
                                                 <Image Source="{Binding ImageUrl}"
                                                        Aspect="AspectFill"
                                                        WidthRequest="80"

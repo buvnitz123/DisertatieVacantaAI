@@ -97,6 +97,9 @@
                                                    WidthRequest="100"
                                                    HeightRequest="80"
                                                    Margin="8">
+                                                <Frame.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnGalleryImageTapped" CommandParameter="{Binding ImagineUrl}" />
+                                                </Frame.GestureRecognizers>
                                                 <Image Source="{Binding ImagineUrl}" 
                                                        Aspect="AspectFill"
                                                        BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource DarkGray}}" />

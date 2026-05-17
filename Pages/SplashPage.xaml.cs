@@ -5,36 +5,36 @@ namespace MauiAppDisertatieVacantaAI.Pages;
 
 public partial class SplashPage : ContentPage
 {
-    // Enhanced travel tips with more engaging content (no diacritics)
+    // Enhanced travel tips with more engaging content
     private static readonly string[] FunMessages = new[]
     {
-        "Stiati ca cel mai scurt zbor comercial dureaza doar 90 de secunde? Este intre doua insule din Scotia!",
-        "In Japonia exista hoteluri-capsula - perfecte pentru o noapte scurta si o experienta unica!",
-        "Plaja cu nisip roz din Bahamas (Harbour Island) isi ia culoarea de la cochiliile de corali!",
-        "Cautati zboruri marti sau miercuri - de obicei sunt mai ieftine decat in weekend!",
-        "Islanda are mai multe izvoare termale naturale decat orice alta tara europeana!",
-        "Venetia are peste 400 de poduri care conecteaza 118 mici insule!",
-        "Impachetati pe straturi - este cheia pentru a va adapta usor la orice vreme!",
-        "In Finlanda, saunele publice sunt o traditie - gasiti una in aproape fiecare cartier!",
-        "Cel mai vechi hotel din lume (din Japonia) functioneaza din anul 705 - peste 1300 de ani!",
-        "O mini-trusa cu cabluri si incarcatoare va poate salva de mult stres in calatorie!",
+        "Știați că cel mai scurt zbor comercial durează doar 90 de secunde? Este între două insule din Scoția!",
+        "În Japonia există hoteluri-capsulă - perfecte pentru o noapte scurtă și o experiență unică!",
+        "Plaja cu nisip roz din Bahamas (Harbour Island) își ia culoarea de la cochiliile de corali!",
+        "Căutați zboruri marți sau miercuri - de obicei sunt mai ieftine decât în weekend!",
+        "Islanda are mai multe izvoare termale naturale decât orice altă țară europeană!",
+        "Veneția are peste 400 de poduri care conectează 118 mici insule!",
+        "Împachetați pe straturi - este cheia pentru a vă adapta ușor la orice vreme!",
+        "În Finlanda, saunele publice sunt o tradiție - găsiți una în aproape fiecare cartier!",
+        "Cel mai vechi hotel din lume (din Japonia) funcționează din anul 705 - peste 1300 de ani!",
+        "O mini-trusă cu cabluri și încărcătoare vă poate salva de mult stres în călătorie!",
         "Parisul are peste 1.700 de patiserii - o croissant pe zi este aproape obligatoriu!",
-        "Marele Recif de Corali din Australia este atat de mare ca poate fi vazut din spatiu!",
-        "Cartea de imbarcare salvata offline va poate scuti de emotii la poarta de imbarcare!",
-        "In Portugalia gasiti sate intregi din piatra, perfect conservate - ca intr-o poveste!",
-        "Cele mai lungi plaje neintrerupte depasesc 200 km - perfecte pentru plimbari lungi!",
-        "Santorini isi datoreaza culorile albastre si albe traditiei de a vopsi casele pentru dezinfectie!",
-        "In Norvegia, soarele de miezul noptii straluceste 24/7 vara - perfect pentru aventurieri!",
-        "Machu Picchu a fost ascuns de spaniolii conquistadori si redescoperit abia in 1911!",
-        "In Bali, ritul traditiei 'Nyepi' inseamna o zi de liniste completa - fara zgomot sau lumini!",
-        "Dubai are cel mai inalt hotel din lume - Burj Al Arab, construit pe o insula artificiala!"
+        "Marele Recif de Corali din Australia este atât de mare că poate fi văzut din spațiu!",
+        "Cartea de îmbarcare salvată offline vă poate scuti de emoții la poarta de îmbarcare!",
+        "În Portugalia găsiți sate întregi din piatră, perfect conservate - ca într-o poveste!",
+        "Cele mai lungi plaje neîntrerupte depășesc 200 km - perfecte pentru plimbări lungi!",
+        "Santorini își datorează culorile albastre și albe tradiției de a vopsi casele pentru dezinfecție!",
+        "În Norvegia, soarele de miezul nopții strălucește 24/7 vara - perfect pentru aventurieri!",
+        "Machu Picchu a fost ascuns de spaniolii conquistadori și redescoperit abia în 1911!",
+        "În Bali, ritul tradiției 'Nyepi' înseamnă o zi de liniște completă - fără zgomot sau lumini!",
+        "Dubai are cel mai înalt hotel din lume - Burj Al Arab, construit pe o insulă artificială!"
     };
 
     private static readonly string[] LoadingSteps = new[]
     {
-        "Se initiaza aplicatia...",
-        "Se conecteaza la servicii...",
-        "Se pregatesc datele...",
+        "Se inițiază aplicația...",
+        "Se conectează la servicii...",
+        "Se pregătesc datele...",
         "Aproape gata..."
     };
 
@@ -124,7 +124,7 @@ public partial class SplashPage : ContentPage
             });
             
             // Step 1: Initialize - Quick config check
-            UpdateProgressStep(0, "Se verifica configuratia...");
+            UpdateProgressStep(0, "Se verifică configurația...");
             await SmoothAdvanceTo(0.25, 400);
             
             // Quick configuration test
@@ -151,7 +151,7 @@ public partial class SplashPage : ContentPage
             if (!configOk)
             {
                 // Configuration failed - proceed in offline mode
-                UpdateProgressStep(1, "Mod offline - se sare configuratia...");
+                UpdateProgressStep(1, "Mod offline - se sare configurația...");
                 await SmoothAdvanceTo(0.90, 800);
                 await Task.Delay(500);
                 await SmoothAdvanceTo(1.0, 200);
@@ -166,7 +166,7 @@ public partial class SplashPage : ContentPage
             }
             
             // Step 2: Try database initialization (optional)
-            UpdateProgressStep(1, "Se conecteaza la baza de date...");
+            UpdateProgressStep(1, "Se conectează la baza de date...");
             await SmoothAdvanceTo(0.50, 500);
             
             bool dbOk = false;
@@ -200,12 +200,12 @@ public partial class SplashPage : ContentPage
             }
             else
             {
-                UpdateProgressStep(2, "Mod limitat - unele functii nu sunt disponibile");
+                UpdateProgressStep(2, "Mod limitat - unele funcții nu sunt disponibile");
                 await SmoothAdvanceTo(0.90, 400);
             }
             
             // Step 4: Complete
-            UpdateProgressStep(3, "Aplicatia este pregatita!");
+            UpdateProgressStep(3, "Aplicația este pregătită!");
             await SmoothAdvanceTo(1.0, 300);
             
             // Success
@@ -233,7 +233,7 @@ public partial class SplashPage : ContentPage
             // Show error on main thread
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
-                ShowError("Aplicatia are unele probleme de configurare, dar poti continua in mod limitat.");
+                ShowError("Aplicația are unele probleme de configurare, dar poți continua în mod limitat.");
             });
         }
     }
@@ -423,10 +423,10 @@ public partial class SplashPage : ContentPage
     {
         LoadingIndicator.IsRunning = false;
         ProgressBar.Progress = 0;
-        ProgressLabel.Text = "Atentie";
-        ProgressDescriptionLabel.Text = "Am intampinat o problema...";
+        ProgressLabel.Text = "Atenție";
+        ProgressDescriptionLabel.Text = "Am întâmpinat o problemă...";
 
-        StatusLabel.Text = "Problema de configurare";
+        StatusLabel.Text = "Problemă de configurare";
         ErrorLabel.Text = errorMessage;
 
         // Animate error appearance

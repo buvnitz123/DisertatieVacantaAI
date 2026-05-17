@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SplashPage"
@@ -23,7 +23,7 @@
                        Opacity="0" />
                 
                 <Label x:Name="SubtitleLabel"
-                       Text="Descopera destinatii incredibile cu ajutorul AI"
+                       Text="Descoperă destinații incredibile cu ajutorul AI"
                        FontSize="16"
                        TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                        HorizontalOptions="Center"
@@ -77,14 +77,14 @@
                 <VerticalStackLayout Spacing="12">
                     <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
                         <Label Text="💡" FontSize="18"/>
-                        <Label Text="Sfat de calatorie:" 
+                        <Label Text="Sfat de călătorie:"
                                FontSize="14" 
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"/>
                     </HorizontalStackLayout>
                     
                     <Label x:Name="StatusLabel"
-                           Text="Se initiaza aplicatia..."
+                           Text="Se inițiază aplicația..."
                            FontSize="14"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                            HorizontalOptions="Center"
@@ -98,7 +98,7 @@
                 <!-- Progress description with loading indicator -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                     <Label x:Name="ProgressDescriptionLabel"
-                           Text="Se pregateste experienta ta..."
+                           Text="Se pregătește experiența ta..."
                            FontSize="14"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                            HorizontalOptions="Center" />
@@ -171,7 +171,7 @@
                            LineBreakMode="WordWrap" />
                     
                     <Button x:Name="RetryButton"
-                            Text="🔄 Incearca din nou"
+                            Text="🔄 Încearcă din nou"
                             BackgroundColor="White"
                             TextColor="#FF6B6B"
                             CornerRadius="12"
