@@ -71,6 +71,11 @@ namespace MauiAppDisertatieVacantaAI.Pages
                 await LoadHomeContentAsync();
                 _lastContentLoadTime = DateTime.Now;
             }
+            else
+            {
+                // Always refresh favorite status (lightweight query)
+                await RefreshFavoriteStatusAsync();
+            }
 
             await InitializeWeatherServiceAsync();
         }
@@ -326,6 +331,34 @@ namespace MauiAppDisertatieVacantaAI.Pages
                     NoDestinationsLabel.IsVisible = true;
                     DestinationsCarousel.IsVisible = false;
                 });
+            }
+        }
+
+        private async Task RefreshFavoriteStatusAsync()
+        {
+            try
+            {
+                if (_currentUserId <= 0 || !_destinations.Any()) return;
+
+                var destinationIds = _destinations.Select(d => d.Id);
+                var favoriteStatus = await Task.Run(() =>
+                    _favoriteRepo.GetFavoritesStatusBatch(_currentUserId, "Destinatie", destinationIds),
+                    _cancellationTokenSource.Token).ConfigureAwait(false);
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    foreach (var item in _destinations)
+                    {
+                        item.IsFavorite = favoriteStatus.GetValueOrDefault(item.Id, false);
+                    }
+                    // Refresh the binding
+                    DestinationsCarousel.ItemsSource = null;
+                    DestinationsCarousel.ItemsSource = _destinations;
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[MainPage] Error refreshing favorites: {ex.Message}");
             }
         }
 

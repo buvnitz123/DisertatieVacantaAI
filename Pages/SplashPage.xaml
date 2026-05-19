@@ -15,7 +15,7 @@
             <!-- App Title with enhanced styling -->
             <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
                 <Label x:Name="TitleLabel"
-                       Text="Vacation Planner AI" 
+                       Text="Planificator Vacanțe AI"
                        FontSize="32" 
                        FontAttributes="Bold"
                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}"

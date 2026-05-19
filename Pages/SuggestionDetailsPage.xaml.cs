@@ -162,10 +162,11 @@ public partial class SuggestionDetailsPage : ContentPage
         // Update basic info
         SuggestionTitleLabel.Text = _currentSuggestion.Titlu;
         DestinationNameLabel.Text = _currentSuggestion.Destinatie?.Denumire ?? "Destinatie necunoscuta";
-        BudgetLabel.Text = $"{_currentSuggestion.Buget_Estimat:N0} €";
+        BudgetLabel.Text = $"{_currentSuggestion.Buget_Estimat:N0} lei";
 
         // Parse markdown text for bold/italic support
-        DescriptionLabel.FormattedText = MarkdownParser.ParseToFormattedString(_currentSuggestion.Descriere);
+        var descColor = Application.Current.RequestedTheme == AppTheme.Dark ? Colors.LightGray : Color.FromArgb("#333333");
+        DescriptionLabel.FormattedText = MarkdownParser.ParseToFormattedString(_currentSuggestion.Descriere, descColor);
 
         CreationDateLabel.Text = _currentSuggestion.Data_Inregistrare.ToString("dd/MM/yyyy");
         
@@ -669,21 +670,6 @@ public partial class SuggestionDetailsPage : ContentPage
         }
     }
 
-    private async void OnEditSuggestion(object sender, EventArgs e)
-    {
-        try
-        {
-            // Navigate to edit suggestion page (you might need to create this)
-            await DisplayAlert("Funcționalitate", "Editarea planificărilor va fi implementată în viitor.", "OK");
-            
-            // TODO: Implement navigation to edit page
-            // await Shell.Current.GoToAsync($"{nameof(EditSuggestionPage)}?suggestionId={_suggestionId}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error navigating to edit suggestion: {ex.Message}");
-        }
-    }
 
     private async void OnDeleteSuggestion(object sender, EventArgs e)
     {

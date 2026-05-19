@@ -161,7 +161,7 @@ public partial class ChatConversationPage : ContentPage
                         {
                             _messages.Add(new ChatMessage
                             {
-                                Text = "👋 Salut! Sunt Travel Assistant AI și sunt aici să te ajut să planifici vacanța perfectă!\n\n🌍 Pot să:\n• Răspund la întrebări despre călătorii\n• Creez destinații noi în aplicație (încearcă: \"Vreau să merg la Dubai\" sau \"Fă-mi o vacanță în Santorini\")\n• Ofer sfaturi și recomandări personalizate\n\nSpune-mi ce te interesează!",
+                                Text = "👋 Salut! Sunt Asistentul tău AI de călătorii și sunt aici să te ajut să planifici vacanța perfectă!\n\n🌍 Pot să:\n• Răspund la întrebări despre călătorii\n• Creez destinații noi în aplicație (încearcă: \"Vreau să merg la Dubai\" sau \"Fă-mi o vacanță în Santorini\")\n• Ofer sfaturi și recomandări personalizate\n\nSpune-mi ce te interesează!",
                                 IsUser = false,
                                 Timestamp = DateTime.Now
                             });
@@ -188,7 +188,7 @@ public partial class ChatConversationPage : ContentPage
                         var insertIndex = 0;
 
                         // Skip welcome message if present
-                        if (currentCount > 0 && _messages[0].Text.Contains("Travel Assistant AI"))
+                        if (currentCount > 0 && _messages[0].Text.Contains("Asistentul tău AI"))
                         {
                             insertIndex = 1;
                         }
@@ -278,7 +278,7 @@ public partial class ChatConversationPage : ContentPage
             // Show typing indicator
             var typingMessage = new ChatMessage
             {
-                Text = "💭 Travel Assistant AI analizează...",
+                Text = "💭 Asistentul AI analizează...",
                 IsUser = false,
                 IsTyping = true,
                 Timestamp = DateTime.Now
@@ -301,7 +301,7 @@ public partial class ChatConversationPage : ContentPage
                 // Construiește istoricul conversației (ultimele 5 mesaje pentru a economisi tokeni)
                 // Limitează fiecare mesaj la maxim 500 caractere pentru a nu supraîncărca context-ul
                 var conversationHistory = _messages
-                    .Where(m => !m.IsTyping && !m.Text.Contains("👋 Salut! Sunt Travel Assistant AI"))
+                    .Where(m => !m.IsTyping && !m.Text.Contains("👋 Salut! Sunt Asistentul tău AI"))
                     .TakeLast(5) // Ultimele 5 pentru context extins
                   .Select(m =>
                         {
@@ -335,7 +335,7 @@ public partial class ChatConversationPage : ContentPage
                     {
                         hasAction = true;
                         actionSuggestionId = suggestionResult.SuggestionId;
-                        actionButtonText = "👉 Vezi Detalii Plan";
+                        actionButtonText = "👉 Vezi detalii plan";
                     }
                 }
                 else
@@ -347,7 +347,7 @@ public partial class ChatConversationPage : ContentPage
                     if (result.IsGeneralChat)
                     {
                         Debug.WriteLine("Regular chat request detected");
-                        typingMessage.Text = "💭 Travel Assistant AI scrie...";
+                        typingMessage.Text = "💭 Asistentul AI scrie...";
                         aiResponseText = result.Message;
                     }
                     else if (result.Success || result.DestinationId > 0)
@@ -360,7 +360,7 @@ public partial class ChatConversationPage : ContentPage
                         {
                             hasAction = true;
                             actionDestinationId = result.DestinationId;
-                            actionButtonText = "👉 Explorează Destinația";
+                            actionButtonText = "👉 Explorează destinația";
                         }
                     }
                     else

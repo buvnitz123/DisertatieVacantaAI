@@ -13,19 +13,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<ConversatieAI> GetAll()
         {
             using var context = new AppContext();
-            return context.ConversatiiAI.ToList();
+            return context.ConversatiiAI.AsNoTracking().ToList();
         }
 
         public ConversatieAI GetById(int id)
         {
             using var context = new AppContext();
-            return context.ConversatiiAI.Find(id);
+            return context.ConversatiiAI.AsNoTracking().FirstOrDefault(c => c.Id_ConversatieAI == id);
         }
 
         public IEnumerable<ConversatieAI> GetByUserId(int userId)
         {
             using var context = new AppContext();
-            return context.ConversatiiAI.Where(c => c.Id_Utilizator == userId).ToList();
+            return context.ConversatiiAI.AsNoTracking().Where(c => c.Id_Utilizator == userId).ToList();
         }
 
         // Generate next available ID using MAX(Id) + 1 strategy

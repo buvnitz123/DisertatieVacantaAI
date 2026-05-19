@@ -14,13 +14,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Sugestie> GetAll()
         {
             using var context = new AppContext();
-            return context.Sugestii.ToList();
+            return context.Sugestii.AsNoTracking().ToList();
         }
 
         public Sugestie GetById(int id)
         {
             using var context = new AppContext();
-            return context.Sugestii.Find(id);
+            return context.Sugestii.AsNoTracking().FirstOrDefault(s => s.Id_Sugestie == id);
         }
 
         public void Insert(Sugestie entity)
@@ -57,7 +57,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Sugestie> GetByUser(int userId)
         {
             using var context = new AppContext();
-            return context.Sugestii
+            return context.Sugestii.AsNoTracking()
                 .Include(s => s.Destinatie) // ? EAGER LOADING - eliminates N+1!
                 .Where(s => s.Id_Utilizator == userId)
                 .OrderByDescending(s => s.Data_Inregistrare)
@@ -68,7 +68,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public Sugestie GetByIdWithDestination(int id)
         {
             using var context = new AppContext();
-            return context.Sugestii
+            return context.Sugestii.AsNoTracking()
                 .Include(s => s.Destinatie)
                 .FirstOrDefault(s => s.Id_Sugestie == id);
         }
@@ -77,7 +77,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Sugestie> GetAllWithDestinations()
         {
             using var context = new AppContext();
-            return context.Sugestii
+            return context.Sugestii.AsNoTracking()
                 .Include(s => s.Destinatie)
                 .OrderByDescending(s => s.Data_Inregistrare)
                 .ToList();
@@ -87,7 +87,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public Sugestie GetByShareCode(string shareCode)
         {
             using var context = new AppContext();
-            return context.Sugestii
+            return context.Sugestii.AsNoTracking()
                 .Include(s => s.Destinatie)
                 .FirstOrDefault(s => s.CodPartajare == shareCode && s.EstePublic == 1);
         }

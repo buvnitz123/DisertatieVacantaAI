@@ -12,13 +12,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Destinatie> GetAll()
         {
             using var context = new AppContext();
-            return context.Destinatii.ToList();
+            return context.Destinatii.AsNoTracking().ToList();
         }
 
         public Destinatie GetById(int id)
         {
             using var context = new AppContext();
-            return context.Destinatii.Find(id);
+            return context.Destinatii.AsNoTracking().FirstOrDefault(d => d.Id_Destinatie == id);
         }
 
         public void Insert(Destinatie entity)

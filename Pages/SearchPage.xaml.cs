@@ -116,8 +116,8 @@ public partial class SearchPage : ContentPage
 
                 SortButton.Text = _currentSort switch
                 {
-                    "PretAsc" => "💰⬆ Preț ↗",
-                    "PretDesc" => "💰⬇ Preț ↘",
+                    "PretAsc" => "💰⬆ Buget ↗",
+                    "PretDesc" => "💰⬇ Buget ↘",
                     "Location" => "📍 Locație",
                     _ => _currentSort == "Relevanta" ? "⭐ Relevanță" : "📊 Sortare"
                 };
@@ -744,27 +744,27 @@ public partial class SearchPage : ContentPage
         try
         {
             var action = await DisplayActionSheet(
-                "Filtrare după preț", 
+                "Filtrare după buget",
                 "Anulează", 
                 _hasPriceFilter ? "Șterge filtrul" : null,
-                "💰 Sub 500 €",
-                "💰💰 500-1500 €", 
-                "💰💰💰 1500-3000 €",
-                "💰💰💰💰 Peste 3000 €"
+                "💰 Sub 500 lei",
+                "💰💰 500-1500 lei", 
+                "💰💰💰 1500-3000 lei",
+                "💰💰💰💰 Peste 3000 lei"
             );
 
             switch (action)
             {
-                case "💰 Sub 500 €":
+                case "💰 Sub 500 lei":
                     SetPriceRange(0, 500);
                     break;
-                case "💰💰 500-1500 €":
+                case "💰💰 500-1500 lei":
                     SetPriceRange(500, 1500);
                     break;
-                case "💰💰💰 1500-3000 €":
+                case "💰💰💰 1500-3000 lei":
                     SetPriceRange(1500, 3000);
                     break;
-                case "💰💰💰💰 Peste 3000 €":
+                case "💰💰💰💰 Peste 3000 lei":
                     SetPriceRange(3000, decimal.MaxValue);
                     break;
                 case "Șterge filtrul":
@@ -792,8 +792,8 @@ public partial class SearchPage : ContentPage
                 hasActiveSort ? "Șterge sortarea" : null,
                 "⭐ Relevanță",
                 "📝 Nume (A-Z)",
-                "💰⬆ Preț crescător", 
-                "💰⬇ Preț descrescător",
+                "💰⬆ Buget crescător",
+                "💰⬇ Buget descrescător",
                 "📍 Locație (A-Z)"
             );
 
@@ -807,10 +807,10 @@ public partial class SearchPage : ContentPage
                 case "📝 Nume (A-Z)":
                     SetSort("Nume");
                     break;
-                case "💰⬆ Preț crescător":
+                case "💰⬆ Buget crescător":
                     SetSort("PretAsc");
                     break;
-                case "💰⬇ Preț descrescător":
+                case "💰⬇ Buget descrescător":
                     SetSort("PretDesc");
                     break;
                 case "📍 Locație (A-Z)":
@@ -847,9 +847,9 @@ public partial class SearchPage : ContentPage
             PriceRangeButton.TextColor = Colors.White;
             
             if (max == decimal.MaxValue)
-                PriceRangeButton.Text = $"💰 {min:0}€+";
+                PriceRangeButton.Text = $"💰 {min:0} lei+";
             else
-                PriceRangeButton.Text = $"💰 {min:0}-{max:0}€";
+                PriceRangeButton.Text = $"💰 {min:0}-{max:0} lei";
         });
 
         ApplyFiltersAndSearch();
@@ -864,7 +864,7 @@ public partial class SearchPage : ContentPage
         // Reset button appearance
         PriceRangeButton.BackgroundColor = GetInactiveBackgroundColor();
         PriceRangeButton.TextColor = GetInactiveTextColor();
-        PriceRangeButton.Text = "💰 Preț";
+        PriceRangeButton.Text = "💰 Buget";
 
         ApplyFiltersAndSearch();
     }
@@ -893,8 +893,8 @@ public partial class SearchPage : ContentPage
                 
                 SortButton.Text = sortType switch
                 {
-                    "PretAsc" => "💰⬆ Preț ↗",
-                    "PretDesc" => "💰⬇ Preț ↘", 
+                    "PretAsc" => "💰⬆ Buget ↗",
+                    "PretDesc" => "💰⬇ Buget ↘", 
                     "Location" => "📍 Locație",
                     _ => "📊 Sortare"
                 };

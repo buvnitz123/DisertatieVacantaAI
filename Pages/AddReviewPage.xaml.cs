@@ -57,7 +57,7 @@ public partial class AddReviewPage : ContentPage
             
             if (userHasReview)
             {
-                await DisplayAlert("Informație", "Ai deja o recenzie pentru această destinație. Poți avea doar o recenzie per destinație.", "OK");
+                await DisplayAlert("Informație", "Ai acordat deja o recenzie pentru această destinație. Este permisă o singură recenzie pentru fiecare destinație.", "OK");
                 await Shell.Current.GoToAsync("..");
                 return;
             }

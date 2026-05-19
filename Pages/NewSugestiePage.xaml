@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.NewSugestiePage"
-             Title="Sugestie Noua"
+             Title="Plan de vacanță nou"
              Shell.NavBarIsVisible="True"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     
@@ -10,7 +10,7 @@
         <Grid RowDefinitions="Auto,*,Auto" Padding="20" RowSpacing="20">
             <!-- Header -->
             <VerticalStackLayout Grid.Row="0" Spacing="8">
-                <Label Text="✨ Creaza o Sugestie Noua" 
+                <Label Text="✨ Creează un plan de vacanță"
                        FontSize="26" 
                        FontAttributes="Bold" 
                        HorizontalOptions="Center" 
@@ -69,7 +69,7 @@
                        Padding="15"
                        HasShadow="False">
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="💰 Buget Estimat (€) *" 
+                        <Label Text="💰 Buget Estimat (lei) *"
                                FontSize="16" 
                                FontAttributes="Bold" 
                                TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />

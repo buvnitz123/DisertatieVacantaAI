@@ -130,7 +130,7 @@
                         HeightRequest="35"
                         FontSize="14" />
                 <!-- Price Range & Sort Options -->
-                <Button Text="💰 Preț" 
+                <Button Text="💰 Buget"
                         x:Name="PriceRangeButton" 
                         Clicked="OnPriceRangeClicked" 
                         BackgroundColor="{AppThemeBinding Light={StaticResource LightGray}, Dark={StaticResource MediumGray}}" 
@@ -209,7 +209,7 @@
                                        LineBreakMode="TailTruncation" />
                                 <HorizontalStackLayout Spacing="8">
                                     <Label Text="💰" FontSize="12" />
-                                    <Label Text="{Binding PretAdult, StringFormat='Adult: {0:C}'}" 
+                                    <Label Text="{Binding PretAdult, StringFormat='Buget adult: {0:N0} lei'}"
                                            FontSize="12" 
                                            TextColor="{StaticResource PrimaryBlue}"
                                            FontAttributes="Bold" />

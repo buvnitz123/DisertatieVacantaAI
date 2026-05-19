@@ -14,7 +14,7 @@ public class CategoryDestinationDisplayItem
     public string ImagineUrl { get; set; }
     public decimal PretAdult { get; set; }
     public decimal PretMinor { get; set; }
-    public string FormattedPrice => $"{PretAdult:N0} €";
+    public string FormattedPrice => $"{PretAdult:N0} lei";
 }
 
 [QueryProperty(nameof(CategoryId), "categoryId")]

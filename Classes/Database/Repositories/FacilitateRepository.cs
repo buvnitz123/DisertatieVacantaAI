@@ -12,13 +12,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Facilitate> GetAll()
         {
             using var context = new AppContext();
-            return context.Facilitati.ToList();
+            return context.Facilitati.AsNoTracking().ToList();
         }
 
         public Facilitate GetById(int id)
         {
             using var context = new AppContext();
-            return context.Facilitati.Find(id);
+            return context.Facilitati.AsNoTracking().FirstOrDefault(f => f.Id_Facilitate == id);
         }
 
         public void Insert(Facilitate entity)

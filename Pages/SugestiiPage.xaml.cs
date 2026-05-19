@@ -71,7 +71,7 @@ public class SugestieDisplayItem : INotifyPropertyChanged
     }
 
     // Additional helper properties for better UX
-    public string FormattedBudget => $"{Buget_Estimat:N0} €";
+    public string FormattedBudget => $"{Buget_Estimat:N0} lei";
     public string FormattedDate => Data_Inregistrare.ToString("dd/MM/yyyy");
     public string FormattedDateShort => Data_Inregistrare.ToString("dd/MM");
     public string StatusText => EstePublic == 1 ? "Publică" : "Privată";

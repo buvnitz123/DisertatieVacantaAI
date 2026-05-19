@@ -13,13 +13,13 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Recenzie> GetAll()
         {
             using var context = new AppContext();
-            return context.Recenzii.ToList();
+            return context.Recenzii.AsNoTracking().ToList();
         }
 
         public Recenzie GetById(int id)
         {
             using var context = new AppContext();
-            return context.Recenzii.Find(id);
+            return context.Recenzii.AsNoTracking().FirstOrDefault(r => r.Id_Recenzie == id);
         }
 
         public void Insert(Recenzie entity)
@@ -62,7 +62,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Recenzie> GetByDestinationWithDetails(int destinationId)
         {
             using var context = new AppContext();
-            return context.Recenzii
+            return context.Recenzii.AsNoTracking()
                 .Include(r => r.Utilizator)
                 .Include(r => r.Destinatie)
                 .Where(r => r.Id_Destinatie == destinationId)
@@ -74,7 +74,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Recenzie> GetByUserWithDetails(int userId)
         {
             using var context = new AppContext();
-            return context.Recenzii
+            return context.Recenzii.AsNoTracking()
                 .Include(r => r.Destinatie)
                 .Where(r => r.Id_Utilizator == userId)
                 .OrderByDescending(r => r.Data_Creare)
@@ -85,7 +85,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Recenzie> GetByDestinationId(int destinationId)
         {
             using var context = new AppContext();
-            return context.Recenzii
+            return context.Recenzii.AsNoTracking()
                 .Where(r => r.Id_Destinatie == destinationId)
                 .OrderByDescending(r => r.Data_Creare)
                 .ToList();

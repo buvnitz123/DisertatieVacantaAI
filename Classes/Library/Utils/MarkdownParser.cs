@@ -4,10 +4,12 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
 {
     public static class MarkdownParser
     {
-        public static FormattedString ParseToFormattedString(string text)
+        public static FormattedString ParseToFormattedString(string text, Color textColor = null)
         {
             if (string.IsNullOrEmpty(text))
                 return new FormattedString();
+
+            textColor ??= Colors.White;
 
             var formattedString = new FormattedString();
 
@@ -21,7 +23,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                 // Add newline before each line (except first)
                 if (lineIdx > 0)
                 {
-                    formattedString.Spans.Add(new Span { Text = "\n", TextColor = Colors.White });
+                    formattedString.Spans.Add(new Span { Text = "\n", TextColor = textColor });
                 }
 
                 // Check if line is a numbered list item (e.g., "1. ", "2. ")
@@ -33,7 +35,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                     { 
                         Text = listMatch.Groups[1].Value, 
                         FontAttributes = FontAttributes.Bold,
-                        TextColor = Colors.White 
+                        TextColor = textColor 
                     });
                     line = listMatch.Groups[2].Value;
                 }
@@ -46,24 +48,24 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                     { 
                         Text = "  • ", 
                         FontAttributes = FontAttributes.Bold,
-                        TextColor = Colors.White 
+                        TextColor = textColor 
                     });
                     line = bulletMatch.Groups[2].Value;
                 }
 
                 // Parse markdown within the line
-                ParseMarkdownLine(formattedString, line);
+                ParseMarkdownLine(formattedString, line, textColor);
             }
 
             if (formattedString.Spans.Count == 0)
             {
-                formattedString.Spans.Add(new Span { Text = text, TextColor = Colors.White });
+                formattedString.Spans.Add(new Span { Text = text, TextColor = textColor });
             }
 
             return formattedString;
         }
 
-        private static void ParseMarkdownLine(FormattedString formattedString, string line)
+        private static void ParseMarkdownLine(FormattedString formattedString, string line, Color textColor)
         {
             var pattern = @"(\*\*\*(.+?)\*\*\*|\*\*(.+?)\*\*|\*(.+?)\*|_(.+?)_)";
             var lastIndex = 0;
@@ -74,7 +76,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                 if (match.Index > lastIndex)
                 {
                     var normalText = line.Substring(lastIndex, match.Index - lastIndex);
-                    formattedString.Spans.Add(new Span { Text = normalText, TextColor = Colors.White });
+                    formattedString.Spans.Add(new Span { Text = normalText, TextColor = textColor });
                 }
 
                 string formattedText = "";
@@ -105,7 +107,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
                 {
                     Text = formattedText,
                     FontAttributes = attributes,
-                    TextColor = Colors.White
+                    TextColor = textColor
                 });
 
                 lastIndex = match.Index + match.Length;
@@ -113,7 +115,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Utils
 
             if (lastIndex < line.Length)
             {
-                formattedString.Spans.Add(new Span { Text = line.Substring(lastIndex), TextColor = Colors.White });
+                formattedString.Spans.Add(new Span { Text = line.Substring(lastIndex), TextColor = textColor });
             }
         }
 

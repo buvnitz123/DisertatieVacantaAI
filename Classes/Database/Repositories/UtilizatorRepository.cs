@@ -43,31 +43,31 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Utilizator> GetAll()
         {
             using var context = new AppContext();
-            return context.Utilizatori.ToList();
+            return context.Utilizatori.AsNoTracking().ToList();
         }
 
         public Utilizator GetById(int id)
         {
             using var context = new AppContext();
-            return context.Utilizatori.Find(id);
+            return context.Utilizatori.AsNoTracking().FirstOrDefault(u => u.Id_Utilizator == id);
         }
 
         public Utilizator GetByEmail(string email)
         {
             using var context = new AppContext();
-            return context.Utilizatori.FirstOrDefault(u => u.Email == email);
+            return context.Utilizatori.AsNoTracking().FirstOrDefault(u => u.Email == email);
         }
 
         public bool EmailExists(string email)
         {
             using var context = new AppContext();
-            return context.Utilizatori.Any(u => u.Email == email);
+            return context.Utilizatori.AsNoTracking().Any(u => u.Email == email);
         }
 
         public bool EmailExistsForOtherUser(string email, int excludeUserId)
         {
             using var context = new AppContext();
-            return context.Utilizatori.Any(u => u.Email == email && u.Id_Utilizator != excludeUserId);
+            return context.Utilizatori.AsNoTracking().Any(u => u.Email == email && u.Id_Utilizator != excludeUserId);
         }
 
         public void Insert(Utilizator entity)
@@ -122,7 +122,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         {
             using var context = new AppContext();
             string encrypted = EncryptionUtils.Encrypt(password);
-            return context.Utilizatori
+            return context.Utilizatori.AsNoTracking()
                 .FirstOrDefault(u =>
                     u.Email == email &&
                     u.EsteActiv == 1 &&

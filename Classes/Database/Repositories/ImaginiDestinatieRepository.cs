@@ -12,7 +12,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<ImaginiDestinatie> GetAll()
         {
             using var context = new AppContext();
-            return context.ImaginiDestinatie.ToList();
+            return context.ImaginiDestinatie.AsNoTracking().ToList();
         }
 
         public ImaginiDestinatie GetById(int id)
@@ -25,7 +25,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<ImaginiDestinatie> GetByDestinationId(int destinationId)
         {
             using var context = new AppContext();
-            return context.ImaginiDestinatie
+            return context.ImaginiDestinatie.AsNoTracking()
                 .Where(i => i.Id_Destinatie == destinationId)
                 .OrderBy(i => i.Id_ImaginiDestinatie)
                 .ToList();

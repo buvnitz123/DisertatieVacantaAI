@@ -19,7 +19,7 @@ public partial class LoginPage : ContentPage
         // Validare input
         if (string.IsNullOrWhiteSpace(EmailEntry.Text) || string.IsNullOrWhiteSpace(PasswordEntry.Text))
         {
-            ShowError("Please enter both email and password.");
+            ShowError("Te rog introdu atât emailul cât și parola.");
             return;
         }
 
@@ -60,12 +60,12 @@ public partial class LoginPage : ContentPage
             }
             else
             {
-                ShowError("Invalid email or password. Please check your credentials.");
+                ShowError("Email sau parolă incorectă. Te rog verifică datele introduse.");
             }
         }
         catch (Exception ex)
         {
-            ShowError($"Login failed: {ex.Message}");
+            ShowError($"Autentificare eșuată: {ex.Message}");
         }
         finally
         {

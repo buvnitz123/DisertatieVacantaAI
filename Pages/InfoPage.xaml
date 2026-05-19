@@ -11,7 +11,7 @@
             <!-- Header -->
             <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
                 <Label Text="✈️" FontSize="48" HorizontalOptions="Center" />
-                <Label Text="Vacation Planner AI"
+                <Label Text="Planificator Vacanțe AI"
                        FontSize="24"
                        FontAttributes="Bold"
                        HorizontalOptions="Center"
@@ -36,9 +36,9 @@
                 <!-- Item 1 -->
                 <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
                        CornerRadius="12" Padding="16" HasShadow="False">
-                    <HorizontalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Text="🏠" FontSize="24" VerticalOptions="Center" />
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Pagina principală"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -47,15 +47,15 @@
                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Frame>
 
                 <!-- Item 2 -->
                 <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
                        CornerRadius="12" Padding="16" HasShadow="False">
-                    <HorizontalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Text="🤖" FontSize="24" VerticalOptions="Center" />
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Chat cu AI"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -64,15 +64,15 @@
                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Frame>
 
                 <!-- Item 3 -->
                 <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
                        CornerRadius="12" Padding="16" HasShadow="False">
-                    <HorizontalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Text="📋" FontSize="24" VerticalOptions="Center" />
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Planificări"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -81,15 +81,15 @@
                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Frame>
 
                 <!-- Item 4 -->
                 <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
                        CornerRadius="12" Padding="16" HasShadow="False">
-                    <HorizontalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Text="🔍" FontSize="24" VerticalOptions="Center" />
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Căutare"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -98,15 +98,15 @@
                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Frame>
 
                 <!-- Item 5 -->
                 <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
                        CornerRadius="12" Padding="16" HasShadow="False">
-                    <HorizontalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Text="❤️" FontSize="24" VerticalOptions="Center" />
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Favorite și recenzii"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -115,15 +115,15 @@
                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Frame>
 
                 <!-- Item 6 -->
                 <Frame BackgroundColor="{AppThemeBinding Light=#F8FCFF, Dark={StaticResource MediumGray}}"
                        CornerRadius="12" Padding="16" HasShadow="False">
-                    <HorizontalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Text="🌤️" FontSize="24" VerticalOptions="Center" />
-                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Notificări meteo"
                                    FontSize="15" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -132,7 +132,7 @@
                                    TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </Frame>
             </VerticalStackLayout>
 

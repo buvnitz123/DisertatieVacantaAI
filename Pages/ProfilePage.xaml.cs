@@ -63,9 +63,10 @@ public partial class ProfilePage : ContentPage
                         var baseUrl = "https://vacantaai.blob.core.windows.net/vacantaai";
                         path = $"{baseUrl}/{path}";
                     }
-                    // Cache busting to ensure latest image is fetched after updates
-                    var uri = new Uri(path + (path.Contains("?") ? "&" : "?") + "v=" + DateTime.UtcNow.Ticks);
-                    ProfileImage.Source = new UriImageSource { Uri = uri, CachingEnabled = true, CacheValidity = TimeSpan.FromHours(12) };
+                    // Use a stable cache key based on last modification date stored in preferences
+                    var cacheKey = Preferences.Get($"profile_photo_version_{_userId}", "1");
+                    var uri = new Uri(path + (path.Contains("?") ? "&" : "?") + "v=" + cacheKey);
+                    ProfileImage.Source = new UriImageSource { Uri = uri, CachingEnabled = true, CacheValidity = TimeSpan.FromDays(7) };
                     _hasCustomPhoto = true;
                     _currentPhotoUrl = path;
                 }
@@ -180,6 +181,8 @@ public partial class ProfilePage : ContentPage
             }
             _hasCustomPhoto = true;
             _currentPhotoUrl = $"https://vacantaai.blob.core.windows.net/vacantaai/{relativePath}";
+            // Invalidate profile photo cache
+            Preferences.Set($"profile_photo_version_{_userId}", DateTime.UtcNow.Ticks.ToString());
         }
         catch (Exception ex)
         {
@@ -227,6 +230,9 @@ public partial class ProfilePage : ContentPage
             // Update DB: set null
             user.PozaProfil = null;
             _repo.Update(user);
+
+            // Invalidate profile photo cache
+            Preferences.Set($"profile_photo_version_{_userId}", DateTime.UtcNow.Ticks.ToString());
 
             // UI: reset to default
             SetDefaultImage();

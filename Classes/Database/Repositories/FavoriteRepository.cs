@@ -13,7 +13,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<Favorite> GetAll()
         {
             using var context = new AppContext();
-            return context.Favorite.ToList();
+            return context.Favorite.AsNoTracking().ToList();
         }
 
         public Favorite GetById(int id)
@@ -53,7 +53,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             try
             {
                 using var context = new AppContext();
-                return context.Favorite.Any(f => 
+                return context.Favorite.AsNoTracking().Any(f => 
                     f.Id_Utilizator == userId && 
                     f.TipElement == tipElement && 
                     f.Id_Element == idElement);
@@ -145,7 +145,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             try
             {
                 using var context = new AppContext();
-                return context.Favorite
+                return context.Favorite.AsNoTracking()
                     .Where(f => f.Id_Utilizator == userId)
                     .ToList();
             }
@@ -164,7 +164,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
             try
             {
                 using var context = new AppContext();
-                return context.Favorite
+                return context.Favorite.AsNoTracking()
                     .Where(f => f.Id_Utilizator == userId && f.TipElement == tipElement)
                     .ToList();
             }

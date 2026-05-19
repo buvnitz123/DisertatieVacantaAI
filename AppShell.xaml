@@ -20,12 +20,12 @@
             <!-- Blue banner -->
             <Grid BackgroundColor="{StaticResource PrimaryBlue}" Padding="20,40" Grid.Row="0">
                 <VerticalStackLayout Spacing="3" VerticalOptions="Center">
-                    <Label Text="Vacation Planner AI"
+                    <Label Text="Planificator Vacanțe AI"
                            FontSize="20"
                            FontAttributes="Bold"
                            TextColor="White" />
                     <Label x:Name="UserNameLabel"
-                           Text="Welcome!"
+                           Text="Bine ai venit!"
                            FontSize="14"
                            TextColor="White"
                            Opacity="0.9" />
@@ -45,7 +45,7 @@
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
                     <Label Grid.Column="1"
-                           Text="Home"
+                           Text="Acasă"
                            FontSize="16"
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
@@ -76,7 +76,7 @@
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
                     <Label Grid.Column="1"
-                           Text="Settings"
+                           Text="Setări"
                            FontSize="16"
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource White}}" />
@@ -112,7 +112,7 @@
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
                     <Label Grid.Column="1"
-                           Text="Logout"
+                           Text="Deconectare"
                            FontSize="16"
                            VerticalOptions="Center"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
@@ -143,7 +143,7 @@
         Shell.FlyoutBehavior="Disabled" />
 
     <ShellContent
-        Title="Login"
+        Title="Autentificare"
         ContentTemplate="{DataTemplate pages:LoginPage}"
         Route="LoginPage"
         Shell.FlyoutItemIsVisible="False"
@@ -151,7 +151,7 @@
 
     <!-- Settings (hidden for navigation) -->
     <ShellContent
-        Title="Settings"
+        Title="Setări"
         ContentTemplate="{DataTemplate local:SettingsPage}"
         Route="SettingsPage"
         Shell.FlyoutItemIsVisible="False" />
@@ -166,8 +166,8 @@
     <TabBar>
         <ShellContent Title="Planificări" ContentTemplate="{DataTemplate local:SugestiiPage}" Route="SugestiiPage" Icon="notes.png" />
         <ShellContent Title="Chat" ContentTemplate="{DataTemplate local:ChatPage}" Route="ChatPage" Icon="chat.png" />
-        <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" Route="MainPage" Icon="home.png" />
-        <ShellContent Title="Search" ContentTemplate="{DataTemplate local:SearchPage}" Route="SearchPage" Icon="search.png" />
-        <ShellContent Title="Profile" ContentTemplate="{DataTemplate local:ProfilePage}" Route="ProfilePage" Icon="profile.png" />
+        <ShellContent Title="Acasă" ContentTemplate="{DataTemplate local:MainPage}" Route="MainPage" Icon="home.png" />
+        <ShellContent Title="Căutare" ContentTemplate="{DataTemplate local:SearchPage}" Route="SearchPage" Icon="search.png" />
+        <ShellContent Title="Profil" ContentTemplate="{DataTemplate local:ProfilePage}" Route="ProfilePage" Icon="profile.png" />
     </TabBar>
 </Shell>

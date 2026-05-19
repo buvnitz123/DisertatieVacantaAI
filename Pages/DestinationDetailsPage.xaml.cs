@@ -227,8 +227,8 @@ public partial class DestinationDetailsPage : ContentPage
             {
                 DestinationNameLabel.Text = _currentDestination.Denumire;
                 LocationLabel.Text = $"{_currentDestination.Oras}, {_currentDestination.Regiune}, {_currentDestination.Tara}";
-                AdultPriceLabel.Text = $"{_currentDestination.PretAdult:C}";
-                ChildPriceLabel.Text = $"{_currentDestination.PretMinor:C}";
+                AdultPriceLabel.Text = $"{_currentDestination.PretAdult:N0} lei";
+                ChildPriceLabel.Text = $"{_currentDestination.PretMinor:N0} lei";
 
                 // Update description
                 if (!string.IsNullOrWhiteSpace(_currentDestination.Descriere))

@@ -129,7 +129,7 @@
                                                        LineBreakMode="TailTruncation" />
 
                                                 <!-- Budget -->
-                                                <Label Text="{Binding Buget_Estimat, StringFormat='💰 {0:N0} €'}" 
+                                                <Label Text="{Binding Buget_Estimat, StringFormat='💰 {0:N0} lei'}"
                                                        FontSize="12" 
                                                        TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" 
                                                        FontAttributes="Bold"

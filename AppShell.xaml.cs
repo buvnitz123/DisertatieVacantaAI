@@ -31,7 +31,7 @@ public partial class AppShell : Shell
         {
             VersionLabel.Text = $"v{AppInfo.Current.VersionString}";
             var year = DateTime.UtcNow.Year;
-            CopyrightLabel.Text = $"© {year} Vacantion Planner AI";
+            CopyrightLabel.Text = $"© {year} Planificator Vacanțe AI";
         }
         catch { }
     }
@@ -57,7 +57,7 @@ public partial class AppShell : Shell
     private async void OnLogoutClicked(object sender, EventArgs e)
     {
         FlyoutIsPresented = false;
-        bool answer = await DisplayAlert("Logout", "Are you sure you want to logout?", "Yes", "No");
+        bool answer = await DisplayAlert("Deconectare", "Ești sigur că vrei să te deconectezi?", "Da", "Nu");
         if (answer)
         {
             await LogoutAsync();

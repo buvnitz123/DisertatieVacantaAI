@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDisertatieVacantaAI.Pages.SettingsPage"
-             Title="Settings"
+             Title="Setări"
              Shell.NavBarIsVisible="True"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource DarkGray}}">
     <ScrollView>
@@ -15,7 +15,7 @@
 
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                 <Label Text="🌙" FontSize="20" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="Dark Mode" VerticalOptions="Center"
+                <Label Grid.Column="1" Text="Mod Întunecat" VerticalOptions="Center"
                        TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
                 <Switch x:Name="ThemeSwitch" Grid.Column="2" Toggled="OnThemeToggled" />
             </Grid>
@@ -97,7 +97,7 @@
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />
                 </Grid>
                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
-                    <Label Text="Framework"
+                    <Label Text="Cadru de lucru"
                            TextColor="{AppThemeBinding Light={StaticResource DarkGray}, Dark={StaticResource LightGray}}" />
                     <Label Text=".NET 9 MAUI" Grid.Column="1"
                            TextColor="{AppThemeBinding Light={StaticResource MediumGray}, Dark={StaticResource LightGray}}" />

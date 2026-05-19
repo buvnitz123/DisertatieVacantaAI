@@ -94,10 +94,14 @@
                                     <!-- Favorite Heart - always visible -->
                                     <Label Text="{Binding IsFavorite, Converter={StaticResource FavoriteToHeartConverter}}"
                                            TextColor="{Binding IsFavorite, Converter={StaticResource FavoriteToColorConverter}}"
-                                           FontSize="16"
+                                           FontSize="18"
+                                           WidthRequest="36"
+                                           HeightRequest="36"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center"
                                            VerticalOptions="Start"
                                            HorizontalOptions="End"
-                                           Padding="8" />
+                                           Margin="4" />
                                     
                                     <!-- Text overlay -->
                                     <VerticalStackLayout VerticalOptions="End" Padding="15,10">

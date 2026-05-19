@@ -12,30 +12,26 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<DestinatieFacilitate> GetAll()
         {
             using var context = new AppContext();
-            return context.DestinatieFacilitate.ToList();
+            return context.DestinatieFacilitate.AsNoTracking().ToList();
         }
 
         public DestinatieFacilitate GetById(int id)
         {
-            // DestinatieFacilitate are cheie compusă, deci GetById nu este aplicabil direct
-            // Returnăm null pentru a indica că această operație nu este suportată
             return null;
         }
 
-        // Metodă nouă pentru căutare după facilitatea
         public IEnumerable<DestinatieFacilitate> GetByFacilityId(int facilityId)
         {
             using var context = new AppContext();
-            return context.DestinatieFacilitate
+            return context.DestinatieFacilitate.AsNoTracking()
                 .Where(df => df.Id_Facilitate == facilityId)
                 .ToList();
         }
 
-        // Metodă nouă pentru căutare după destinația
         public IEnumerable<DestinatieFacilitate> GetByDestinationId(int destinationId)
         {
             using var context = new AppContext();
-            return context.DestinatieFacilitate
+            return context.DestinatieFacilitate.AsNoTracking()
                 .Where(df => df.Id_Destinatie == destinationId)
                 .ToList();
         }

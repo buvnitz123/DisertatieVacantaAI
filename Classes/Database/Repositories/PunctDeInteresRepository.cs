@@ -12,19 +12,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Database.Repositories
         public IEnumerable<PunctDeInteres> GetAll()
         {
             using var context = new AppContext();
-            return context.PuncteDeInteres.ToList();
+            return context.PuncteDeInteres.AsNoTracking().ToList();
         }
 
         public PunctDeInteres GetById(int id)
         {
             using var context = new AppContext();
-            return context.PuncteDeInteres.Find(id);
+            return context.PuncteDeInteres.AsNoTracking().FirstOrDefault(p => p.Id_PunctDeInteres == id);
         }
 
         public IEnumerable<PunctDeInteres> GetByDestinationId(int destinationId)
         {
             using var context = new AppContext();
-            return context.PuncteDeInteres
+            return context.PuncteDeInteres.AsNoTracking()
                          .Where(p => p.Id_Destinatie == destinationId)
                          .ToList();
         }
