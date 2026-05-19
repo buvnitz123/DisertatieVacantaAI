@@ -509,10 +509,14 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             {
                 if (searchQueries == null || !searchQueries.Any()) return;
 
-                foreach (var query in searchQueries.Take(3)) // Max 3 queries
-                {
-                    var photos = PhotoAPIUtils.SearchPhotos(query, 2, 1); // 2 photos per query
+                // Apeluri Pexels în paralel pentru toate query-urile
+                var tasks = searchQueries.Take(3).Select(query => 
+                    PhotoAPIUtils.SearchPhotosAsync(query, 2, 1)).ToList();
 
+                var results = await Task.WhenAll(tasks);
+
+                foreach (var photos in results)
+                {
                     if (photos?.Photos != null)
                     {
                         foreach (var photo in photos.Photos.Take(2))
@@ -740,15 +744,18 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     var poiId = punctDeInteres.Id_PunctDeInteres;
                     System.Diagnostics.Debug.WriteLine($"POI created with ID: {poiId}");
 
-                    // Adaugă imagini pentru punctul de interes
+                    // Adaugă imagini pentru punctul de interes (în paralel)
                     if (poi.PhotoSearchQueries != null && poi.PhotoSearchQueries.Any())
                     {
-                        foreach (var query in poi.PhotoSearchQueries.Take(2))
+                        try
                         {
-                            try
-                            {
-                                var photos = PhotoAPIUtils.SearchPhotos(query, 1, 1);
+                            var photoTasks = poi.PhotoSearchQueries.Take(2).Select(query =>
+                                PhotoAPIUtils.SearchPhotosAsync(query, 1, 1)).ToList();
 
+                            var photoResults = await Task.WhenAll(photoTasks);
+
+                            foreach (var photos in photoResults)
+                            {
                                 if (photos?.Photos != null && photos.Photos.Any())
                                 {
                                     var photo = photos.Photos.First();
@@ -766,10 +773,10 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                                     }
                                 }
                             }
-                            catch (Exception photoEx)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Error adding photo for POI {poi.Denumire}: {photoEx.Message}");
-                            }
+                        }
+                        catch (Exception photoEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error adding photos for POI {poi.Denumire}: {photoEx.Message}");
                         }
                     }
                 }

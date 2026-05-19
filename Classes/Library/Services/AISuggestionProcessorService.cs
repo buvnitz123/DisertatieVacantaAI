@@ -269,10 +269,14 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
                 var imaginiRepo = new ImaginiDestinatieRepository();
 
-                foreach (var query in searchQueries.Take(3)) // Max 3 queries
-                {
-                    var photos = PhotoAPIUtils.SearchPhotos(query, 2, 1); // 2 photos per query
+                // Apeluri Pexels în paralel
+                var tasks = searchQueries.Take(3).Select(query =>
+                    PhotoAPIUtils.SearchPhotosAsync(query, 2, 1)).ToList();
 
+                var results = await Task.WhenAll(tasks);
+
+                foreach (var photos in results)
+                {
                     if (photos?.Photos != null)
                     {
                         foreach (var photo in photos.Photos.Take(2))
@@ -421,16 +425,19 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                     // Adaugă imagini pentru punctul de interes
                     if (poi.PhotoSearchQueries != null && poi.PhotoSearchQueries.Any())
                     {
-                        foreach (var query in poi.PhotoSearchQueries.Take(2))
+                        try
                         {
-                            try
-                            {
-                                var photos = PhotoAPIUtils.SearchPhotos(query, 1, 1);
+                            var photoTasks = poi.PhotoSearchQueries.Take(2).Select(query =>
+                                PhotoAPIUtils.SearchPhotosAsync(query, 1, 1)).ToList();
 
+                            var photoResults = await Task.WhenAll(photoTasks);
+
+                            foreach (var photos in photoResults)
+                            {
                                 if (photos?.Photos != null && photos.Photos.Any())
                                 {
-                                    var photo = photos.Photos.FirstOrDefault();
-                                    var imageUrl = photo?.Src?.Medium ?? photo?.Src?.Original;
+                                    var photo = photos.Photos.First();
+                                    var imageUrl = photo.Src?.Medium ?? photo.Src?.Original;
 
                                     if (!string.IsNullOrEmpty(imageUrl))
                                     {
@@ -445,10 +452,10 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                                     }
                                 }
                             }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Error processing photo for POI {poiId}: {ex.Message}");
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error processing photos for POI {poiId}: {ex.Message}");
                         }
                     }
                 }

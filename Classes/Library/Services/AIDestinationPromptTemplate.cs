@@ -63,8 +63,8 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
     ""oras"": ""Dubai"",
   ""regiune"": ""Orientul Mijlociu"",
     ""descriere"": ""Dubai este o destinație de lux..."",
-    ""pretAdult"": 2500.0,
-    ""pretMinor"": 1500.0,
+    ""pretAdult"": 12500.0,
+    ""pretMinor"": 7500.0,
     ""categorii"": [""Lux"", ""Modern""],
     ""facilitati"": [""Hotel 5 stele"", ""Transport privat""],
     ""puncteDeInteres"": [
