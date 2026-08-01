@@ -21,10 +21,9 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             _catRepo = new CategorieVacantaRepository();
             _catDestRepo = new CategorieVacanta_DestinatieRepository();
             _poiRepo = new PunctDeInteresRepository();
-            _userRepo = new UtilizatorRepository(); // NOU
+            _userRepo = new UtilizatorRepository();
         }
 
-        // 1. Calcularea Scorul per Entitate (ex: Destinatii)
         public Dictionary<int, int> GetEntityScores(int userId, TipEntitate tipEntitate)
         {
             var logs = _logRepo.GetAll().Where(l => l.Id_Utilizator == userId && l.TipEntitate == tipEntitate.ToString() && l.IdEntitate.HasValue).ToList();
@@ -39,7 +38,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
                 else if (log.TipActivitate == TipActivitate.Cautare.ToString()) points = 3;
                 else if (log.TipActivitate == TipActivitate.Vizitare.ToString()) points = 1;
 
-                // Time decay simplu: activitatea mai veche de o luna primeste jumatate de punctaj
                 if (log.DataInregistrare.HasValue && (DateTime.Now - log.DataInregistrare.Value).TotalDays > 30)
                 {
                     points = (int)Math.Max(1, points * 0.5);
@@ -54,7 +52,6 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
             return scores.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
         }
 
-        // 2. Extragerea unui text pentru Prompt-ul AI
         public string GetUserProfileSummaryText(int userId)
         {
             StringBuilder sb = new StringBuilder();
@@ -97,7 +94,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         {
             var userScores = GetEntityScores(userId, TipEntitate.Destinatie);
             var allDestinations = _destinatieRepo.GetAll().ToList();
-            
+
             // Daca nu are suficiente interacțiuni, dam random
             if (!userScores.Any())
             {
@@ -106,7 +103,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
             var recommendedIds = userScores.Keys.Take(limit).ToList();
             var result = allDestinations.Where(d => recommendedIds.Contains(d.Id_Destinatie)).ToList();
-            
+
             // Putem extinde mai tarziu recomandarea pe baza Categoriilor daca gasim putine.
             // Daca rezultatul este sub limit, completam cu random:
             if (result.Count < limit)
@@ -122,7 +119,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         {
             var userScores = GetEntityScores(userId, TipEntitate.CategorieVacanta);
             var allCategories = _catRepo.GetAll().ToList();
-            
+
             if (!userScores.Any())
             {
                 return allCategories.OrderBy(x => Guid.NewGuid()).Take(limit).ToList();
@@ -130,7 +127,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
             var recommendedIds = userScores.Keys.Take(limit).ToList();
             var result = allCategories.Where(c => recommendedIds.Contains(c.Id_CategorieVacanta)).ToList();
-            
+
             if (result.Count < limit)
             {
                 var extraseId = result.Select(r => r.Id_CategorieVacanta).ToList();
@@ -144,7 +141,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
         {
             var userScores = GetEntityScores(userId, TipEntitate.PunctDeInteres);
             var allPois = _poiRepo.GetAll().ToList();
-            
+
             if (!userScores.Any())
             {
                 return allPois.OrderBy(x => Guid.NewGuid()).Take(limit).ToList();
@@ -152,7 +149,7 @@ namespace MauiAppDisertatieVacantaAI.Classes.Library.Services
 
             var recommendedIds = userScores.Keys.Take(limit).ToList();
             var result = allPois.Where(p => recommendedIds.Contains(p.Id_PunctDeInteres)).ToList();
-            
+
             if (result.Count < limit)
             {
                 var extraseId = result.Select(r => r.Id_PunctDeInteres).ToList();
